@@ -6,6 +6,7 @@
 */
 
 export type State = {
+    __type: 'state'
     alias: string
     _initial: boolean
     _final: boolean
@@ -22,6 +23,7 @@ export type StateSchema = {
 
 export class StateBuilder {
     
+    private __type = 'state';
     private _initial = false;
     private _final = false;
     private _states: StateTree = {};

@@ -5,9 +5,10 @@
  * 
 */
 
-import { ResourceModel } from "../../model"
+import { ResourceModel } from "../../data/model"
 
 type ViewProp = {
+    __type: 'view_prop'
     source: 'model'|'compose'|'graph'|'computed'
     amount: 'one'|'many'
     fn: (...args: any) => any
@@ -23,6 +24,7 @@ export class ViewPropFactory<
     
     model(prop: keyof Model): ViewProp {
         return {
+            __type: 'view_prop',
             source: 'model',
             amount: 'one',
             fn: (obj: Model) => obj[prop]
@@ -31,6 +33,7 @@ export class ViewPropFactory<
 
     compose(compose: string): ViewProp {
         return {
+            __type: 'view_prop',
             source: 'compose',
             amount: 'one',
             fn: () => {}
@@ -39,6 +42,7 @@ export class ViewPropFactory<
 
     child(name: string): ViewProp {
         return {
+            __type: 'view_prop',
             source: 'graph',
             amount: 'one',
             fn: () => {}
@@ -47,6 +51,7 @@ export class ViewPropFactory<
 
     children(name: string): ViewProp {
         return {
+            __type: 'view_prop',
             source: 'graph',
             amount: 'many',
             fn: () => {}

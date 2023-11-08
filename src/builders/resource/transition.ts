@@ -6,10 +6,25 @@
  * 
  */
 
-import { ResourceModel } from "../../model";
+import { ResourceModel } from "../../data/model";
 import { ResourceCondition } from "../job/condition";
-import { EventSchema } from "../event";
+import { $Event, EventBuilder, EventSchema } from "../event";
 import { ResourceMethod } from "../method";
+import { EventParserSchema } from "../parser/event_parser";
+
+export type TransitionSchema<
+    Event extends EventParserSchema
+> = {
+    _name: string
+    _event: Event
+    _from: string
+    _targets: {
+        state: string
+        conditions: ResourceCondition<any, any>[]
+        before: ResourceMethod<any, any, void>
+        after: ResourceMethod<any, any, void>
+    }[]
+}
 
 class TransitionTargetBuilder<
     Model extends ResourceModel,
@@ -48,25 +63,27 @@ class TransitionTargetBuilder<
         Method extends ResourceMethod<Model, Event, void>
     >(
         this: TransitionTargetBuilder<Model,Event,never,any>, // Guarantee single .run
-        method: Method
+        before: Method
     ) {
-        (this.before as any) = method;
+        (this.before as any) = before;
         return this as any as TransitionTargetBuilder<Model,Event,Method,After>;
     }
 
-    thenRun(
+    thenRun<
+        Method extends ResourceMethod<Model, Event, void>
+    >(
         this: TransitionTargetBuilder<Model,Event,any,never>, // Guarantee single .thenRun
-        method: ResourceMethod<Model, Event, void>
+        after: Method
     ) {
-        (this.after as any) = method;
-        return this as any as TransitionTargetBuilder<Model,Event,Before,typeof method>;
+        (this.after as any) = after;
+        return this as any as TransitionTargetBuilder<Model,Event,Before,Method>;
     }
 
 }
 
-class TransitionBuilder<
+export class TransitionBuilder<
+    Name extends string,
     Model extends ResourceModel,
-    Events extends EventSchema,
     StatesUnion extends string,
     Event = unknown,
     Extra = unknown,
@@ -74,29 +91,30 @@ class TransitionBuilder<
     To = never
 > {
 
-    private _eventName!: string
+    private _name!: string
     private _event!: Event
     private _from!: From
     private _targets: TransitionTargetBuilder<Model, Event & Extra, any, any>[] = []
-
-    constructor(
-        private events: Events
-    ) {}
 
     /*
         On
     */
 
     on<
-        E extends keyof Events
-    >(event: E) {
-        (this._eventName as any) = event;
-        (this._event as any) = this.events[event];
+        E extends string,
+        Schema extends EventParserSchema
+    >(
+        name: E,
+        $: $Event<Schema>
+    ) {
+        this._name = name;
+        const builder = new EventBuilder(name);
+        (this._event as any) = $(builder);
         return this as any as TransitionBuilder<
+            E,
             Model,
-            Events,
             StatesUnion,
-            Events[E], // on.Event
+            Schema, // on.Event
             Extra,
             From
         >
@@ -111,8 +129,8 @@ class TransitionBuilder<
     >(state: S) {
         (this._from as any) = state;
         return this as any as TransitionBuilder<
+            Name,
             Model,
-            Events,
             StatesUnion,
             Event,
             Extra,
@@ -125,10 +143,12 @@ class TransitionBuilder<
     */
 
     with<
-        Ext extends { [_: string]: any }
+        Ext extends { [_: string]: any },
+        g_Event extends EventParserSchema,
+        g_From extends StatesUnion
     >(
         this: TransitionBuilder<
-            Model, Events, StatesUnion, Events[keyof Events], Extra, StatesUnion
+            Name, Model, StatesUnion, g_Event, Extra, g_From
         >, // Guarantee preceding on/from
         $: ResourceMethod<Model, Event & Extra, Ext>
     ) {
@@ -136,8 +156,8 @@ class TransitionBuilder<
         Object.assign(this._event as any, extra);
 
         return this as any as TransitionBuilder<
+            Name,
             Model,
-            Events,
             StatesUnion,
             Event,
             Extra & { [K in keyof Ext]: Ext[K] }, // with.Extra
@@ -146,10 +166,12 @@ class TransitionBuilder<
     }
 
     andWith<
-        Ext extends { [_: string]: any }
+        Ext extends { [_: string]: any },
+        g_Event extends EventParserSchema,
+        g_From extends StatesUnion
     >(
         this: TransitionBuilder<
-            Model, Events, StatesUnion, Events[keyof Events], Extra, StatesUnion
+            Name, Model, StatesUnion, g_Event, Extra, g_From
         >, // Guarantee preceding on/from
         $: ResourceMethod<Model, Event & Extra, Ext>
     ) {
@@ -157,8 +179,8 @@ class TransitionBuilder<
         Object.assign(this._event as any, extra);
 
         return this as any as TransitionBuilder<
+            Name,
             Model,
-            Events,
             StatesUnion,
             Event,
             Extra & { [K in keyof Ext]: Ext[K] }, // with.Extra
@@ -173,10 +195,12 @@ class TransitionBuilder<
     to<
         Before extends ResourceMethod<Model, Event & Extra, void>,
         After extends ResourceMethod<Model, Event & Extra, void>,
-        S extends Exclude<StatesUnion, From>
+        S extends Exclude<StatesUnion, From>,
+        g_Event extends EventParserSchema,
+        g_From extends StatesUnion
     >(
         this: TransitionBuilder<
-            Model, Events, StatesUnion, Events[keyof Events], Extra, StatesUnion
+            Name, Model, StatesUnion, g_Event, Extra, g_From
         >, // Guarantee preceding on/from
         state: S,
         $?: $TransitionTarget<Model, Event, Extra, Before, After>
@@ -187,17 +211,19 @@ class TransitionBuilder<
             (this._targets as any).push(target);
         }
         return this as any as TransitionBuilder<
-            Model, Events, StatesUnion, Events[keyof Events], Extra, From & StatesUnion, To | S
+            Name, Model, StatesUnion, EventParserSchema, Extra, From & StatesUnion, To | S
         >;
     }
 
     orTo<
         Before extends ResourceMethod<Model, Event & Extra, void>,
         After extends ResourceMethod<Model, Event & Extra, void>,
-        S extends Exclude<StatesUnion, From>
+        S extends Exclude<StatesUnion, From>,
+        g_Event extends EventParserSchema,
+        g_From extends StatesUnion
     >(
         this: TransitionBuilder<
-            Model, Events, StatesUnion, Events[keyof Events], Extra, StatesUnion
+            Name, Model, StatesUnion, g_Event, Extra, g_From
         >, // Guarantee preceding on/from
         state: S,
         $?: $TransitionTarget<Model, Event, Extra, Before, After>
@@ -208,7 +234,7 @@ class TransitionBuilder<
             (this._targets as any).push(target);
         }
         return this as any as TransitionBuilder<
-            Model, Events, StatesUnion, Events[keyof Events], Extra, From & StatesUnion, To | S
+            Name, Model, StatesUnion, EventParserSchema, Extra, From & StatesUnion, To | S
         >;
     }
 
@@ -224,10 +250,10 @@ export type $TransitionTarget<
 > = ($: TransitionTargetBuilder<Model, E, never, never>) => TransitionTargetBuilder<Model, E, Before, After>
 
 export type $Transition<
+    Name extends string,
     Model extends ResourceModel,
-    Events extends EventSchema,
     StatesUnion extends string,
     Event,
     Extra,
     From
-> = ($: TransitionBuilder<Model, Events, StatesUnion>) => TransitionBuilder<Model, Events, StatesUnion, Event, Extra, From>
+> = ($: TransitionBuilder<Name, Model, StatesUnion>) => TransitionBuilder<Name, Model, StatesUnion, Event, Extra, From>

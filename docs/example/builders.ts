@@ -1,33 +1,32 @@
 import { ControllerBuilder } from "../../src/builders/controller"
+import { ResourceBuilder } from "../../src/builders/resource/resource"
+import { DataSource } from "../../src/data/data_source"
 import { NesoiEngine } from "../../src/engine"
 
-type AliseoClient = {
+const Nesoi = new NesoiEngine<{
     user: {
         id: number
         name: string
     }
-}
-
-const Nesoi = new NesoiEngine<AliseoClient>()
+}>()
 
 class DuelModel {
     id!: number
     josefina!: 'sword'|'saber'
 }
 
-const Duel = Nesoi.resource('duel', DuelModel)
+class DuelSource extends DataSource<DuelModel> {
+    async get() {
+        return {} as DuelModel
+    }
+    async put(model: DuelModel) {
+        
+    }
+}
+
+const Duel = Nesoi.resource('duel', DuelSource)
 
     .alias('Duelo')
-
-    .event('wow', $ => $
-        .schema($ => ({
-            opa: {
-                aka: $('sdf').date
-            }
-        }))
-        .alias('')
-        .allowFrom('')
-    )
 
     .view('asd', $ => ({
         koko: $.model('josefina'),
@@ -44,7 +43,15 @@ const Duel = Nesoi.resource('duel', DuelModel)
     }))
 
     .transition($ => $
-        .on('wow')
+        .on('wow', $ => $
+            .schema($ => ({
+                opa: {
+                    aka: $('sdf').date
+                }
+            }))
+            .alias('')
+            .allowFrom('')
+        )
         .from('ongoing')
         .with(({ event }) => ({
             kaka: event.opa.aka.alias
@@ -68,15 +75,17 @@ const Duel = Nesoi.resource('duel', DuelModel)
                 
             })
             .thenRun(({obj, event}) => {    
-                
+
             })
         )
         .orTo('requested')
     )
 
-type D = typeof Duel['_views']
+    .transition($ => $)
 
-const job = Nesoi.job('fight', $ => $
+type D = typeof Duel['_events']
+
+const DuelJob = Nesoi.job('fight', $ => $
     .alias('LETSFIGHT!')    
     .schema($ => ({
         bacteria: $('Bactéria').float
@@ -108,34 +117,6 @@ const job = Nesoi.job('fight', $ => $
         event.apo
     })
 
-//
-
-const MailJob = Nesoi.job('MailJob', $ => 
-    $.schema($ => ({
-        event_id: $('ID do Evento').id(),
-        value: $('Valor').float
-    }))
-    .alias('Enviar E-mail')
-)
-    .with(({ event }) => ({
-        oi : 3
-    }))
-    .andWith(({ event }) => ({
-        tchau : 3
-    }))
-    
-    .given({
-        that: ({event}) => event.oi === 3,
-        else: () =>'Oi deveria ser 3'
-    })
-
-    .run(({event}) => {
-        
-    })
-
-
-//
-
 const _controller = new ControllerBuilder()
     .auth('Something')
 
@@ -146,6 +127,6 @@ const _controller = new ControllerBuilder()
             someParam: $.bodyParam('joca.boboca'),
             someHeader: $.header('auth')
         }))
-        .toJob(MailJob)
+        .toJob(DuelJob)
         .toResource(Duel, 'wow')
     )

@@ -2,7 +2,8 @@ import { $Event } from "./builders/event"
 import { JobBuilder } from "./builders/job/job"
 import { ResourceBuilder } from "./builders/resource/resource"
 import { EventParserSchema } from "./builders/parser/event_parser"
-import { ResourceModel } from "./model"
+import { ResourceModel } from "./data/model"
+import { DataSource } from "./data/data_source"
 
 type Client = {
     user: {
@@ -19,9 +20,9 @@ export class NesoiEngine<
         Model extends ResourceModel
     >(
         name: string,
-        model: new (...args: any) => Model
+        dataSourceClass: new (...args: any) => DataSource<Model>
     ) {
-        return new ResourceBuilder(name, model);
+        return new ResourceBuilder(name, dataSourceClass);
     }
 
     job<

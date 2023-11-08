@@ -8,6 +8,7 @@
 type EventParserRule = (...args: any) => boolean
 
 export type EventParserProp<T> = {
+    __type: 'event_prop'
     alias: string
     required: boolean
     default?: T
@@ -34,6 +35,7 @@ export type EventParserSchemaFromTree<
 
 class EventParserPropBuilder<T> {
 
+    private __type = 'event_prop';
     private required = true
     private default?: T = undefined
 

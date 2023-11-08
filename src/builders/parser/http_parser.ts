@@ -8,6 +8,7 @@
 type HttpParserRule = (...args: any) => boolean
 
 export type HttpParserProp<T> = {
+    __type: 'http_prop'
     origin: 'body'|'headers'
     path?: string
     default?: T
@@ -33,6 +34,7 @@ export type HttpParserSchemaFromTree<
 
 class HttpParserPropBuilder<T> {
 
+    private __type = 'http_prop'
     private _default?: T = undefined
 
     constructor(
