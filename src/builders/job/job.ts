@@ -5,7 +5,7 @@
  * 
  */
 
-import { $Event, EventBuilder } from "../event";
+import { $Event, EventParserBuilder } from "../event";
 import { JobMethod } from "../method";
 import { EventParserSchema } from "../parser/event_parser";
 import { JobCondition } from "./condition";
@@ -26,7 +26,7 @@ export class JobBuilder<
         name: string,
         $: $Event<Event>
     ) {
-        const builder = new EventBuilder(name);
+        const builder = new EventParserBuilder(name);
         (this._event as any) = $(builder);
     }
 

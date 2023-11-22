@@ -5,22 +5,30 @@
  * 
 */
 
-type EventParserRule = (...args: any) => boolean
+import { NesoiError } from "../../error"
+
+type EventParseMethod<T> = (prop: EventParserProp<T>, value: any) => T | Promise<T>
+
+export type EventParserRule<T> = {
+    cond: (value: T) => boolean | Promise<boolean>,
+    error: (prop: EventParserProp<T>) => string
+}
 
 export type EventParserProp<T> = {
-    __type: 'event_prop'
+    __type: 'event.prop'
     alias: string
     required: boolean
     default?: T
-    rules: EventParserRule[]
-}
-
-export type EventParserTree = {
-    [_: string]: EventParserPropBuilder<any> | EventParserTree
+    method: EventParseMethod<T>
+    rules: EventParserRule<T>[]
 }
 
 export type EventParserSchema = {
     [_: string]: EventParserProp<any> | EventParserSchema
+}
+
+export type EventParserTree = {
+    [_: string]: EventParserPropBuilder<any> | EventParserTree
 }
 
 export type EventParserSchemaFromTree<
@@ -33,24 +41,35 @@ export type EventParserSchemaFromTree<
             : never
 }
 
-class EventParserPropBuilder<T> {
+export type EventTypeFromSchema<
+    Tree extends EventParserSchema
+> = {
+    [K in keyof Tree]: Tree[K] extends EventParserProp<infer X>
+        ? X
+        : Tree[K] extends EventParserSchema
+            ? EventTypeFromSchema<Tree[K]>
+            : never
+}
 
-    private __type = 'event_prop';
+export class EventParserPropBuilder<T> {
+
+    private __type = 'event.prop';
     private required = true
     private default?: T = undefined
-
+    private rules: EventParserRule<T>[] = []
+    
     constructor(
         private alias: string,
-        private rules: EventParserRule[]
+        private method: EventParseMethod<T>
     ) {}
 
     optional(defaultValue?: T) {
         this.required = false;
         this.default = defaultValue;
-        return this;
+        return this as any as EventParserPropBuilder<T|undefined>;
     }
 
-    rule(rule: EventParserRule) {
+    rule(rule: EventParserRule<T>) {
         this.rules.push(rule);
         return this;
     }
@@ -62,47 +81,102 @@ export function EventParserPropFactory(
 ) {
     return {
 
-        boolean: new EventParserPropBuilder(alias, [
-            () => true
-        ]),
+        boolean: new EventParserPropBuilder<boolean>(alias,
+            (prop, value) => {
+                if (value === 'true') { return true; }
+                if (value === 'false') { return false; }
+                if (typeof value === 'boolean') { return value }
+                throw NesoiError.Event.Parse(prop, 'a boolean')
+            }),
     
-        date: new EventParserPropBuilder(alias, [
-            () => true
-        ]),
+        date: new EventParserPropBuilder<string>(alias,
+            (prop, value) => {
+                // TODO
+                if (typeof value === 'string') {
+                    return value
+                }
+                throw NesoiError.Event.Parse(prop, 'a ISO date')
+            }),
         
-        datetime: new EventParserPropBuilder(alias, [
-            () => true
-        ]),
+        datetime: new EventParserPropBuilder<string>(alias,
+            (prop, value) => {
+                // TODO
+                if (typeof value === 'string') {
+                    return value
+                }
+                throw NesoiError.Event.Parse(prop, 'a ISO datetime')
+            }),
     
-        enum() {
-            return new EventParserPropBuilder(alias, [
-                () => true
-            ])
+        enum<O extends string>(options: O[]) {
+            return new EventParserPropBuilder<string>(alias,
+                (prop, value) => {
+                    if (
+                        typeof value === 'string' &&
+                        options.includes(value as any)
+                    ) {
+                        return value
+                    }
+                    throw NesoiError.Event.Parse(prop, `a valid option. Options: ${options}`)
+                })
         },
     
         file() {
-            return new EventParserPropBuilder(alias, [
-                () => true
-            ])
+            return new EventParserPropBuilder(alias,
+                (prop, value) => {
+                    // TODO
+                    if (typeof value === 'string') {
+                        return value
+                    }
+                    throw NesoiError.Event.Parse(prop, 'a file')
+                })
         },
         
-        float: new EventParserPropBuilder(alias, [
-            () => true
-        ]),
+        float: new EventParserPropBuilder<number>(alias,
+            (prop, value) => {
+                if (typeof value === 'string') {
+                    const val = parseFloat(value);
+                    if (!Number.isNaN(val)) {
+                        return val
+                    }
+                }
+                else if (typeof value === 'number') {
+                    return value
+                }
+                throw NesoiError.Event.Parse(prop, 'a float number')
+            }),
     
         id() {
-            return new EventParserPropBuilder(alias, [
-                () => true
-            ])
+            return new EventParserPropBuilder<number|string>(alias,
+                // TODO
+                (prop, value) => {
+                    if (typeof value === 'string') {
+                        return value
+                    }
+                    throw NesoiError.Event.Parse(prop, 'a ISO date')
+                })
         },
     
-        int: new EventParserPropBuilder(alias, [
-            () => true
-        ]),
+        int: new EventParserPropBuilder<number>(alias,
+            (prop, value) => {
+                if (typeof value === 'string') {
+                    const val = parseInt(value);
+                    if (!Number.isNaN(val)) {
+                        return val
+                    }
+                }
+                else if (typeof value === 'number') {
+                    return value
+                }
+                throw NesoiError.Event.Parse(prop, 'a integer number')
+            }),
     
-        string: new EventParserPropBuilder(alias, [
-            () => true
-        ])
+        string: new EventParserPropBuilder<string>(alias,
+            (prop, value) => {
+                if (typeof value === 'string') {
+                    return value
+                }
+                throw NesoiError.Event.Parse(prop, 'a string')
+            }),
 
     }
 

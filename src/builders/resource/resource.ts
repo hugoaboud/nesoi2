@@ -6,7 +6,7 @@
  */
 
 import { ResourceModel } from "../../data/model"
-import { $Event, EventBuilder, EventSchema } from "../event"
+import { $Event, EventParserBuilder } from "../event"
 import { $States, StateFactory, StateTree, State, StateSchema } from "./states"
 import { $Transition, TransitionBuilder } from "./transition"
 import { EventParserSchema } from "../parser/event_parser"
@@ -17,7 +17,7 @@ import { DataSource } from "../../data/data_source"
 
 export type ResourceSchema<
     Model extends ResourceModel,
-    Events extends EventSchema
+    Events extends EventParserSchema
 > = {
     name: string,
     dataSourceClass: new (...args: any) => DataSource<Model>,
@@ -59,7 +59,7 @@ export class ResourceBuilder<
         name: K,
         $: $Event<Schema>
     ) {
-        const builder = new EventBuilder(name);
+        const builder = new EventParserBuilder(name);
         (this._events as any)[name] = $(builder);
         
         return this as any as ResourceBuilder<
@@ -113,11 +113,11 @@ export class ResourceBuilder<
         From
     >(
         $: $Transition<
-            never,
+            any,
             Model,
             StatesUnion extends string ? StatesUnion : never,
             Events,
-            never,
+            any,
             Extra,
             From
         >
@@ -139,6 +139,6 @@ export class ResourceBuilder<
 export type ResourceBuilderToSchema<Builder> = ResourceSchema<
     Builder extends ResourceBuilder<infer X, any> ? X : never,
     Builder extends ResourceBuilder<any, infer X>
-        ? X extends EventSchema ? X : never
+        ? X extends EventParserSchema ? X : never
         : never
 >

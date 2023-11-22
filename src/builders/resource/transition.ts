@@ -8,7 +8,6 @@
 
 import { ResourceModel } from "../../data/model";
 import { ResourceCondition } from "../job/condition";
-import { $Event, EventBuilder, EventSchema } from "../event";
 import { ResourceMethod } from "../method";
 import { EventParserSchema } from "../parser/event_parser";
 
@@ -89,12 +88,12 @@ export class TransitionBuilder<
     Event = unknown,
     Extra = unknown,
     From = unknown,
-    To = never
+    To = unknown
 > {
 
     private _event!: string
     private _from!: From
-    private _targets: TransitionTargetBuilder<Model, Event & Extra, any, any>[] = []
+    private _targets: TransitionTargetBuilder<any, any, any, any>[] = []
 
     /*
         On
@@ -111,7 +110,7 @@ export class TransitionBuilder<
             Model,
             StatesUnion,
             Events,
-            Event,
+            Events[E],
             Extra,
             From
         >
@@ -122,7 +121,7 @@ export class TransitionBuilder<
     */
 
     from<
-        S extends (Name extends 'create' ? 'void' : StatesUnion)
+        S extends (Name extends 'create' ? 'void' : Exclude<StatesUnion,'void'>)
     >(state: S | S[]) {
         (this._from as any) = state;
         return this as any as TransitionBuilder<
@@ -195,12 +194,12 @@ export class TransitionBuilder<
     to<
         Before extends ResourceMethod<Model, Event & Extra, void>,
         After extends ResourceMethod<Model, Event & Extra, void>,
-        S extends Exclude<StatesUnion, From> | (From extends 'void' ? never : '.'),
+        S extends Exclude<StatesUnion, From|'void'> | (From extends 'void' ? never : '.'),
         g_Event extends EventParserSchema,
         g_From extends StatesUnion
     >(
         this: TransitionBuilder<
-            Name, Model, StatesUnion, g_Event, Event, Extra, g_From
+            Name, Model, StatesUnion, Events, g_Event, Extra, g_From
         >, // Guarantee preceding on/from
         state: S,
         $?: $TransitionTarget<Model, Event, Extra, Before, After>
@@ -211,14 +210,14 @@ export class TransitionBuilder<
             (this._targets as any).push(target);
         }
         return this as any as TransitionBuilder<
-            Name, Model, StatesUnion, Events, Event, Extra, From & StatesUnion, To | S
+            Name, Model, StatesUnion, Events, Event, Extra, From, To | S
         >;
     }
 
     orTo<
         Before extends ResourceMethod<Model, Event & Extra, void>,
         After extends ResourceMethod<Model, Event & Extra, void>,
-        S extends Exclude<StatesUnion, From>,
+        S extends Exclude<StatesUnion, From|'void'> | (From extends 'void' ? never : '.'),
         g_Event extends EventParserSchema,
         g_From extends StatesUnion
     >(
@@ -257,4 +256,4 @@ export type $Transition<
     Event,
     Extra,
     From
-> = ($: TransitionBuilder<Name, Model, StatesUnion, Events, Event>) => TransitionBuilder<Name, Model, StatesUnion, Events, Event, Extra, From>
+> = ($: TransitionBuilder<never, Model, StatesUnion, Events, Event>) => TransitionBuilder<Name, Model, StatesUnion, Events, Event, Extra, From>

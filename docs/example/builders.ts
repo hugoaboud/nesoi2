@@ -1,5 +1,4 @@
 import { ControllerBuilder } from "../../src/builders/controller"
-import { ResourceBuilder } from "../../src/builders/resource/resource"
 import { DataSource } from "../../src/data/data_source"
 import { NesoiEngine } from "../../src/engine"
 
@@ -76,26 +75,26 @@ const Duel = Nesoi.resource('duel', DuelSource)
     )
 
     .transition($ => $
-        .on('wow')
-        .from('ongoing')
+        .on('wow2')
+        .from('requested')
         .with(({ event }) => ({
-            // kaka: event.opa.aka
+            kaka: event.opopa
         }))
         .andWith(({ event }) => ({
-            boboca: event
+            boboca: event.kaka
         }))
         .andWith(({ event }) => ({
-            bobjoca: event
+            bobjoca: event.boboca
         }))
-        .to('requested', $ => $
+        .to('ongoing', $ => $
             .given({
                 that: ({obj}) => obj.id === 4,
                 else: 'Id deve ser igual a 4'
             })
-            // .andGiven({
-            //     that: ({event}) => event.kaka === 'lala',
-            //     else: 'Kaka deve ser igual a lala'
-            // })
+            .andGiven({
+                that: ({event}) => event.opopa as any === 'lala',
+                else: 'Kaka deve ser igual a lala'
+            })
             .run(({obj, event}) => {
                 
             })
@@ -103,7 +102,7 @@ const Duel = Nesoi.resource('duel', DuelSource)
                 
             })
         )
-        .orTo('requested')
+        .orTo('.')
     )
 
 type D = typeof Duel['_events']
