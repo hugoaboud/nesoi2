@@ -8,7 +8,7 @@ export class Tree {
 
     static find< P extends any >(
         obj: Record<string, P>,
-        fn: (key: string, value: P) => boolean,
+        fn: (path: string, value: P) => boolean,
         _prefix?: string
     ): TreeNode|undefined {
         for (let key in obj) {
@@ -33,7 +33,7 @@ export class Tree {
 
     static findAll< P extends any >(
         obj: Record<string, P>,
-        fn: (key: string, value: P) => boolean,
+        fn: (path: string, value: P) => boolean,
         _prefix?: string
     ) {
         const nodes: TreeNode[] = []

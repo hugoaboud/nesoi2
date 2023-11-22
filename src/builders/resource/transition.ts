@@ -85,14 +85,14 @@ export class TransitionBuilder<
     Name extends string,
     Model extends ResourceModel,
     StatesUnion extends string,
+    Events extends EventParserSchema,
     Event = unknown,
     Extra = unknown,
     From = unknown,
     To = never
 > {
 
-    private _name!: string
-    private _event!: Event
+    private _event!: string
     private _from!: From
     private _targets: TransitionTargetBuilder<Model, Event & Extra, any, any>[] = []
 
@@ -101,20 +101,17 @@ export class TransitionBuilder<
     */
 
     on<
-        E extends string,
-        Schema extends EventParserSchema
+        E extends keyof Events
     >(
-        name: E,
-        $: $Event<Schema>
+        event: E
     ) {
-        this._name = name;
-        const builder = new EventBuilder(name);
-        (this._event as any) = $(builder);
+        this._event = event as string;
         return this as any as TransitionBuilder<
-            E,
+            E & string,
             Model,
             StatesUnion,
-            Schema, // on.Event
+            Events,
+            Event,
             Extra,
             From
         >
@@ -125,13 +122,14 @@ export class TransitionBuilder<
     */
 
     from<
-        S extends StatesUnion
-    >(state: S) {
+        S extends (Name extends 'create' ? 'void' : StatesUnion)
+    >(state: S | S[]) {
         (this._from as any) = state;
         return this as any as TransitionBuilder<
             Name,
             Model,
             StatesUnion,
+            Events,
             Event,
             Extra,
             S   // from.State
@@ -148,7 +146,7 @@ export class TransitionBuilder<
         g_From extends StatesUnion
     >(
         this: TransitionBuilder<
-            Name, Model, StatesUnion, g_Event, Extra, g_From
+            Name, Model, StatesUnion, Events, g_Event, Extra, g_From
         >, // Guarantee preceding on/from
         $: ResourceMethod<Model, Event & Extra, Ext>
     ) {
@@ -159,7 +157,8 @@ export class TransitionBuilder<
             Name,
             Model,
             StatesUnion,
-            Event,
+            Events,
+            g_Event,
             Extra & { [K in keyof Ext]: Ext[K] }, // with.Extra
             From
         >
@@ -171,7 +170,7 @@ export class TransitionBuilder<
         g_From extends StatesUnion
     >(
         this: TransitionBuilder<
-            Name, Model, StatesUnion, g_Event, Extra, g_From
+            Name, Model, StatesUnion, Events, g_Event, Extra, g_From
         >, // Guarantee preceding on/from
         $: ResourceMethod<Model, Event & Extra, Ext>
     ) {
@@ -182,7 +181,8 @@ export class TransitionBuilder<
             Name,
             Model,
             StatesUnion,
-            Event,
+            Events,
+            g_Event,
             Extra & { [K in keyof Ext]: Ext[K] }, // with.Extra
             From
         >
@@ -195,12 +195,12 @@ export class TransitionBuilder<
     to<
         Before extends ResourceMethod<Model, Event & Extra, void>,
         After extends ResourceMethod<Model, Event & Extra, void>,
-        S extends Exclude<StatesUnion, From>,
+        S extends Exclude<StatesUnion, From> | (From extends 'void' ? never : '.'),
         g_Event extends EventParserSchema,
         g_From extends StatesUnion
     >(
         this: TransitionBuilder<
-            Name, Model, StatesUnion, g_Event, Extra, g_From
+            Name, Model, StatesUnion, g_Event, Event, Extra, g_From
         >, // Guarantee preceding on/from
         state: S,
         $?: $TransitionTarget<Model, Event, Extra, Before, After>
@@ -211,7 +211,7 @@ export class TransitionBuilder<
             (this._targets as any).push(target);
         }
         return this as any as TransitionBuilder<
-            Name, Model, StatesUnion, EventParserSchema, Extra, From & StatesUnion, To | S
+            Name, Model, StatesUnion, Events, Event, Extra, From & StatesUnion, To | S
         >;
     }
 
@@ -223,7 +223,7 @@ export class TransitionBuilder<
         g_From extends StatesUnion
     >(
         this: TransitionBuilder<
-            Name, Model, StatesUnion, g_Event, Extra, g_From
+            Name, Model, StatesUnion, g_Event, Event, Extra, g_From
         >, // Guarantee preceding on/from
         state: S,
         $?: $TransitionTarget<Model, Event, Extra, Before, After>
@@ -234,7 +234,7 @@ export class TransitionBuilder<
             (this._targets as any).push(target);
         }
         return this as any as TransitionBuilder<
-            Name, Model, StatesUnion, EventParserSchema, Extra, From & StatesUnion, To | S
+            Name, Model, StatesUnion, Events, Event, Extra, From & StatesUnion, To | S
         >;
     }
 
@@ -253,7 +253,8 @@ export type $Transition<
     Name extends string,
     Model extends ResourceModel,
     StatesUnion extends string,
+    Events extends EventParserSchema,
     Event,
     Extra,
     From
-> = ($: TransitionBuilder<Name, Model, StatesUnion>) => TransitionBuilder<Name, Model, StatesUnion, Event, Extra, From>
+> = ($: TransitionBuilder<Name, Model, StatesUnion, Events, Event>) => TransitionBuilder<Name, Model, StatesUnion, Events, Event, Extra, From>

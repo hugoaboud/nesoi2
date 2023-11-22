@@ -29,7 +29,7 @@ export type ResourceSchema<
 
 export class ResourceBuilder<
     Model extends ResourceModel,
-    Events = unknown,
+    Events extends EventParserSchema = {},
     Views = unknown,
     States = unknown,
     StatesUnion = unknown,
@@ -52,24 +52,24 @@ export class ResourceBuilder<
         return this
     }
 
-    // event<
-    //     K extends string,
-    //     Schema extends EventParserSchema
-    // >(
-    //     name: K,
-    //     $: $Event<Schema>
-    // ) {
-    //     const builder = new EventBuilder(name);
-    //     (this._events as any)[name] = $(builder);
+    event<
+        K extends string,
+        Schema extends EventParserSchema
+    >(
+        name: K,
+        $: $Event<Schema>
+    ) {
+        const builder = new EventBuilder(name);
+        (this._events as any)[name] = $(builder);
         
-    //     return this as any as ResourceBuilder<
-    //         Model,
-    //         Events & { [E in K]: Schema },
-    //         Views,
-    //         States,
-    //         StatesUnion
-    //     >
-    // }
+        return this as any as ResourceBuilder<
+            Model,
+            Events & { [E in K]: Schema },
+            Views,
+            States,
+            StatesUnion
+        >
+    }
 
     view<
         K extends string,
@@ -104,21 +104,20 @@ export class ResourceBuilder<
             Events,
             Views,
             StateSchema,
-            StatesUnion & keyof Tree
+            StatesUnion & keyof Tree | 'void'
         >
     }
 
     transition<
-        Name extends string,
-        Event,
         Extra,
         From
     >(
         $: $Transition<
-            Name,
+            never,
             Model,
             StatesUnion extends string ? StatesUnion : never,
-            Event,
+            Events,
+            never,
             Extra,
             From
         >
@@ -127,7 +126,7 @@ export class ResourceBuilder<
         const transition = $(builder as any);
         return this as any as ResourceBuilder<
             Model,
-            Events & typeof $,
+            Events,
             Views,
             States,
             StatesUnion,

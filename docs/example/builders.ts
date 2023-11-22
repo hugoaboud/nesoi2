@@ -42,19 +42,44 @@ const Duel = Nesoi.resource('duel', DuelSource)
         }),
     }))
 
+    .event('create', $ => $
+        .schema($ => ({
+            asdasd: {
+                asdaska: $('sdf').date,
+                lopasa: $('asdasd').boolean
+            }
+        }))
+        .alias('')
+        .allowFrom('')
+    )
+
+    .event('wow', $ => $
+        .schema($ => ({
+            opa: {
+                aka: $('sdf').date,
+                lopa: $('asdasd').boolean
+            }
+        }))
+        .alias('')
+        .allowFrom('')
+    )
+
+    .event('wow2', $ => $
+        .schema($ => ({
+            opopa: {
+                aka: $('sdf').date,
+                lopa: $('asdasd').boolean
+            }
+        }))
+        .alias('')
+        .allowFrom('')
+    )
+
     .transition($ => $
-        .on('wow', $ => $
-            .schema($ => ({
-                opa: {
-                    aka: $('sdf').date
-                }
-            }))
-            .alias('')
-            .allowFrom('')
-        )
+        .on('wow')
         .from('ongoing')
         .with(({ event }) => ({
-            kaka: event.opa.aka.alias
+            // kaka: event.opa.aka
         }))
         .andWith(({ event }) => ({
             boboca: event
@@ -67,23 +92,22 @@ const Duel = Nesoi.resource('duel', DuelSource)
                 that: ({obj}) => obj.id === 4,
                 else: 'Id deve ser igual a 4'
             })
-            .andGiven({
-                that: ({event}) => event.kaka === 'lala',
-                else: 'Kaka deve ser igual a lala'
-            })
+            // .andGiven({
+            //     that: ({event}) => event.kaka === 'lala',
+            //     else: 'Kaka deve ser igual a lala'
+            // })
             .run(({obj, event}) => {
                 
             })
             .thenRun(({obj, event}) => {    
-
+                
             })
         )
         .orTo('requested')
     )
 
-    .transition($ => $)
-
 type D = typeof Duel['_events']
+
 
 const DuelJob = Nesoi.job('fight', $ => $
     .alias('LETSFIGHT!')    
