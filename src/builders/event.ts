@@ -1,5 +1,5 @@
 import { EventParser } from '../engine/parser/event.parser';
-import { $EventParser, EventParserSchemaFromTree, EventParserPropFactory, EventParserSchema, EventParserTree } from './parser/event_parser'
+import { $EventParser, EventParserPropFactory, EventParserSchema } from './parser/event_parser'
 
 /**
  * [ Event ]
@@ -22,11 +22,10 @@ export class EventParserBuilder<
     ) {}
 
     schema<
-        Tree extends EventParserTree
+        Tree extends EventParserSchema
     >($: $EventParser<Tree>) {
         this._schema = $(EventParserPropFactory) as any;
-        type S = EventParserSchemaFromTree<Tree>
-        return this as any as EventParserBuilder<S>
+        return this as any as EventParserBuilder<Tree>
     }
 
     alias(alias: string) {

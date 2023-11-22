@@ -7,44 +7,21 @@
 
 import { NesoiError } from "../../error"
 
-type EventParseMethod<T> = (prop: EventParserProp<T>, value: any) => T | Promise<T>
+type EventParseMethod<T> = (prop: EventParserPropBuilder<T>, value: any) => T | Promise<T>
 
 export type EventParserRule<T> = {
     cond: (value: T) => boolean | Promise<boolean>,
-    error: (prop: EventParserProp<T>) => string
-}
-
-export type EventParserProp<T> = {
-    __type: 'event.prop'
-    alias: string
-    required: boolean
-    default?: T
-    method: EventParseMethod<T>
-    rules: EventParserRule<T>[]
+    error: (prop: EventParserPropBuilder<T>) => string
 }
 
 export type EventParserSchema = {
-    [_: string]: EventParserProp<any> | EventParserSchema
-}
-
-export type EventParserTree = {
-    [_: string]: EventParserPropBuilder<any> | EventParserTree
-}
-
-export type EventParserSchemaFromTree<
-    Tree extends EventParserTree
-> = {
-    [K in keyof Tree]: Tree[K] extends EventParserPropBuilder<infer X>
-        ? EventParserProp<X>
-        : Tree[K] extends EventParserTree
-            ? EventParserSchemaFromTree<Tree[K]>
-            : never
+    [_: string]: EventParserPropBuilder<any> | EventParserSchema
 }
 
 export type EventTypeFromSchema<
     Tree extends EventParserSchema
 > = {
-    [K in keyof Tree]: Tree[K] extends EventParserProp<infer X>
+    [K in keyof Tree]: Tree[K] extends EventParserPropBuilder<infer X>
         ? X
         : Tree[K] extends EventParserSchema
             ? EventTypeFromSchema<Tree[K]>
@@ -182,4 +159,4 @@ export function EventParserPropFactory(
 
 }
 
-export type $EventParser<Tree extends EventParserTree> = ($: typeof EventParserPropFactory) => Tree
+export type $EventParser<Tree extends EventParserSchema> = ($: typeof EventParserPropFactory) => Tree

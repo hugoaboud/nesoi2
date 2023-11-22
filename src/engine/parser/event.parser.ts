@@ -1,4 +1,4 @@
-import { EventParserProp, EventParserSchema, EventTypeFromSchema } from "../../builders/parser/event_parser"
+import { EventParserPropBuilder, EventParserSchema, EventTypeFromSchema } from "../../builders/parser/event_parser"
 import { NesoiError } from "../../error"
 import { MakeUndefinedOptional } from "../../helpers/type"
 
@@ -22,7 +22,7 @@ export class EventParser<
         for (const k in schema) {
             const prop = schema[k]
             if (prop.__type === 'event.prop') {
-                parsedObj[k] = await this.parseProp(prop as EventParserProp<any>, obj[k])
+                parsedObj[k] = await this.parseProp(prop as EventParserPropBuilder<any>, obj[k])
             }
             else {
                 parsedObj[k] = await this.parseSchema(prop as EventParserSchema, obj[k])
@@ -31,7 +31,7 @@ export class EventParser<
         return parsedObj
     }
 
-    private async parseProp(prop: EventParserProp<any>, value: any) {
+    private async parseProp(prop: EventParserPropBuilder<any>, value: any) {
         // 1. Sanitize input
         this.sanitize(value);
 

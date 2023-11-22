@@ -1,4 +1,4 @@
-import { EventParserProp, EventParserRule } from "./builders/parser/event_parser";
+import { EventParserPropBuilder, EventParserRule } from "./builders/parser/event_parser";
 
 export namespace NesoiError {
 
@@ -8,15 +8,15 @@ export namespace NesoiError {
             return new Error(message)
         }
 
-        export function Required(prop: EventParserProp<any>) {
+        export function Required(prop: EventParserPropBuilder<any>) {
             return new Error(`${prop.alias} is required`)
         }
 
-        export function Parse(prop: EventParserProp<any>, type: string) {
+        export function Parse(prop: EventParserPropBuilder<any>, type: string) {
             return new Error(`${prop.alias} is not ${type}`)
         }
 
-        export function Rule(rule: EventParserRule<any>, prop: EventParserProp<any>) {
+        export function Rule(rule: EventParserRule<any>, prop: EventParserPropBuilder<any>) {
             return new Error(rule.error(prop))
         }
 

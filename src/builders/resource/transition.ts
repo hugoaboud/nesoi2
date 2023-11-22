@@ -9,7 +9,7 @@
 import { ResourceModel } from "../../data/model";
 import { ResourceCondition } from "../job/condition";
 import { ResourceMethod } from "../method";
-import { EventParserSchema } from "../parser/event_parser";
+import { EventParserSchema, EventTypeFromSchema } from "../parser/event_parser";
 
 export type TransitionSchema<
     Event extends EventParserSchema
@@ -110,7 +110,7 @@ export class TransitionBuilder<
             Model,
             StatesUnion,
             Events,
-            Events[E],
+            EventTypeFromSchema<Events[E] & EventParserSchema>,
             Extra,
             From
         >
