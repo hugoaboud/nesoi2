@@ -7,7 +7,7 @@
 
 import { NesoiError } from "../../error"
 
-type EventParseMethod<T> = (prop: EventParserPropBuilder<T>, value: any) => T | Promise<T>
+export type EventParseMethod<T> = (prop: EventParserPropBuilder<T>, value: any) => T | Promise<T>
 
 export type EventParserRule<T> = {
     cond: (value: T) => boolean | Promise<boolean>,

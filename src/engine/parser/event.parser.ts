@@ -1,10 +1,23 @@
-import { EventParserPropBuilder, EventParserSchema, EventTypeFromSchema } from "../../builders/parser/event_parser"
+import { EventParseMethod, EventParserRule, EventParserSchema, EventTypeFromSchema } from "../../builders/parser/event_parser"
 import { NesoiError } from "../../error"
 import { MakeUndefinedOptional } from "../../helpers/type"
 
+type Prop = {
+    __type: 'event.prop'
+    alias: string
+    required: boolean
+    default?: any
+    method: EventParseMethod<any>
+    rules: EventParserRule<any>[]
+}
+
+type Schema = {
+    [_: string]: Prop | Schema
+}
+
 export class EventParser<
-    Schema extends EventParserSchema,
-    Type = EventTypeFromSchema<Schema>
+    S extends EventParserSchema,
+    Type = EventTypeFromSchema<S>
 > {
 
     protected schema: Schema
@@ -17,35 +30,35 @@ export class EventParser<
         return this.parseSchema(this.schema, event) as Type
     }
 
-    private async parseSchema(schema: EventParserSchema, obj: Record<string, any>) {
+    private async parseSchema(schema: Schema, obj: Record<string, any>) {
         const parsedObj = {} as any
         for (const k in schema) {
             const prop = schema[k]
             if (prop.__type === 'event.prop') {
-                parsedObj[k] = await this.parseProp(prop as EventParserPropBuilder<any>, obj[k])
+                parsedObj[k] = await this.parseProp(prop as Prop, obj[k])
             }
             else {
-                parsedObj[k] = await this.parseSchema(prop as EventParserSchema, obj[k])
+                parsedObj[k] = await this.parseSchema(prop as Schema, obj[k])
             }
         }
         return parsedObj
     }
 
-    private async parseProp(prop: EventParserPropBuilder<any>, value: any) {
+    private async parseProp(prop: Prop, value: any) {
         // 1. Sanitize input
         this.sanitize(value);
 
         // 2. Check for required fields
         if (this.isEmpty(value)) {
             if (prop.required) {
-                throw NesoiError.Event.Required(prop);
+                throw NesoiError.Event.Required(prop as any);
             }
             else {
                 return undefined
             }
         }
         // 3. Run parse method
-        const method = prop.method(prop, value)
+        const method = prop.method(prop as any, value)
         const parsedValue = await Promise.resolve(method)
 
         // 4. Apply rules
@@ -54,7 +67,7 @@ export class EventParser<
             const cond = rule.cond(parsedValue)
             const res = await Promise.resolve(cond)
             if (!res) {
-                throw NesoiError.Event.Rule(rule, prop);
+                throw NesoiError.Event.Rule(rule, prop as any);
             }
         }
 

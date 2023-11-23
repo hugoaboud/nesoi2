@@ -7,54 +7,73 @@
 
 import { ResourceModel } from "../../data/model"
 
-type ViewProp = {
-    __type: 'view_prop'
-    source: 'model'|'compose'|'graph'|'computed'
+export type ViewProp<T> = {
+    __type: 'view.prop'
+    type: 'model'|'computed'|'compose'|'graph'
     amount: 'one'|'many'
-    fn: (...args: any) => any
+    fn: (model: ResourceModel) => T | Promise<T>
 }
 
 export type ViewSchema = {
-    [_: string]: ViewProp | ViewSchema
+    [_: string]: ViewProp<any> | ViewSchema
+}
+
+export type ViewTypeFromSchema<
+    Schema extends ViewSchema
+> = {
+    [K in keyof Schema]: Schema[K] extends ViewProp<infer X>
+        ? X
+        : Schema[K] extends ViewSchema
+            ? ViewTypeFromSchema<Schema[K]>
+            : never
 }
 
 export class ViewPropFactory<
     Model extends ResourceModel
 > {
     
-    model(prop: keyof Model): ViewProp {
+    model<K extends keyof Model>(prop: K): ViewProp<Model[K]> {
         return {
-            __type: 'view_prop',
-            source: 'model',
+            __type: 'view.prop',
+            type: 'model',
             amount: 'one',
-            fn: (obj: Model) => obj[prop]
+            fn: (obj: any) => obj[prop]
+        }
+    }
+    
+    computed<T>(fn: (model: Model) => T | Promise<T>): ViewProp<T> {
+        return {
+            __type: 'view.prop',
+            type: 'computed',
+            amount: 'one',
+            fn: fn as any
         }
     }
 
-    compose(compose: string): ViewProp {
+    compose(compose: string): ViewProp<never> {
         return {
-            __type: 'view_prop',
-            source: 'compose',
+            __type: 'view.prop',
+            type: 'compose',
             amount: 'one',
-            fn: () => {}
+            fn: () => ({} as never)
         }
     }
 
-    child(name: string): ViewProp {
+    child(name: string): ViewProp<never> {
         return {
-            __type: 'view_prop',
-            source: 'graph',
+            __type: 'view.prop',
+            type: 'graph',
             amount: 'one',
-            fn: () => {}
+            fn: () => ({} as never)
         }
     }
 
-    children(name: string): ViewProp {
+    children(name: string): ViewProp<never> {
         return {
-            __type: 'view_prop',
-            source: 'graph',
+            __type: 'view.prop',
+            type: 'graph',
             amount: 'many',
-            fn: () => {}
+            fn: () => ({} as never)
         }
     }
 

@@ -8,11 +8,11 @@ export namespace NesoiError {
             return new Error(message)
         }
 
-        export function Required(prop: EventParserPropBuilder<any>) {
+        export function Required(prop: any) {
             return new Error(`${prop.alias} is required`)
         }
 
-        export function Parse(prop: EventParserPropBuilder<any>, type: string) {
+        export function Parse(prop: any, type: string) {
             return new Error(`${prop.alias} is not ${type}`)
         }
 

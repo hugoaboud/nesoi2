@@ -18,23 +18,31 @@ class MockDataSource extends DataSource<MockModel> {
         }
     }
 
-    async put(data: MockModel, id?: number) {
-        
-    }
+    async put(data: MockModel, id?: number) {}
 
 }
 
-const builder = new ResourceBuilder('mock', MockDataSource)
+const mock = new ResourceBuilder('mock', MockDataSource)
     .alias('Mock!')
     .view('default', $ => ({
         id: $.model('id'),
-        mo: $.model('mo'),
-        da: $.model('da')
+        momo: $.model('mo'),
+        dada: $.model('da')
     }))
+    .view('id_only', $ => ({
+        id: $.model('id')
+    }))
+    .view('moda', $ => ({
+        moda: $.computed(model => model.mo + model.da)
+    }))
+    .build()
 
-const machine = new StateMachine(
-    'my_machine',
-    builder as any as ResourceBuilderToSchema<typeof builder>
-)
-
-machine.send(4, 'create', {} as any)
+async function main() {
+    const res = await mock.readOne(123);
+    console.log(res);
+    const res2 = await mock.readOne(123, 'id_only');
+    console.log(res2);
+    const res3 = await mock.readOne(123, 'moda');
+    console.log(res3);
+}
+main()

@@ -12,6 +12,8 @@ import { $Transition, TransitionBuilder } from "./transition"
 import { EventParserSchema } from "../parser/event_parser"
 import { $View, ViewPropFactory, ViewSchema } from "./view"
 import { DataSource } from "../../data/data_source"
+import { Resource } from "../../engine/resource"
+import { View } from "../../engine/view"
 
 // Resource
 
@@ -79,7 +81,7 @@ export class ResourceBuilder<
         $: $View<Model, Schema>
     ) {
         const factory = new ViewPropFactory();
-        (this._views as any)[name] = $(factory);
+        (this._views as any)[name] = $(factory as any);
 
         return this as any as ResourceBuilder<
             Model,
@@ -132,6 +134,13 @@ export class ResourceBuilder<
             StatesUnion,
             Transitions
         >
+    }
+
+    build() {
+        return new Resource<
+            Model,
+            { [V in keyof Views]: View<Views[V] & ViewSchema> }
+        >(this)
     }
 
 }
