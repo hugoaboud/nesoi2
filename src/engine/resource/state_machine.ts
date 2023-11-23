@@ -1,12 +1,10 @@
-import { ResourceCondition } from "../builders/job/condition";
-import { ResourceMethod } from "../builders/method";
-import { ResourceBuilder } from "../builders/resource/resource";
-import { TransitionTargetBuilder } from "../builders/resource/transition";
-import { DataSource } from "../data/data_source";
-import { ResourceModel } from "../data/model";
-import { NesoiError } from "../error";
-import { EventParser } from "./parser/event.parser";
-import { Tree } from "./tree";
+import { ResourceCondition } from "../../builders/job/condition";
+import { ResourceMethod } from "../../builders/method";
+import { DataSource } from "../../data/data_source";
+import { ResourceModel } from "../../data/model";
+import { NesoiError } from "../../error";
+import { EventParser } from "../parser/event.parser";
+import { Tree } from "../tree";
 
 type Obj = Record<string, any>
 type State = string
@@ -73,11 +71,9 @@ export class StateMachine<
         // 1. Parse event
         const eventParser = this.eventParsers[event as any]
         const parsedEvent = await eventParser.parse(data as any);
-        console.debug(parsedEvent)
         
         // 2. Read object from data source
         const obj = await this.dataSource.get(id);
-        console.debug(obj)
         if (!obj) {
             throw NesoiError.Resource.NotFound(this.alias, id)
         }
@@ -90,7 +86,6 @@ export class StateMachine<
         
         // 4. Find possible transitions
         const transitions = this.getTransitionsFrom(curStateNode.path, event)
-        console.debug(transitions)
         if (!transitions.length) {
             throw NesoiError.Resource.NoTransition(this.alias, curStateNode.value.alias, eventParser.alias)
         }
@@ -102,7 +97,6 @@ export class StateMachine<
         }
 
         // 6. Run targets sequentially until one works
-        console.log(targets)
         let target = undefined;
         for (const t in targets) {
             const triggered = await this.runTarget(targets[t], obj, parsedEvent);

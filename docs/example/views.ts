@@ -1,6 +1,7 @@
 import { ResourceBuilder } from "../../src/builders/resource/resource"
 import { DataSource } from "../../src/data/data_source"
 import { ResourceModel } from "../../src/data/model"
+import { MemoryDataSource } from "../../src/engine/data/memory.datasource"
 
 interface MockModel extends ResourceModel {
     id: number,
@@ -8,27 +9,35 @@ interface MockModel extends ResourceModel {
     da: 'ta'
 }
 
-class MockDataSource extends DataSource<MockModel> {
+class MockDataSource extends MemoryDataSource<MockModel> {
 
-    async get(id: number) {
-        return {
-            id,
+    data = {
+        0: {
+            id: 0,
+            state: 'created',
             mo: 'ck' as const,
             da: 'ta' as const
-        }
+        },
+        1: {
+            id: 1,
+            state: 'created',
+            mo: 'ck' as const,
+            da: 'ta' as const
+        },
+        2: {
+            id: 2,
+            state: 'created',
+            mo: 'ck' as const,
+            da: 'ta' as const
+        },
+        3: {
+            id: 3,
+            state: 'created',
+            mo: 'ck' as const,
+            da: 'ta' as const
+        },
     }
-
-    async index() {
-        return [
-            await this.get(1),
-            await this.get(2),
-            await this.get(3)
-        ]
-    }
-
-    async put(data: MockModel, id?: number) {}
-
-}
+}   
 
 const mock = new ResourceBuilder('mock', MockDataSource)
     .alias('Mock!')
@@ -46,18 +55,18 @@ const mock = new ResourceBuilder('mock', MockDataSource)
     .build()
 
 async function main() {
-    const res = await mock.readOne(123);
+    const res = await mock.readOne(0);
     console.log(res);
-    const res2 = await mock.readOne(123, 'id_only');
+    const res2 = await mock.readOne(0, 'id_only');
     console.log(res2);
-    const res3 = await mock.readOne(123, 'moda');
+    const res3 = await mock.readOne(0, 'moda');
     console.log(res3);
 
-    const res4 = await mock.readAll(123);
+    const res4 = await mock.readAll(0);
     console.log(res4);
-    const res5 = await mock.readAll(123, 'id_only');
+    const res5 = await mock.readAll(0, 'id_only');
     console.log(res5);
-    const res6 = await mock.readAll(123, 'moda');
+    const res6 = await mock.readAll(0, 'moda');
     console.log(res6);
 }
 main()

@@ -11,12 +11,16 @@ const Nesoi = new NesoiEngine<{
 
 class DuelModel {
     id!: number
+    state!: string
     josefina!: 'sword'|'saber'
 }
 
 class DuelSource extends DataSource<DuelModel> {
     async get() {
         return {} as DuelModel
+    }
+    async index() {
+        return [] as DuelModel[]
     }
     async put(model: DuelModel) {
         

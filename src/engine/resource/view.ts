@@ -1,5 +1,5 @@
-import { ViewProp, ViewBuilder, ViewTypeFromBuilder } from "../builders/resource/view";
-import { ResourceModel } from "../data/model";
+import { ViewProp, ViewBuilder, ViewTypeFromBuilder } from "../../builders/resource/view";
+import { ResourceModel } from "../../data/model";
 
 export class View<
     Builder extends ViewBuilder,

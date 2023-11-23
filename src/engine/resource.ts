@@ -1,8 +1,12 @@
+import { ViewBuilder, ViewTypeFromBuilder } from "../builders/resource/view";
 import { DataSource } from "../data/data_source";
 import { ResourceModel } from "../data/model";
 import { NesoiError } from "../error";
-import { StateMachine } from "./state_machine";
-import { View } from "./view";
+import { ResourceObj } from "./resource/resource_obj";
+import { StateMachine } from "./resource/state_machine";
+import { View } from "./resource/view";
+
+type Obj = Record<string, any>
 
 export class Resource<
     Model extends ResourceModel,
@@ -33,14 +37,18 @@ export class Resource<
         )
     }
 
-    async readOne(id: Model['id'], view?: keyof Views) {
+    async readOne<V extends keyof Views>(id: Model['id'], view?: V) {
         const promise = this.dataSource.get(id);
         const model = await Promise.resolve(promise)
+        if (!model) {
+            throw NesoiError.Resource.NotFound(this.name, id)
+        }
         if (!view && !('default' in this.views)) {
             throw NesoiError.Resource.NoDefaultView(this.name)
         }
-        const v = this.views[view || 'default']
-        return v.parse(model)
+        const viewSchema = this.views[view || 'default']
+        const parsedView = await viewSchema.parse(model)
+        return this.build<Views[V]>(model, parsedView)
     }
 
     async readAll(id: Model['id'], view?: keyof Views) {
@@ -55,4 +63,13 @@ export class Resource<
         )
     }
 
+    private build<V extends View<any>>(model: Obj, view: Obj) {
+        return new ResourceObj(this.dataSource, model, view as any) as any as ResourceObj & ViewObj<V>
+    }
+
 }
+
+type ViewObj<
+    V extends View<any>,
+    R = ReturnType<V['parse']>
+> = R extends { then: any } ? Awaited<R> : R

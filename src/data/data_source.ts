@@ -6,6 +6,6 @@ export abstract class DataSource<
     
     abstract get(id: Model['id']): undefined | Model | Promise<undefined | Model>
     abstract index(): Model[] | Promise<Model[]>
-    abstract put(model: Model, id?: Model['id']): void | Promise<void>
+    abstract put(model: Model | { id: undefined }): void | Promise<void>
     
 }

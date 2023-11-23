@@ -13,7 +13,7 @@ import { EventParserBuilder, EventTypeFromParser } from "../parser/event_parser"
 import { $View, ViewPropFactory, ViewBuilder } from "./view"
 import { DataSource } from "../../data/data_source"
 import { Resource } from "../../engine/resource"
-import { View } from "../../engine/view"
+import { View } from "../../engine/resource/view"
 
 // Resource
 
