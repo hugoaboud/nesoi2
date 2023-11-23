@@ -36,7 +36,7 @@ export class NesoiEngine<
         name: string,
         dataSourceClass: new (...args: any) => DataSource<Model>
     ) {
-        return new ResourceBuilder(name, dataSourceClass);
+        return new ResourceBuilder(this, name, dataSourceClass);
     }
 
     job<

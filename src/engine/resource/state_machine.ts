@@ -4,7 +4,8 @@ import { DataSource } from "../../data/data_source";
 import { ResourceModel } from "../../data/model";
 import { NesoiError } from "../../error";
 import { EventParser } from "../parser/event.parser";
-import { Tree } from "../tree";
+import { Tree } from "../../helpers/tree";
+import { NesoiEngine } from "../../engine";
 
 type Obj = Record<string, any>
 type State = string
@@ -33,7 +34,8 @@ export class StateMachine<
     Model extends ResourceModel,
     Events
 > {
-
+    
+    protected engine: NesoiEngine<any>
     protected alias: string
     protected states: StateTree
     protected eventParsers: Record<string, EventParser<any, any>>
@@ -43,6 +45,7 @@ export class StateMachine<
         builder: any,
         protected dataSource: DataSource<ResourceModel>
     ) {
+        this.engine = builder.engine
         this.alias = builder._alias
         this.states = builder._states
         

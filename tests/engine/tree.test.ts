@@ -1,4 +1,4 @@
-import { Tree } from '../../src/engine/tree'
+import { Tree } from '../../src/helpers/tree'
 
 const treeMock = {
     prop1: 'value1',

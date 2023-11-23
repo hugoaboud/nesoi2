@@ -1,39 +1,8 @@
 import { ResourceBuilder } from "../../src/builders/resource/resource"
-import { DataSource } from "../../src/data/data_source"
-import { ResourceModel } from "../../src/data/model"
+import { FireballDataSource } from "./datasource.example"
 
-interface MockModel extends ResourceModel {
-    id: number,
-    mo: 'ck'|'boom',
-    da: 'ta'
-}
-
-class MockDataSource extends DataSource<MockModel> {
-
-    async get(id: number) {
-        return {
-            id,
-            state: ['idle','charging','launched','boom'][id],
-            mo: 'ck' as const,
-            da: 'ta' as const
-        }
-    }
-
-    async index() {
-        return [
-            await this.get(0),
-            await this.get(1),
-            await this.get(2),
-            await this.get(3)
-        ]
-    }
-
-    async put(data: MockModel, id?: number) {}
-
-}
-
-const Mock = new ResourceBuilder('mock', MockDataSource)
-    .alias('Mock!')
+export const Fireball = new ResourceBuilder({} as any, 'mock', FireballDataSource)
+    .alias('Fireball!')
     .states($ => ({
         idle: $('Idle').initial(),
         charging: $('Charging').children({
@@ -53,7 +22,7 @@ const Mock = new ResourceBuilder('mock', MockDataSource)
     .event('launch', $ => $
         .alias('Launch')
         .schema($ => ({
-            direction: $('Direction').enum(['up', 'down', 'left', 'right'])
+            direction: $('Direction').enum(['up', 'down', 'left', 'right'] as const)
         }))
     )
     .event('explode', $ => $
@@ -65,8 +34,8 @@ const Mock = new ResourceBuilder('mock', MockDataSource)
         .from('idle')
         .to('boom', $ => $
             .given({
-                that: ({ obj }) => obj.mo === 'boom',
-                else: 'Mo is boom, boom!'
+                that: ({ obj }) => obj.power > 12,
+                else: 'Power is too great, boom!'
             })
             .run(() => {
                 console.log("CHARGE BOOOM!")
@@ -88,8 +57,8 @@ const Mock = new ResourceBuilder('mock', MockDataSource)
 
 async function main() {
     
-    Mock.machine.send(0, 'charge', {
-        power: 12
+    Fireball.machine.send(0, 'launch', {
+        direction: 'down'
     })
 
 }

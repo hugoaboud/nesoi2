@@ -34,6 +34,7 @@ export class ResourceBuilder<
     private _transitions = [] as TransitionBuilder<any,any,any,any>[]
 
     constructor(
+        private engine: any,
         private name: string,
         private dataSourceClass: new (...args: any) => DataSource<Model>
     ) {}

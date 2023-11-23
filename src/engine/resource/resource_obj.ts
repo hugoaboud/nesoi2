@@ -1,4 +1,4 @@
-import { DataSource } from "../../data/data_source"
+import { Resource } from "../resource"
 
 // A resource object is the result of a view
 // However, it also stores nesoi metadata
@@ -6,21 +6,27 @@ export class ResourceObj {
 
     // This property should not be sent out by controllers
     private _nesoi: {
-        dataSource: DataSource<any>,
+        resource: Resource<any, any, any>,
         model: Record<string, any>
     }
 
     constructor(
-        dataSource: DataSource<any>,
+        resource: Resource<any, any, any>,
         model: Record<string, any>,
         view: Record<string, any>
     ) {
-        this._nesoi = { dataSource, model }
+        this._nesoi = { resource, model }
         Object.assign(this, view)
     }
 
     async save() {
-        return this._nesoi.dataSource.put(this)
+        return (this._nesoi.resource as any).dataSource.put(this)
+    }
+
+    log() {
+        const obj = Object.assign({}, this) as any
+        delete obj['_nesoi']
+        console.log(obj)
     }
 
 }

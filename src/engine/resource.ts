@@ -1,4 +1,3 @@
-import { ViewBuilder, ViewTypeFromBuilder } from "../builders/resource/view";
 import { DataSource } from "../data/data_source";
 import { ResourceModel } from "../data/model";
 import { NesoiError } from "../error";
@@ -37,34 +36,49 @@ export class Resource<
         )
     }
 
-    async readOne<V extends keyof Views>(id: Model['id'], view?: V) {
+    async readOne<V extends keyof Views | 'raw'>(id: Model['id'], view: V = 'raw' as any) {
+        // 1. Read from Data Source
         const promise = this.dataSource.get(id);
         const model = await Promise.resolve(promise)
         if (!model) {
             throw NesoiError.Resource.NotFound(this.name, id)
         }
-        if (!view && !('default' in this.views)) {
-            throw NesoiError.Resource.NoDefaultView(this.name)
+        // 2. If raw view, build a Obj from the model
+        if (view === 'raw') {
+            return this.build<Model>(model, model)
         }
+        // 3. If not, build a Obj from the view result
         const viewSchema = this.views[view || 'default']
         const parsedView = await viewSchema.parse(model)
-        return this.build<Views[V]>(model, parsedView)
+        return this.build<ViewObj<Views[V]>>(model, parsedView)
     }
 
-    async readAll(id: Model['id'], view?: keyof Views) {
+    async readAll<V extends keyof Views | 'raw'>(id: Model['id'], view: V = 'raw' as any) {
+        // 1. Read from Data Source
         const promise = this.dataSource.index();
         const models = await Promise.resolve(promise)
-        if (!view && !('default' in this.views)) {
-            throw NesoiError.Resource.NoDefaultView(this.name)
+        // 2. If raw view, build a list of Objs from the model list
+        if (view === 'raw') {
+            return Promise.all(models.map(model =>
+                this.build<Model>(model, model)
+            ))
         }
+        // 3. If not, build a list of Objs from the view results
         const v = this.views[view || 'default']
-        return Promise.all(
+        const parsedViews = await Promise.all(
             models.map(model => v.parse(model))
         )
+        return Promise.all(parsedViews.map((view, i) => 
+            this.build<Views[V]>(models[i], view)
+        ))
     }
 
-    private build<V extends View<any>>(model: Obj, view: Obj) {
-        return new ResourceObj(this.dataSource, model, view as any) as any as ResourceObj & ViewObj<V>
+    private build<T>(model: Obj, view: Obj) {
+        return new ResourceObj(
+            this as any,
+            model as any,
+            view as any
+        ) as any as ResourceObj & T
     }
 
 }

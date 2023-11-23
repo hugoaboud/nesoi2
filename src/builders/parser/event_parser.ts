@@ -84,14 +84,14 @@ export function EventParserPropFactory(
                 throw NesoiError.Event.Parse(prop, 'a ISO datetime')
             }),
     
-        enum<O extends string>(options: O[]) {
-            return new EventParserPropBuilder<string>(alias,
+        enum<O extends string>(options: readonly O[]) {
+            return new EventParserPropBuilder<O>(alias,
                 (prop, value) => {
                     if (
                         typeof value === 'string' &&
                         options.includes(value as any)
                     ) {
-                        return value
+                        return value as O
                     }
                     throw NesoiError.Event.Parse(prop, `a valid option. Options: ${options}`)
                 })
