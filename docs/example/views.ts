@@ -18,6 +18,14 @@ class MockDataSource extends DataSource<MockModel> {
         }
     }
 
+    async index() {
+        return [
+            await this.get(1),
+            await this.get(2),
+            await this.get(3)
+        ]
+    }
+
     async put(data: MockModel, id?: number) {}
 
 }
@@ -44,5 +52,12 @@ async function main() {
     console.log(res2);
     const res3 = await mock.readOne(123, 'moda');
     console.log(res3);
+
+    const res4 = await mock.readAll(123);
+    console.log(res4);
+    const res5 = await mock.readAll(123, 'id_only');
+    console.log(res5);
+    const res6 = await mock.readAll(123, 'moda');
+    console.log(res6);
 }
 main()

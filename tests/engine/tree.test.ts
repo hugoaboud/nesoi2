@@ -15,44 +15,44 @@ const treeMock = {
 
 describe('Tree', () => {
 
-    describe('find by key', () => {
+    describe('find by path', () => {
 
-        it('should find existing root node by key', () => {       
-            const node = Tree.find(treeMock, key => key === 'prop1');
+        it('should find existing root node by path', () => {       
+            const node = Tree.find(treeMock, path => path === 'prop1');
             expect(node).toBeDefined();
             expect(node?.path).toBe('prop1');
             expect(node?.key).toBe('prop1');
             expect(node?.value).toBe('value1');
         })
     
-        it('should not find missing root node by key', () => {       
-            const node = Tree.find(treeMock, key => key === 'prop3');
+        it('should not find missing root node by path', () => {       
+            const node = Tree.find(treeMock, path => path === 'prop3');
             expect(node).not.toBeDefined();
         })
     
-        it('should find depth=1 existing node by key', () => {       
-            const node = Tree.find(treeMock, key => key === 'group1.prop1');
+        it('should find depth=1 existing node by path', () => {       
+            const node = Tree.find(treeMock, path => path === 'group1.prop1');
             expect(node).toBeDefined();
             expect(node?.path).toBe('group1.prop1');
             expect(node?.key).toBe('prop1');
             expect(node?.value).toBe('value3');
         })
     
-        it('should not find depth=1 missing node by key', () => {       
-            const node = Tree.find(treeMock, key => key === 'group1.prop3');
+        it('should not find depth=1 missing node by path', () => {       
+            const node = Tree.find(treeMock, path => path === 'group1.prop3');
             expect(node).toBeUndefined();
         })
     
-        it('should find depth=2 existing node by key', () => {       
-            const node = Tree.find(treeMock, key => key === 'group1.group2.prop1');
+        it('should find depth=2 existing node by path', () => {       
+            const node = Tree.find(treeMock, path => path === 'group1.group2.prop1');
             expect(node).toBeDefined();
             expect(node?.path).toBe('group1.group2.prop1');
             expect(node?.key).toBe('prop1');
             expect(node?.value).toBe('value5');
         })
     
-        it('should not find depth=2 missing node by key', () => {       
-            const node = Tree.find(treeMock, key => key === 'group1.group2.prop3');
+        it('should not find depth=2 missing node by path', () => {       
+            const node = Tree.find(treeMock, path => path === 'group1.group2.prop3');
             expect(node).toBeUndefined();
         })
 
@@ -91,10 +91,10 @@ describe('Tree', () => {
     
     })
 
-    describe('findAll by key', () => {
+    describe('findAll', () => {
 
-        it('should find many root nodes by key', () => {       
-            const nodes = Tree.findAll(treeMock, key => key.includes('prop1'));
+        it('should find many root nodes by path', () => {       
+            const nodes = Tree.findAll(treeMock, path => path.includes('prop1'));
             expect(nodes).toHaveLength(3);
             nodes.map(node => {
                 expect(node?.key).toContain('prop1');

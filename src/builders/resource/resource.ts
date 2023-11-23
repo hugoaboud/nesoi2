@@ -9,7 +9,7 @@ import { ResourceModel } from "../../data/model"
 import { $Event, EventBuilder } from "../event"
 import { $States, StateFactory, StateTree, State } from "./states"
 import { $Transition, TransitionBuilder } from "./transition"
-import { EventParserBuilder } from "../parser/event_parser"
+import { EventParserBuilder, EventTypeFromParser } from "../parser/event_parser"
 import { $View, ViewPropFactory, ViewBuilder } from "./view"
 import { DataSource } from "../../data/data_source"
 import { Resource } from "../../engine/resource"
@@ -22,15 +22,16 @@ export class ResourceBuilder<
     Events extends EventParserBuilder = {},
     Views = unknown,
     States = unknown,
-    StatesUnion = unknown,
-    Transitions = unknown
+    StatesUnion = unknown
 > {
 
     private _alias!: string
     private _events: Events = {} as any
     private _views: Views = {} as any
     private _states: States = {} as any
-    private _transitions: Transitions = [] as any
+    
+    // Transitions don't need to be strongly typed
+    private _transitions = [] as TransitionBuilder<any,any,any,any>[]
 
     constructor(
         private name: string,
@@ -113,19 +114,20 @@ export class ResourceBuilder<
     ) {
         const builder = new TransitionBuilder();
         const transition = $(builder as any);
+        this._transitions.push(transition as any)
         return this as any as ResourceBuilder<
             Model,
             Events,
             Views,
             States,
-            StatesUnion,
-            Transitions
+            StatesUnion
         >
     }
 
     build() {
         return new Resource<
             Model,
+            EventTypeFromParser<Events>,
             { [V in keyof Views]: View<Views[V] & ViewBuilder> }
         >(this)
     }

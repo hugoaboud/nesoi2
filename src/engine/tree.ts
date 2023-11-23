@@ -1,7 +1,7 @@
-type TreeNode = {
+type TreeNode<T> = {
     path: string
     key: string
-    value: any
+    value: T
 }
 
 export class Tree {
@@ -10,7 +10,7 @@ export class Tree {
         obj: Record<string, P>,
         fn: (path: string, value: P) => boolean,
         _prefix?: string
-    ): TreeNode|undefined {
+    ): TreeNode<P>|undefined {
         for (let key in obj) {
             const prop = obj[key];
             const path = (_prefix ? _prefix + '.' : '') + key;
@@ -26,7 +26,7 @@ export class Tree {
                     path,
                     key,
                     value: prop
-                } as TreeNode
+                } as TreeNode<P>
             }
         }
     }
@@ -36,7 +36,7 @@ export class Tree {
         fn: (path: string, value: P) => boolean,
         _prefix?: string
     ) {
-        const nodes: TreeNode[] = []
+        const nodes: TreeNode<P>[] = []
         for (let key in obj) {
             const prop = obj[key];
             const path = (_prefix ? _prefix + '.' : '') + key;

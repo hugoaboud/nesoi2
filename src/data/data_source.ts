@@ -4,7 +4,8 @@ export abstract class DataSource<
     Model extends ResourceModel
 > {
     
-    abstract get(id: Model['id']): Model | Promise<Model>
+    abstract get(id: Model['id']): undefined | Model | Promise<undefined | Model>
+    abstract index(): Model[] | Promise<Model[]>
     abstract put(model: Model, id?: Model['id']): void | Promise<void>
     
 }

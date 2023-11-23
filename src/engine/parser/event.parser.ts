@@ -11,6 +11,7 @@ type Prop = {
     rules: EventParserRule<any>[]
 }
 
+// Public version of EventBuilder
 type Schema = {
     [_: string]: Prop | Schema
 }
@@ -20,9 +21,11 @@ export class EventParser<
     Type = EventTypeFromParser<S>
 > {
 
+    alias: string
     protected schema: Schema
 
     constructor(builder: any) {
+        this.alias = builder._alias
         this.schema = builder._parser
     }
 
@@ -58,14 +61,14 @@ export class EventParser<
             }
         }
         // 3. Run parse method
-        const method = prop.method(prop as any, value)
-        const parsedValue = await Promise.resolve(method)
+        const promise = prop.method(prop as any, value)
+        const parsedValue = await Promise.resolve(promise)
 
         // 4. Apply rules
         for (const r in prop.rules) {
             const rule = prop.rules[r]
-            const cond = rule.cond(parsedValue)
-            const res = await Promise.resolve(cond)
+            const promise = rule.cond(parsedValue)
+            const res = await Promise.resolve(promise)
             if (!res) {
                 throw NesoiError.Event.Rule(rule, prop as any);
             }

@@ -11,7 +11,7 @@ import { ResourceCondition } from "../job/condition";
 import { ResourceMethod } from "../method";
 import { EventParserBuilder, EventTypeFromParser } from "../parser/event_parser";
 
-class TransitionTargetBuilder<
+export class TransitionTargetBuilder<
     Model extends ResourceModel,
     Event,
     Before extends ResourceMethod<Model, Event, void>,
@@ -190,11 +190,11 @@ export class TransitionBuilder<
         state: S,
         $?: $TransitionTarget<Model, Event, Extra, Before, After>
     ) {
-        const builder = new TransitionTargetBuilder<any, any, any, any>(state as any);
+        let builder = new TransitionTargetBuilder<any, any, any, any>(state as any);
         if ($) {
-            const target = $(builder as any) as any
-            (this._targets as any).push(target);
+            builder = $(builder as any) as any
         }
+        (this._targets as any).push(builder);
         return this as any as TransitionBuilder<
             Name, Model, StatesUnion, Events, Event, Extra, From, To | S
         >;
@@ -213,11 +213,11 @@ export class TransitionBuilder<
         state: S,
         $?: $TransitionTarget<Model, Event, Extra, Before, After>
     ) {
-        const builder = new TransitionTargetBuilder<any, any, any, any>(state as any);
+        let builder = new TransitionTargetBuilder<any, any, any, any>(state as any);
         if ($) {
-            const target = $(builder as any) as any
-            (this._targets as any).push(target);
+            builder = $(builder as any) as any
         }
+        (this._targets as any).push(builder);
         return this as any as TransitionBuilder<
             Name, Model, StatesUnion, Events, Event, Extra, From & StatesUnion, To | S
         >;
