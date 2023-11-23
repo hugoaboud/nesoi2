@@ -1,4 +1,4 @@
-import { EventParseMethod, EventParserRule, EventParserSchema, EventTypeFromSchema } from "../../builders/parser/event_parser"
+import { EventParseMethod, EventParserRule, EventParserBuilder, EventTypeFromParser } from "../../builders/parser/event_parser"
 import { NesoiError } from "../../error"
 import { MakeUndefinedOptional } from "../../helpers/type"
 
@@ -16,14 +16,14 @@ type Schema = {
 }
 
 export class EventParser<
-    S extends EventParserSchema,
-    Type = EventTypeFromSchema<S>
+    S extends EventParserBuilder,
+    Type = EventTypeFromParser<S>
 > {
 
     protected schema: Schema
 
     constructor(builder: any) {
-        this.schema = builder._schema
+        this.schema = builder._parser
     }
 
     async parse(event: MakeUndefinedOptional<Type>) {

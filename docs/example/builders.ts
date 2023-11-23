@@ -76,7 +76,7 @@ const Duel = Nesoi.resource('duel', DuelSource)
 
     .transition($ => $
         .on('wow2')
-        .from('requested')
+        .from('ongoing')
         .with(({ event }) => ({
             kaka: 'akoaok' as const
         }))
@@ -86,7 +86,7 @@ const Duel = Nesoi.resource('duel', DuelSource)
         .andWith(({ event }) => ({
             bobjoca: event.boboca
         }))
-        .to('ongoing', $ => $
+        .to('requested', $ => $
             .given({
                 that: ({obj}) => obj.id === 4,
                 else: 'Id deve ser igual a 4'
@@ -96,6 +96,7 @@ const Duel = Nesoi.resource('duel', DuelSource)
                 else: 'Kaka deve ser igual a lala'
             })
             .run(({obj, event}) => {
+                event.bobjoca
             })
             .thenRun(({obj, event}) => {    
                 

@@ -5,13 +5,13 @@
  * 
  */
 
-import { EventParserSchema } from "./parser/event_parser";
+import { EventParserBuilder } from "./parser/event_parser";
 import { $HttpParser, HttpParserTree } from "./parser/http_parser";
 
 // Resource
 
 export class ControllerRouteBuilder<
-    Event extends EventParserSchema,
+    Event extends EventParserBuilder,
     Extra = unknown,
     Action = unknown
 > {
@@ -58,7 +58,7 @@ export class ControllerBuilder<
     }
 
     route<
-        Event extends EventParserSchema
+        Event extends EventParserBuilder
     >($: $ControllerRoute<Event>) {
         return this;
     }
@@ -66,5 +66,5 @@ export class ControllerBuilder<
 }
 
 export type $ControllerRoute<
-    Event extends EventParserSchema
+    Event extends EventParserBuilder
 > = ($: ControllerRouteBuilder<Event>) => ControllerRouteBuilder<any>

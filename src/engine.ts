@@ -1,7 +1,7 @@
 import { $Event } from "./builders/event"
 import { JobBuilder } from "./builders/job/job"
 import { ResourceBuilder } from "./builders/resource/resource"
-import { EventParserSchema } from "./builders/parser/event_parser"
+import { EventParserBuilder } from "./builders/parser/event_parser"
 import { ResourceModel } from "./data/model"
 import { DataSource } from "./data/data_source"
 import { Queue, QueueSource } from "./engine/queue"
@@ -40,7 +40,7 @@ export class NesoiEngine<
     }
 
     job<
-        Event extends EventParserSchema
+        Event extends EventParserBuilder
     >(
         name: string,
         $: $Event<Event>

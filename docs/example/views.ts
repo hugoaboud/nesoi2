@@ -1,4 +1,4 @@
-import { ResourceBuilder, ResourceBuilderToSchema } from "../../src/builders/resource/resource"
+import { ResourceBuilder } from "../../src/builders/resource/resource"
 import { DataSource } from "../../src/data/data_source"
 import { ResourceModel } from "../../src/data/model"
 

@@ -1,20 +1,20 @@
-import { ViewProp, ViewSchema, ViewTypeFromSchema } from "../builders/resource/view";
+import { ViewProp, ViewBuilder, ViewTypeFromBuilder } from "../builders/resource/view";
 import { ResourceModel } from "../data/model";
 
 export class View<
-    Schema extends ViewSchema,
-    Type = ViewTypeFromSchema<Schema>
+    Builder extends ViewBuilder,
+    Type = ViewTypeFromBuilder<Builder>
 > {
 
     constructor(
-        protected schema: Schema
+        protected builder: Builder
     ) {}
 
     async parse(model: ResourceModel): Promise<Type> {
         const parsedObj = {} as any
         // Model props
-        for (const k in this.schema) {
-            const prop = this.schema[k];
+        for (const k in this.builder) {
+            const prop = this.builder[k];
             if (prop.__type === 'view.prop') {
                 if (prop.type !== 'model') { continue }
                 parsedObj[k] = (prop as ViewProp<any>).fn(model)
@@ -26,8 +26,8 @@ export class View<
         }
         
         // Computed props
-        for (const k in this.schema) {
-            const prop = this.schema[k];
+        for (const k in this.builder) {
+            const prop = this.builder[k];
             if (prop.__type === 'view.prop') {
                 if (prop.type !== 'computed') { continue }
                 parsedObj[k] = (prop as ViewProp<any>).fn(model)

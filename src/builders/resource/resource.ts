@@ -6,32 +6,20 @@
  */
 
 import { ResourceModel } from "../../data/model"
-import { $Event, EventParserBuilder } from "../event"
-import { $States, StateFactory, StateTree, State, StateSchema } from "./states"
+import { $Event, EventBuilder } from "../event"
+import { $States, StateFactory, StateTree, State } from "./states"
 import { $Transition, TransitionBuilder } from "./transition"
-import { EventParserSchema } from "../parser/event_parser"
-import { $View, ViewPropFactory, ViewSchema } from "./view"
+import { EventParserBuilder } from "../parser/event_parser"
+import { $View, ViewPropFactory, ViewBuilder } from "./view"
 import { DataSource } from "../../data/data_source"
 import { Resource } from "../../engine/resource"
 import { View } from "../../engine/view"
 
 // Resource
 
-export type ResourceSchema<
-    Model extends ResourceModel,
-    Events extends EventParserSchema
-> = {
-    name: string,
-    dataSourceClass: new (...args: any) => DataSource<Model>,
-    _alias: string
-    _events: Events,
-    _views: ViewSchema,
-    _states: StateSchema
-}
-
 export class ResourceBuilder<
     Model extends ResourceModel,
-    Events extends EventParserSchema = {},
+    Events extends EventParserBuilder = {},
     Views = unknown,
     States = unknown,
     StatesUnion = unknown,
@@ -56,17 +44,17 @@ export class ResourceBuilder<
 
     event<
         K extends string,
-        Schema extends EventParserSchema
+        Parser extends EventParserBuilder
     >(
         name: K,
-        $: $Event<Schema>
+        $: $Event<Parser>
     ) {
-        const builder = new EventParserBuilder(name);
+        const builder = new EventBuilder(name);
         (this._events as any)[name] = $(builder);
         
         return this as any as ResourceBuilder<
             Model,
-            Events & { [E in K]: Schema },
+            Events & { [E in K]: Parser },
             Views,
             States,
             StatesUnion
@@ -75,10 +63,10 @@ export class ResourceBuilder<
 
     view<
         K extends string,
-        Schema extends ViewSchema
+        View extends ViewBuilder
     >(
         name: K,
-        $: $View<Model, Schema>
+        $: $View<Model, View>
     ) {
         const factory = new ViewPropFactory();
         (this._views as any)[name] = $(factory as any);
@@ -86,7 +74,7 @@ export class ResourceBuilder<
         return this as any as ResourceBuilder<
             Model,
             Events,
-            Views & { [E in K]: Schema },
+            Views & { [E in K]: View },
             States,
             StatesUnion
         >
@@ -100,12 +88,11 @@ export class ResourceBuilder<
         const states = $(StateFactory);
         Object.assign(this._states as any, states);
 
-        type StateSchema = States & { [K in keyof Tree]: State } // makes type preview nicer
         return this as any as ResourceBuilder<
             Model,
             Events,
             Views,
-            StateSchema,
+            States & { [K in keyof Tree]: State },
             StatesUnion & keyof Tree | 'void'
         >
     }
@@ -139,15 +126,8 @@ export class ResourceBuilder<
     build() {
         return new Resource<
             Model,
-            { [V in keyof Views]: View<Views[V] & ViewSchema> }
+            { [V in keyof Views]: View<Views[V] & ViewBuilder> }
         >(this)
     }
 
 }
-
-export type ResourceBuilderToSchema<Builder> = ResourceSchema<
-    Builder extends ResourceBuilder<infer X, any> ? X : never,
-    Builder extends ResourceBuilder<any, infer X>
-        ? X extends EventParserSchema ? X : never
-        : never
->

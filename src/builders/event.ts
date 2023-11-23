@@ -1,5 +1,5 @@
 import { EventParser } from '../engine/parser/event.parser';
-import { $EventParser, EventParserPropFactory, EventParserSchema } from './parser/event_parser'
+import { $EventParser, EventParserPropFactory, EventParserBuilder } from './parser/event_parser'
 
 /**
  * [ Event ]
@@ -9,23 +9,23 @@ import { $EventParser, EventParserPropFactory, EventParserSchema } from './parse
  * 
  */
 
-export class EventParserBuilder<
-    Schema extends EventParserSchema = never
+export class EventBuilder<
+    Parser extends EventParserBuilder = never
 > {
 
     private _alias?: string
     private _allowFrom?: string
-    private _schema?: Schema
+    private _parser?: Parser
     
     constructor(
         private name: string
     ) {}
 
     schema<
-        Tree extends EventParserSchema
-    >($: $EventParser<Tree>) {
-        this._schema = $(EventParserPropFactory) as any;
-        return this as any as EventParserBuilder<Tree>
+        Parser extends EventParserBuilder
+    >($: $EventParser<Parser>) {
+        this._parser = $(EventParserPropFactory) as any;
+        return this as any as EventBuilder<Parser>
     }
 
     alias(alias: string) {
@@ -40,12 +40,12 @@ export class EventParserBuilder<
 
     build() {
         return new EventParser<
-            Schema
+            Parser
         >(this)
     }
 
 }
 
 export type $Event <
-    Schema extends EventParserSchema
-> = ($: EventParserBuilder) => EventParserBuilder<Schema>
+    Parser extends EventParserBuilder
+> = ($: EventBuilder) => EventBuilder<Parser>

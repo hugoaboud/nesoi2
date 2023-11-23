@@ -17,10 +17,6 @@ export type StateTree = {
     [_: string]: StateBuilder
 }
 
-export type StateSchema = {
-    [_: string]: State
-}
-
 export class StateBuilder {
     
     private __type = 'state';

@@ -1,6 +1,6 @@
-import { EventParserSchema } from "../builders/parser/event_parser";
+import { EventParserBuilder } from "../builders/parser/event_parser";
 import { ResourceBuilder } from "../builders/resource/resource";
-import { ViewSchema } from "../builders/resource/view";
+import { ViewBuilder } from "../builders/resource/view";
 import { DataSource } from "../data/data_source";
 import { ResourceModel } from "../data/model";
 import { View } from "./view";
@@ -11,7 +11,7 @@ export class Resource<
 > {
 
     protected alias: string
-    protected events: EventParserSchema
+    protected events: EventParserBuilder
     protected views: Views
 
     protected dataSource: DataSource<any>

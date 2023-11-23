@@ -5,15 +5,15 @@
  * 
  */
 
-import { $Event, EventParserBuilder } from "../event";
+import { $Event, EventBuilder } from "../event";
 import { JobMethod } from "../method";
-import { EventParserSchema } from "../parser/event_parser";
+import { EventParserBuilder } from "../parser/event_parser";
 import { JobCondition } from "./condition";
 
 // Resource
 
 export class JobBuilder<
-    Event extends EventParserSchema,
+    Event extends EventParserBuilder,
     Extra = unknown,
     Action = unknown
 > {
@@ -26,7 +26,7 @@ export class JobBuilder<
         name: string,
         $: $Event<Event>
     ) {
-        const builder = new EventParserBuilder(name);
+        const builder = new EventBuilder(name);
         (this._event as any) = $(builder);
     }
 

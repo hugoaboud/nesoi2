@@ -14,17 +14,17 @@ export type EventParserRule<T> = {
     error: (prop: EventParserPropBuilder<T>) => string
 }
 
-export type EventParserSchema = {
-    [_: string]: EventParserPropBuilder<any> | EventParserSchema
+export type EventParserBuilder = {
+    [_: string]: EventParserPropBuilder<any> | EventParserBuilder
 }
 
-export type EventTypeFromSchema<
-    Tree extends EventParserSchema
+export type EventTypeFromParser<
+    Parser extends EventParserBuilder
 > = {
-    [K in keyof Tree]: Tree[K] extends EventParserPropBuilder<infer X>
+    [K in keyof Parser]: Parser[K] extends EventParserPropBuilder<infer X>
         ? X
-        : Tree[K] extends EventParserSchema
-            ? EventTypeFromSchema<Tree[K]>
+        : Parser[K] extends EventParserBuilder
+            ? EventTypeFromParser<Parser[K]>
             : never
 }
 
@@ -159,4 +159,4 @@ export function EventParserPropFactory(
 
 }
 
-export type $EventParser<Tree extends EventParserSchema> = ($: typeof EventParserPropFactory) => Tree
+export type $EventParser<Parser extends EventParserBuilder> = ($: typeof EventParserPropFactory) => Parser

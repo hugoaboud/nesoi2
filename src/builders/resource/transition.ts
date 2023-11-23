@@ -9,21 +9,7 @@
 import { ResourceModel } from "../../data/model";
 import { ResourceCondition } from "../job/condition";
 import { ResourceMethod } from "../method";
-import { EventParserSchema, EventTypeFromSchema } from "../parser/event_parser";
-
-export type TransitionSchema<
-    Event extends EventParserSchema
-> = {
-    _name: string
-    _event: Event
-    _from: string
-    _targets: {
-        state: string
-        conditions: ResourceCondition<any, any>[]
-        before: ResourceMethod<any, any, void>
-        after: ResourceMethod<any, any, void>
-    }[]
-}
+import { EventParserBuilder, EventTypeFromParser } from "../parser/event_parser";
 
 class TransitionTargetBuilder<
     Model extends ResourceModel,
@@ -84,7 +70,7 @@ export class TransitionBuilder<
     Name extends string,
     Model extends ResourceModel,
     StatesUnion extends string,
-    Events extends EventParserSchema,
+    Events extends EventParserBuilder,
     Event = unknown,
     Extra = unknown,
     From = unknown,
@@ -110,7 +96,7 @@ export class TransitionBuilder<
             Model,
             StatesUnion,
             Events,
-            EventTypeFromSchema<Events[E] & EventParserSchema>,
+            EventTypeFromParser<Events[E] & EventParserBuilder>,
             Extra,
             From
         >
@@ -141,7 +127,7 @@ export class TransitionBuilder<
 
     with<
         Ext extends { [_: string]: any },
-        g_Event extends EventParserSchema,
+        g_Event extends EventParserBuilder,
         g_From extends StatesUnion
     >(
         this: TransitionBuilder<
@@ -165,7 +151,7 @@ export class TransitionBuilder<
 
     andWith<
         Ext extends { [_: string]: any },
-        g_Event extends EventParserSchema,
+        g_Event extends EventParserBuilder,
         g_From extends StatesUnion
     >(
         this: TransitionBuilder<
@@ -195,7 +181,7 @@ export class TransitionBuilder<
         Before extends ResourceMethod<Model, Event & Extra, void>,
         After extends ResourceMethod<Model, Event & Extra, void>,
         S extends Exclude<StatesUnion, From|'void'> | (From extends 'void' ? never : '.'),
-        g_Event extends EventParserSchema,
+        g_Event extends EventParserBuilder,
         g_From extends StatesUnion
     >(
         this: TransitionBuilder<
@@ -218,7 +204,7 @@ export class TransitionBuilder<
         Before extends ResourceMethod<Model, Event & Extra, void>,
         After extends ResourceMethod<Model, Event & Extra, void>,
         S extends Exclude<StatesUnion, From|'void'> | (From extends 'void' ? never : '.'),
-        g_Event extends EventParserSchema,
+        g_Event extends EventParserBuilder,
         g_From extends StatesUnion
     >(
         this: TransitionBuilder<
@@ -252,7 +238,7 @@ export type $Transition<
     Name extends string,
     Model extends ResourceModel,
     StatesUnion extends string,
-    Events extends EventParserSchema,
+    Events extends EventParserBuilder,
     Event,
     Extra,
     From

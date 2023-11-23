@@ -14,17 +14,17 @@ export type ViewProp<T> = {
     fn: (model: ResourceModel) => T | Promise<T>
 }
 
-export type ViewSchema = {
-    [_: string]: ViewProp<any> | ViewSchema
+export type ViewBuilder = {
+    [_: string]: ViewProp<any> | ViewBuilder
 }
 
-export type ViewTypeFromSchema<
-    Schema extends ViewSchema
+export type ViewTypeFromBuilder<
+    View extends ViewBuilder
 > = {
-    [K in keyof Schema]: Schema[K] extends ViewProp<infer X>
+    [K in keyof View]: View[K] extends ViewProp<infer X>
         ? X
-        : Schema[K] extends ViewSchema
-            ? ViewTypeFromSchema<Schema[K]>
+        : View[K] extends ViewBuilder
+            ? ViewTypeFromBuilder<View[K]>
             : never
 }
 
@@ -81,5 +81,5 @@ export class ViewPropFactory<
 
 export type $View<
     Model extends ResourceModel,
-    Tree extends ViewSchema
+    Tree extends ViewBuilder
 > = ($: ViewPropFactory<Model>) => Tree
