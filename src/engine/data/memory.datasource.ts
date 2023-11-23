@@ -24,7 +24,7 @@ export class MemoryDataSource<
             const lastId = Object.keys(this.data)
                 .map(id => parseInt(id))
                 .sort((a,b) => b-a)[0] || 0
-            obj.id = lastId+1
+                obj.id = lastId+1
         }
         this.data[obj.id as number] = obj as T
     }

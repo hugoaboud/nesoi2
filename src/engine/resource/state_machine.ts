@@ -122,17 +122,24 @@ export class StateMachine<
     }
 
     private async runTarget(target: TransitionTargetSchema, obj: Obj, event: Obj) {
+        // 1. Check conditions
         const canRunTarget = await this.checkTargetConditions(target, obj, event)
         if (!canRunTarget) {
             return false
         }
+        // 2. Run first method ("before" changing state)
         if (target.before) {
             const promise = target.before({ obj, event })
             await Promise.resolve(promise)
         }
+        // 3. Update state and save
+        obj.state = target.state
+        await this.dataSource.put(obj as any);
+        // 4. Run second method ("after" changin state)
         if (target.after) {
             const promise = target.after({ obj, event })
             await Promise.resolve(promise)
+            await this.dataSource.put(obj as any);
         }
         return true
     }
@@ -146,6 +153,14 @@ export class StateMachine<
             const promise = given.that({ obj, event })
             const valid = await Promise.resolve(promise)
             if (!valid) {
+                if (given.else) {
+                    if (typeof given.else === 'string') {
+                        throw NesoiError.Resource.Condition(given.else)
+                    }
+                    const promise = given.else({obj, event})
+                    const msg = await Promise.resolve(promise)
+                    throw NesoiError.Resource.Condition(msg)
+                }
                 return false
             }
         }

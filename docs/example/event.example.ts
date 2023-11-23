@@ -1,6 +1,6 @@
 import { EventBuilder } from "../../src/builders/event"
 
-const fireball = new EventBuilder('fireball')
+const FireballEvent = new EventBuilder('fireball')
     .schema($ => ({
         size: $('Tamanho').float,
         power: $('Poder').int,
@@ -14,7 +14,7 @@ const fireball = new EventBuilder('fireball')
 
 async function main() {
 
-    const event = await fireball.parse({
+    const event = await FireballEvent.parse({
         power: 12.2,
         size: 46,
         powerup: {

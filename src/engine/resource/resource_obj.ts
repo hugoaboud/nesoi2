@@ -20,12 +20,12 @@ export class ResourceObj {
     }
 
     async save() {
-        return (this._nesoi.resource as any).dataSource.put(this)
+        const { _nesoi, ...obj} = this
+        return (this._nesoi.resource as any).dataSource.put(obj)
     }
 
     log() {
-        const obj = Object.assign({}, this) as any
-        delete obj['_nesoi']
+        const { _nesoi, ...obj} = this
         console.log(obj)
     }
 

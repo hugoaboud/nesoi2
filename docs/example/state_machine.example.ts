@@ -1,8 +1,8 @@
 import { ResourceBuilder } from "../../src/builders/resource/resource"
 import { FireballDataSource } from "./datasource.example"
 
-export const Fireball = new ResourceBuilder({} as any, 'mock', FireballDataSource)
-    .alias('Fireball!')
+export const Fireball = new ResourceBuilder({} as any, 'fireball', FireballDataSource)
+    .alias('Fireball')
     .states($ => ({
         idle: $('Idle').initial(),
         charging: $('Charging').children({
@@ -34,8 +34,11 @@ export const Fireball = new ResourceBuilder({} as any, 'mock', FireballDataSourc
         .from('idle')
         .to('boom', $ => $
             .given({
-                that: ({ obj }) => obj.power > 12,
-                else: 'Power is too great, boom!'
+                that: ({ obj }) => obj.size > 5,
+                else: 'Fireball too small, can\'t be charged :('
+            })
+            .given({
+                that: ({ event }) => event.power > 10
             })
             .run(() => {
                 console.log("CHARGE BOOOM!")
@@ -57,7 +60,11 @@ export const Fireball = new ResourceBuilder({} as any, 'mock', FireballDataSourc
 
 async function main() {
     
-    Fireball.machine.send(0, 'launch', {
+    await Fireball.machine.send(1, 'charge', {
+        power: 8
+    })
+
+    await Fireball.machine.send(1, 'launch', {
         direction: 'down'
     })
 

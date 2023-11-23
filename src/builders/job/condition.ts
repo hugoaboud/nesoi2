@@ -13,7 +13,7 @@ export type ResourceCondition<
     Event
 > = {
     that: ResourceMethod<Model, Event, boolean>,
-    else: string | ResourceMethod<Model, Event, string>
+    else?: string | ResourceMethod<Model, Event, string>
 }
 
 export type JobCondition<

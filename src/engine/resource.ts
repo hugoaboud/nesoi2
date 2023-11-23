@@ -36,7 +36,10 @@ export class Resource<
         )
     }
 
-    async readOne<V extends keyof Views | 'raw'>(id: Model['id'], view: V = 'raw' as any) {
+    async readOne<V extends keyof Views>(
+        id: Model['id'],
+        view: V|'raw' = 'raw'
+    ) {
         // 1. Read from Data Source
         const promise = this.dataSource.get(id);
         const model = await Promise.resolve(promise)
@@ -53,7 +56,10 @@ export class Resource<
         return this.build<ViewObj<Views[V]>>(model, parsedView)
     }
 
-    async readAll<V extends keyof Views | 'raw'>(id: Model['id'], view: V = 'raw' as any) {
+    async readAll<V extends keyof Views>(
+        id: Model['id'],
+        view: V|'raw' = 'raw'
+    ) {
         // 1. Read from Data Source
         const promise = this.dataSource.index();
         const models = await Promise.resolve(promise)

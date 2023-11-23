@@ -39,5 +39,9 @@ export namespace NesoiError {
             export function NoTransition(resource: string, state: string, event: string) {
                 return new Error(`It's not possible to ${event} a ${state} ${resource}`)
             }
+
+            export function Condition(message: string) {
+                return new Error(message)
+            }
         }
 }
