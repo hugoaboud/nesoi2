@@ -9,7 +9,7 @@ import { MemoryQueueSource } from "./engine/queue/memory.queue"
 import { MemoryCacheSource } from "./engine/cache/memory.cache"
 import { Cache, CacheSource } from "./engine/cache"
 import { ActivityModel } from "./engine/operation/activity.model"
-import { ActivityBuilder } from "./builders/operation/activity"
+import { ActivityBuilder, ActivitySource } from "./builders/operation/activity"
 import { Activity } from "./engine/operation/activity"
 import { NesoiClient } from "./client"
 
@@ -33,12 +33,12 @@ type EngineClient<
 export class NesoiEngine<
     AppClient extends Client,
     ActivityNameUnion extends string,
-    C = EngineClient<AppClient, ActivityNameUnion>
+    C extends NesoiClient<any,any> = EngineClient<AppClient, ActivityNameUnion>
 > {
     protected queue: Queue
     protected cache: Cache
     
-    public activities: Record<ActivityNameUnion, Activity<any>> = {} as any
+    public activities: Record<ActivityNameUnion, Activity<any, any>> = {} as any
 
     constructor($: {
         client: AppClient,
@@ -69,7 +69,7 @@ export class NesoiEngine<
     }
 
     activity<
-        Source extends DataSource<ActivityModel>
+        Source extends ActivitySource<any,any,any>
     >(
         name: ActivityNameUnion,
         dataSource: Source

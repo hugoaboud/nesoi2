@@ -1,7 +1,7 @@
 import { ResourceModel } from "./model";
 
 export abstract class DataSource<
-    Model extends ResourceModel
+    Model extends { id: number|string }
 > {
     
     abstract get(id: Model['id']): undefined | Model | Promise<undefined | Model>

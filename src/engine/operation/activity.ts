@@ -1,10 +1,11 @@
 import { EventParser } from "../parser/event.parser";
 import { ActivityCondition } from "../../builders/condition";
 import { ActivityMethod } from "../../builders/method";
-import { ActivityStepBuilder } from "../../builders/operation/activity";
-import { ActivityModel } from "./activity.model";
+import { ActivitySource, ActivityStepBuilder } from "../../builders/operation/activity";
+import { ActivityLogModel, ActivityModel } from "./activity.model";
 import { DataSource } from "../data/datasource";
 import { NesoiError } from "../../error";
+import { NesoiClient } from "../../client";
 
 export type ApplicationStepEvent<T> = T extends ActivityStepBuilder<any,any,infer X,any,any> ? X : never
 
@@ -23,13 +24,13 @@ export class ActivityStep {
 }
 
 export class Activity<
-    Client,
-    Source = unknown,
+    Client extends NesoiClient<any,any>,
+    Source extends ActivitySource<any,any,any> = never,
     RequestStep = unknown,
     Steps = unknown
 > {
 
-    public dataSource: DataSource<ActivityModel> & Source
+    public dataSource: Source
     public name: string
     public requestStep!: ActivityStep & RequestStep
     public steps!: (ActivityStep & Steps)[]
@@ -47,11 +48,13 @@ export class Activity<
         client: Client,
         input: ApplicationStepEvent<RequestStep>
     ) {
-        const parsedInput = await this.requestStep.eventParser.parse(input as any);
-        const activity: Omit<ActivityModel, 'id'> = {
+        const event = await this.requestStep.eventParser.parse(input as any);
+        const entry: Omit<ActivityModel, 'id'> = {
             state: 'requested'
         }
-        return this.dataSource.put(activity)
+        const activity = await this.dataSource.activities.put(entry)
+        await this.logStep(client, activity, event);
+        return activity;
     }
 
     // public schedule(
@@ -65,7 +68,7 @@ export class Activity<
         id: number,
         input: ApplicationStepEvent<Steps>
     ) {
-        const activity = await this.dataSource.get(id)
+        const activity = await this.dataSource.activities.get(id)
         if (!activity) {
             throw NesoiError.Activity.NotFound(this.name, id)
         }
@@ -88,8 +91,29 @@ export class Activity<
                 activity.state = 'done'
             }
         }
-        await this.dataSource.put(activity)
+        await this.logStep(client, activity, event);
+        await this.dataSource.activities.put(activity)
         return activity
+    }
+
+    public async comment(
+        client: Client,
+        id: number,
+        comment: string
+    ) {
+        const activity = await this.dataSource.activities.get(id)
+        if (!activity) {
+            throw NesoiError.Activity.NotFound(this.name, id)
+        }
+        const log: Omit<ActivityLogModel<any>, 'id'> = {
+            activity_id: activity.id,
+            type: 'comment',
+            state: activity.state,
+            message: comment,
+            timestamp: new Date().toISOString(),
+            user_id: client.user.id
+        }
+        await this.dataSource.logs.put(log)
     }
 
     private getStep(state: string) {
@@ -100,4 +124,16 @@ export class Activity<
         }
     }
 
+    private async logStep<Event>(client: Client, activity: ActivityModel, event: Event) {
+        const log: Omit<ActivityLogModel<any>, 'id'> = {
+            activity_id: activity.id,
+            type: 'step',
+            state: activity.state,
+            message: `Activity advanced to state ${activity.state}`,
+            event,
+            timestamp: new Date().toISOString(),
+            user_id: client.user.id
+        }
+        await this.dataSource.logs.put(log)
+    }
 }

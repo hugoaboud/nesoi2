@@ -2,7 +2,7 @@ import { DataSource } from "./datasource";
 import { ResourceModel } from "./model";
 
 export class MemoryDataSource<
-    T extends ResourceModel
+    T extends { id: number | string }
 > extends DataSource<T> {
 
     protected data: Record<number, T> = {}

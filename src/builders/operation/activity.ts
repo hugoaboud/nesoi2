@@ -2,12 +2,25 @@
 import { Client, NesoiClient } from '../../client'
 import { DataSource } from '../../engine/data/datasource'
 import { Activity, ActivityStep } from '../../engine/operation/activity'
-import { ActivityModel } from '../../engine/operation/activity.model'
+import { ActivityLogModel, ActivityModel } from '../../engine/operation/activity.model'
+import { SchedulingModel } from '../../engine/operation/scheduling.model'
 import { ActivityCondition } from '../condition'
 import { ActivityMethod } from '../method'
 import { $EventParser, EventParserBuilder, EventParserPropFactory, EventTypeFromParser } from '../parser/event_parser'
 
 type Response = 'pass' | 'cancel'
+
+export class ActivitySource<
+  A extends DataSource<ActivityModel>,
+  L extends DataSource<ActivityLogModel<any>>,
+  S extends DataSource<SchedulingModel>
+> {
+  constructor(
+    public activities: A,
+    public logs: L,
+    public schedulings: S
+  ) {}
+}
 
 export class ActivityStepBuilder<
   Client,
@@ -83,8 +96,8 @@ export class ActivityStepBuilder<
 }
 
 export class ActivityBuilder<
-  Client,
-  Source extends DataSource<ActivityModel>,
+  Client extends NesoiClient<any, any>,
+  Source extends ActivitySource<any,any,any>,
   RequestStep = unknown,
   Steps = unknown
 > {
@@ -94,7 +107,7 @@ export class ActivityBuilder<
   constructor (
     protected name: string,
     protected dataSource: Source,
-    protected buildCallback?: (activity: Activity<any>) => void
+    protected buildCallback?: (activity: Activity<any,any>) => void
   ) {}
 
   public request<
