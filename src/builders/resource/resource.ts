@@ -5,15 +5,16 @@
  * 
  */
 
-import { ResourceModel } from "../../data/model"
+import { ResourceModel } from "../../engine/data/model"
 import { $Event, EventBuilder } from "../event"
 import { $States, StateFactory, StateTree, State } from "./states"
 import { $Transition, TransitionBuilder } from "./transition"
 import { EventParserBuilder, EventTypeFromParser } from "../parser/event_parser"
 import { $View, ViewPropFactory, ViewBuilder } from "./view"
-import { DataSource } from "../../data/data_source"
+import { DataSource } from "../../engine/data/datasource"
 import { Resource } from "../../engine/resource"
 import { View } from "../../engine/resource/view"
+import { $Composition, Composition, CompositionBuilder } from "./compose"
 
 // Resource
 
@@ -21,6 +22,7 @@ export class ResourceBuilder<
     Model extends ResourceModel,
     Events extends EventParserBuilder = {},
     Views = unknown,
+    Compositions = unknown,
     States = unknown,
     StatesUnion = unknown
 > {
@@ -28,6 +30,7 @@ export class ResourceBuilder<
     private _alias!: string
     private _events: Events = {} as any
     private _views: Views = {} as any
+    private _compositions: Compositions = {} as any
     private _states: States = {} as any
     
     // Transitions don't need to be strongly typed
@@ -58,6 +61,7 @@ export class ResourceBuilder<
             Model,
             Events & { [E in K]: Parser },
             Views,
+            Compositions,
             States,
             StatesUnion
         >
@@ -77,6 +81,7 @@ export class ResourceBuilder<
             Model,
             Events,
             Views & { [E in K]: View },
+            Compositions,
             States,
             StatesUnion
         >
@@ -94,6 +99,7 @@ export class ResourceBuilder<
             Model,
             Events,
             Views,
+            Compositions,
             States & { [K in keyof Tree]: State },
             StatesUnion & keyof Tree | 'void'
         >
@@ -120,6 +126,29 @@ export class ResourceBuilder<
             Model,
             Events,
             Views,
+            Compositions,
+            States,
+            StatesUnion
+        >
+    }
+
+    compose<
+        K extends string,
+        ChildModel extends ResourceModel
+    >(
+        other_name: K,
+        $?: $Composition<Model, ChildModel>
+    ) {
+        const builder = new CompositionBuilder(this.name, other_name);
+        if ($) {
+            (this._compositions as any)[other_name] = $(builder as any);
+        }
+        
+        return this as any as ResourceBuilder<
+            Model,
+            Events,
+            Views,
+            Compositions & { [E in K]: ChildModel },
             States,
             StatesUnion
         >

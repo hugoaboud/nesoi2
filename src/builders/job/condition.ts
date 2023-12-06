@@ -5,7 +5,7 @@
  * 
 */
 
-import { ResourceModel } from "../../data/model";
+import { ResourceModel } from "../../engine/data/model";
 import { JobMethod, ResourceMethod } from "../method";
 
 export type ResourceCondition<

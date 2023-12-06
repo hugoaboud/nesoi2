@@ -6,7 +6,7 @@
  * 
  */
 
-import { ResourceModel } from "../../data/model";
+import { ResourceModel } from "../../engine/data/model";
 import { ResourceCondition } from "../job/condition";
 import { ResourceMethod } from "../method";
 import { EventParserBuilder, EventTypeFromParser } from "../parser/event_parser";

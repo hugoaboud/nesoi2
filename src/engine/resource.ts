@@ -1,5 +1,5 @@
-import { DataSource } from "../data/data_source";
-import { ResourceModel } from "../data/model";
+import { DataSource } from "./data/datasource";
+import { ResourceModel } from "./data/model";
 import { NesoiError } from "../error";
 import { ResourceObj } from "./resource/resource_obj";
 import { StateMachine } from "./resource/state_machine";

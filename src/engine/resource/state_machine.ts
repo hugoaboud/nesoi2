@@ -1,35 +1,11 @@
-import { ResourceCondition } from "../../builders/job/condition";
-import { ResourceMethod } from "../../builders/method";
-import { DataSource } from "../../data/data_source";
-import { ResourceModel } from "../../data/model";
+import { DataSource } from "../data/datasource";
+import { ResourceModel } from "../data/model";
 import { NesoiError } from "../../error";
 import { EventParser } from "../parser/event.parser";
 import { Tree } from "../../helpers/tree";
 import { NesoiEngine } from "../../engine";
+import { Obj, State, StateSchema, StateTree, TransitionSchema, TransitionTargetSchema } from "../schema";
 
-type Obj = Record<string, any>
-type State = string
-
-type StateSchema = {
-    __type: 'state'
-    alias: string
-    _initial: boolean
-    _final: boolean
-    _states: StateTree
-}
-type StateTree = Record<State, StateSchema>
-
-type TransitionTargetSchema = {
-    state: string,
-    conditions: ResourceCondition<any, any>[],
-    before?: ResourceMethod<any, any, any>,
-    after?: ResourceMethod<any, any, any>
-}
-type TransitionSchema = {
-    _event: string,
-    _from: string,
-    _targets: TransitionTargetSchema[]
-}
 export class StateMachine<
     Model extends ResourceModel,
     Events

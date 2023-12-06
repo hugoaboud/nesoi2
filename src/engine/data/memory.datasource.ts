@@ -1,5 +1,5 @@
-import { DataSource } from "../../data/data_source";
-import { ResourceModel } from "../../data/model";
+import { DataSource } from "./datasource";
+import { ResourceModel } from "./model";
 
 export class MemoryDataSource<
     T extends ResourceModel

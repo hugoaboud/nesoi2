@@ -1,20 +1,7 @@
 import { EventParseMethod, EventParserRule, EventParserBuilder, EventTypeFromParser } from "../../builders/parser/event_parser"
 import { NesoiError } from "../../error"
 import { MakeUndefinedOptional } from "../../helpers/type"
-
-type Prop = {
-    __type: 'event.prop'
-    alias: string
-    required: boolean
-    default?: any
-    method: EventParseMethod<any>
-    rules: EventParserRule<any>[]
-}
-
-// Public version of EventBuilder
-type Schema = {
-    [_: string]: Prop | Schema
-}
+import { EventPropSchema, EventSchema } from "../schema"
 
 export class EventParser<
     S extends EventParserBuilder,
@@ -22,7 +9,7 @@ export class EventParser<
 > {
 
     alias: string
-    protected schema: Schema
+    protected schema: EventSchema
 
     constructor(builder: any) {
         this.alias = builder._alias
@@ -33,21 +20,21 @@ export class EventParser<
         return this.parseSchema(this.schema, event) as Type
     }
 
-    private async parseSchema(schema: Schema, obj: Record<string, any>) {
+    private async parseSchema(schema: EventSchema, obj: Record<string, any>) {
         const parsedObj = {} as any
         for (const k in schema) {
             const prop = schema[k]
             if (prop.__type === 'event.prop') {
-                parsedObj[k] = await this.parseProp(prop as Prop, obj[k])
+                parsedObj[k] = await this.parseProp(prop as EventPropSchema, obj[k])
             }
             else {
-                parsedObj[k] = await this.parseSchema(prop as Schema, obj[k])
+                parsedObj[k] = await this.parseSchema(prop as EventSchema, obj[k])
             }
         }
         return parsedObj
     }
 
-    private async parseProp(prop: Prop, value: any) {
+    private async parseProp(prop: EventPropSchema, value: any) {
         // 1. Sanitize input
         this.sanitize(value);
 

@@ -1,4 +1,4 @@
-import { ResourceModel } from "../../src/data/model";
+import { ResourceModel } from "../../src/engine/data/model";
 import { MemoryDataSource } from "../../src/engine/data/memory.datasource";
 
 type FireballState =

@@ -1,5 +1,5 @@
 import { ControllerBuilder } from "../../src/builders/controller"
-import { DataSource } from "../../src/data/data_source"
+import { DataSource } from "../../src/engine/data/datasource"
 import { NesoiEngine } from "../../src/engine"
 
 const Nesoi = new NesoiEngine<{
@@ -11,6 +11,7 @@ const Nesoi = new NesoiEngine<{
 
 class DuelModel {
     id!: number
+    score_id!: number
     state!: string
     josefina!: 'sword'|'saber'
 }
@@ -33,10 +34,26 @@ const Duel = Nesoi.resource('duel', DuelSource)
 
     .view('asd', $ => ({
         koko: $.model('josefina'),
-        ooi: {
-            oaoa: $.child('df')
-        }
+        player_a: $.oneOf('player').from('player_a_id'),
+        player_b: $.oneOf('player').where('duel_id'),
+        comments: $.manyOf('comment').where('comment_id'),
+        notifications: $.manyOf('notification').where('duel_id'),
+        watchers: $.manyOf('player').pivot(DuelSource, 'player_id', 'duel_id'),
     }))
+
+    .view('koko', $ => ({
+        koko: $.model('josefina')
+    }))
+
+    .compose('badge')
+
+    .compose('score', $ => $
+        .from('score_id')
+    )
+
+    .compose('score', $ => $
+        .where('id')
+    )
 
     .states($ => ({
         requested: $('Requerido').initial(),
@@ -45,27 +62,27 @@ const Duel = Nesoi.resource('duel', DuelSource)
         }),
     }))
 
-    .event('create', $ => $
-        .schema($ => ({
-            asdasd: {
-                asdaska: $('sdf').date,
-                lopasa: $('asdasd').boolean
-            }
-        }))
-        .alias('')
-        .allowFrom('')
-    )
+    // .event('create', $ => $
+    //     .schema($ => ({
+    //         asdasd: {
+    //             asdaska: $('sdf').date,
+    //             lopasa: $('asdasd').boolean
+    //         }
+    //     }))
+    //     .alias('')
+    //     .allowFrom('')
+    // )
 
-    .event('wow', $ => $
-        .schema($ => ({
-            opa: {
-                aka: $('sdf').date,
-                lopa: $('asdasd').boolean
-            }
-        }))
-        .alias('')
-        .allowFrom('')
-    )
+    // .event('wow', $ => $
+    //     .schema($ => ({
+    //         opa: {
+    //             aka: $('sdf').date,
+    //             lopa: $('asdasd').boolean
+    //         }
+    //     }))
+    //     .alias('')
+    //     .allowFrom('')
+    // )
 
     .event('wow2', $ => $
         .schema($ => ({
@@ -88,7 +105,7 @@ const Duel = Nesoi.resource('duel', DuelSource)
             boboca: event.kaka
         }))
         .andWith(({ event }) => ({
-            bobjoca: event.boboca
+            bobjoca: event.opopa.lopa
         }))
         .to('requested', $ => $
             .given({
@@ -109,51 +126,50 @@ const Duel = Nesoi.resource('duel', DuelSource)
         .orTo('.')
     )
 
-type D = typeof Duel['_events']
+// type D = typeof Duel['_views']
 
+// const DuelJob = Nesoi.job('fight', $ => $
+//     .alias('LETSFIGHT!')    
+//     .schema($ => ({
+//         bacteria: $('Bactéria').float
+//     }))
+// )
+//     .with(({}) => ({
+//         folo: 123
+//     }))
+//     .andWith(({}) => ({
+//         fafolo: 'popopo' as const
+//     }))
+//     .andWith(({ event }) => ({
+//         po: event.fafolo
+//     }))
+//     .andWith(({ event }) => ({
+//         apo: event.po
+//     }))
 
-const DuelJob = Nesoi.job('fight', $ => $
-    .alias('LETSFIGHT!')    
-    .schema($ => ({
-        bacteria: $('Bactéria').float
-    }))
-)
-    .with(({}) => ({
-        folo: 123
-    }))
-    .andWith(({}) => ({
-        fafolo: 'popopo' as const
-    }))
-    .andWith(({ event }) => ({
-        po: event.fafolo
-    }))
-    .andWith(({ event }) => ({
-        apo: event.po
-    }))
+//     .given({
+//         that: ({}) => false,
+//         else: 'Oh no!'
+//     })
+//     .andGiven({
+//         that: ({}) => false,
+//         else: 'Ohh nooo!'
+//     })
 
-    .given({
-        that: ({}) => false,
-        else: 'Oh no!'
-    })
-    .andGiven({
-        that: ({}) => false,
-        else: 'Ohh nooo!'
-    })
+//     .run(({event}) => {
+//         event.apo
+//     })
 
-    .run(({event}) => {
-        event.apo
-    })
+// const _controller = new ControllerBuilder()
+//     .auth('Something')
 
-const _controller = new ControllerBuilder()
-    .auth('Something')
-
-    .route($ => $
-        .withAuth('oi')
-        .event($ => ({
-            body: $.body(),
-            someParam: $.bodyParam('joca.boboca'),
-            someHeader: $.header('auth')
-        }))
-        .toJob(DuelJob)
-        .toResource(Duel, 'wow')
-    )
+//     .route($ => $
+//         .withAuth('oi')
+//         .event($ => ({
+//             body: $.body(),
+//             someParam: $.bodyParam('joca.boboca'),
+//             someHeader: $.header('auth')
+//         }))
+//         .toJob(DuelJob)
+//         .toResource(Duel, 'wow')
+//     )

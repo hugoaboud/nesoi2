@@ -5,7 +5,8 @@
  * 
 */
 
-import { ResourceModel } from "../../data/model"
+import { DataSource } from "../../engine/data/datasource"
+import { ResourceModel } from "../../engine/data/model"
 
 export type ViewProp<T> = {
     __type: 'view.prop'
@@ -50,30 +51,37 @@ export class ViewPropFactory<
         }
     }
 
-    compose(compose: string): ViewProp<never> {
+    oneOf(resource: string) {
         return {
-            __type: 'view.prop',
-            type: 'compose',
-            amount: 'one',
-            fn: () => ({} as never)
+            from: (self_fkey?: string) => ({
+                __type: 'view.prop',
+                type: 'graph',
+                amount: 'one',
+                fn: () => ({} as never)
+            } as ViewProp<never>),
+            where: (other_fkey?: string) => ({
+                __type: 'view.prop',
+                type: 'graph',
+                amount: 'one',
+                fn: () => ({} as never)
+            } as ViewProp<never>)
         }
     }
 
-    child(name: string): ViewProp<never> {
+    manyOf(name: string) {
         return {
-            __type: 'view.prop',
-            type: 'graph',
-            amount: 'one',
-            fn: () => ({} as never)
-        }
-    }
-
-    children(name: string): ViewProp<never> {
-        return {
-            __type: 'view.prop',
-            type: 'graph',
-            amount: 'many',
-            fn: () => ({} as never)
+            where: (other_fkey?: string) => ({
+                __type: 'view.prop',
+                type: 'graph',
+                amount: 'many',
+                fn: () => ({} as never)
+            } as ViewProp<never>),
+            pivot: (source: typeof DataSource<any>, self_fkey: string, other_fkey: string) => ({
+                __type: 'view.prop',
+                type: 'graph',
+                amount: 'many',
+                fn: () => ({} as never)
+            } as ViewProp<never>)
         }
     }
 

@@ -1,0 +1,123 @@
+<mxfile host="Electron" modified="2023-12-04T18:36:11.415Z" agent="Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) draw.io/22.1.2 Chrome/114.0.5735.289 Electron/25.9.4 Safari/537.36" etag="qDiAesG8uf3k_dixVk5U" version="22.1.2" type="device">
+  <diagram name="Page-1" id="iW4uD-XhVn1tyH_Kbip9">
+    <mxGraphModel dx="2598" dy="1052" grid="0" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="850" pageHeight="1100" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="gti5m1JGAZEwLYcofzOQ-27" value="" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#008a00;fontColor=#ffffff;strokeColor=#005700;opacity=20;" parent="1" vertex="1">
+          <mxGeometry x="371" y="500" width="320" height="140" as="geometry" />
+        </mxCell>
+        <mxCell id="gti5m1JGAZEwLYcofzOQ-24" value="" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#a20025;fontColor=#ffffff;strokeColor=#6F0000;opacity=20;" parent="1" vertex="1">
+          <mxGeometry x="371" y="350" width="320" height="140" as="geometry" />
+        </mxCell>
+        <mxCell id="gti5m1JGAZEwLYcofzOQ-25" value="" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#008a00;strokeColor=#005700;opacity=20;fontColor=#ffffff;" parent="1" vertex="1">
+          <mxGeometry x="40" y="350" width="320" height="140" as="geometry" />
+        </mxCell>
+        <mxCell id="gti5m1JGAZEwLYcofzOQ-23" value="" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#008a00;fontColor=#ffffff;strokeColor=#005700;opacity=20;" parent="1" vertex="1">
+          <mxGeometry x="40" y="500" width="320" height="140" as="geometry" />
+        </mxCell>
+        <mxCell id="gti5m1JGAZEwLYcofzOQ-1" value="Vehicle" style="swimlane;whiteSpace=wrap;html=1;startSize=23;" parent="1" vertex="1">
+          <mxGeometry x="60" y="370" width="100" height="100" as="geometry" />
+        </mxCell>
+        <mxCell id="gti5m1JGAZEwLYcofzOQ-8" value="fuel_tank_id" style="text;html=1;align=center;verticalAlign=middle;resizable=0;points=[];autosize=1;strokeColor=none;fillColor=none;" parent="gti5m1JGAZEwLYcofzOQ-1" vertex="1">
+          <mxGeometry x="5" y="40" width="90" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="gti5m1JGAZEwLYcofzOQ-4" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=1;entryY=0.5;entryDx=0;entryDy=0;endArrow=diamondThin;endFill=1;strokeWidth=1;endSize=24;" parent="1" source="gti5m1JGAZEwLYcofzOQ-2" target="gti5m1JGAZEwLYcofzOQ-1" edge="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="gti5m1JGAZEwLYcofzOQ-18" value="1 : 1" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];" parent="gti5m1JGAZEwLYcofzOQ-4" vertex="1" connectable="0">
+          <mxGeometry x="0.5528" y="-3" relative="1" as="geometry">
+            <mxPoint x="22" y="-7" as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="gti5m1JGAZEwLYcofzOQ-2" value="FuelTank" style="swimlane;whiteSpace=wrap;html=1;" parent="1" vertex="1">
+          <mxGeometry x="240" y="370" width="100" height="100" as="geometry" />
+        </mxCell>
+        <mxCell id="gti5m1JGAZEwLYcofzOQ-5" value="Vehicle" style="swimlane;whiteSpace=wrap;html=1;startSize=23;" parent="1" vertex="1">
+          <mxGeometry x="60" y="520" width="100" height="100" as="geometry" />
+        </mxCell>
+        <mxCell id="gti5m1JGAZEwLYcofzOQ-6" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=1;entryY=0.5;entryDx=0;entryDy=0;endArrow=diamondThin;endFill=1;strokeWidth=1;endSize=24;" parent="1" source="gti5m1JGAZEwLYcofzOQ-7" target="gti5m1JGAZEwLYcofzOQ-5" edge="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="gti5m1JGAZEwLYcofzOQ-20" value="1 : 1" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];" parent="gti5m1JGAZEwLYcofzOQ-6" vertex="1" connectable="0">
+          <mxGeometry x="-0.2389" relative="1" as="geometry">
+            <mxPoint y="-10" as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="gti5m1JGAZEwLYcofzOQ-7" value="FuelTank" style="swimlane;whiteSpace=wrap;html=1;" parent="1" vertex="1">
+          <mxGeometry x="240" y="520" width="100" height="100" as="geometry" />
+        </mxCell>
+        <mxCell id="gti5m1JGAZEwLYcofzOQ-9" value="vehicle_id" style="text;html=1;align=center;verticalAlign=middle;resizable=0;points=[];autosize=1;strokeColor=none;fillColor=none;" parent="gti5m1JGAZEwLYcofzOQ-7" vertex="1">
+          <mxGeometry x="10" y="50" width="80" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="gti5m1JGAZEwLYcofzOQ-10" value="Vehicle" style="swimlane;whiteSpace=wrap;html=1;startSize=23;" parent="1" vertex="1">
+          <mxGeometry x="389" y="370" width="100" height="100" as="geometry" />
+        </mxCell>
+        <mxCell id="gti5m1JGAZEwLYcofzOQ-11" value="fuel_tank_ids" style="text;html=1;align=center;verticalAlign=middle;resizable=0;points=[];autosize=1;strokeColor=none;fillColor=none;" parent="gti5m1JGAZEwLYcofzOQ-10" vertex="1">
+          <mxGeometry x="6" y="42" width="89" height="26" as="geometry" />
+        </mxCell>
+        <mxCell id="gti5m1JGAZEwLYcofzOQ-12" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=1;entryY=0.5;entryDx=0;entryDy=0;endArrow=diamondThin;endFill=1;strokeWidth=1;endSize=24;" parent="1" source="gti5m1JGAZEwLYcofzOQ-13" target="gti5m1JGAZEwLYcofzOQ-10" edge="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="gti5m1JGAZEwLYcofzOQ-21" value="1 : N" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];" parent="gti5m1JGAZEwLYcofzOQ-12" vertex="1" connectable="0">
+          <mxGeometry x="-0.225" y="3" relative="1" as="geometry">
+            <mxPoint y="-13" as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="gti5m1JGAZEwLYcofzOQ-13" value="FuelTank" style="swimlane;whiteSpace=wrap;html=1;" parent="1" vertex="1">
+          <mxGeometry x="569" y="370" width="122" height="120" as="geometry" />
+        </mxCell>
+        <mxCell id="gti5m1JGAZEwLYcofzOQ-32" value="!NO FKEY!" style="text;html=1;align=center;verticalAlign=middle;resizable=0;points=[];autosize=1;strokeColor=#6F0000;fillColor=#a20025;fontColor=#ffffff;" parent="gti5m1JGAZEwLYcofzOQ-13" vertex="1">
+          <mxGeometry x="45" y="94" width="77" height="26" as="geometry" />
+        </mxCell>
+        <mxCell id="gti5m1JGAZEwLYcofzOQ-14" value="Vehicle" style="swimlane;whiteSpace=wrap;html=1;startSize=23;" parent="1" vertex="1">
+          <mxGeometry x="389" y="520" width="100" height="100" as="geometry" />
+        </mxCell>
+        <mxCell id="gti5m1JGAZEwLYcofzOQ-15" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=1;entryY=0.5;entryDx=0;entryDy=0;endArrow=diamondThin;endFill=1;strokeWidth=1;endSize=24;" parent="1" source="gti5m1JGAZEwLYcofzOQ-16" target="gti5m1JGAZEwLYcofzOQ-14" edge="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="gti5m1JGAZEwLYcofzOQ-22" value="1 : N" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];" parent="gti5m1JGAZEwLYcofzOQ-15" vertex="1" connectable="0">
+          <mxGeometry x="-0.225" y="1" relative="1" as="geometry">
+            <mxPoint x="1" y="-11" as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="gti5m1JGAZEwLYcofzOQ-16" value="FuelTank" style="swimlane;whiteSpace=wrap;html=1;" parent="1" vertex="1">
+          <mxGeometry x="569" y="520" width="100" height="100" as="geometry" />
+        </mxCell>
+        <mxCell id="gti5m1JGAZEwLYcofzOQ-17" value="vehicle_id" style="text;html=1;align=center;verticalAlign=middle;resizable=0;points=[];autosize=1;strokeColor=none;fillColor=none;" parent="gti5m1JGAZEwLYcofzOQ-16" vertex="1">
+          <mxGeometry x="10" y="50" width="80" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="gti5m1JGAZEwLYcofzOQ-28" value="// read fuel_tank by vehicle_id&lt;br&gt;SELECT * FROM fuel_tanks WHERE id =&lt;br&gt;(SELECT fuel_tank_id from vehicles WHERE id=99)&lt;br&gt;&lt;br&gt;// read vehicle by fuel_tank_id&lt;br&gt;SELECT * FROM vehicles WHERE fuel_tank_id = 99" style="text;html=1;align=center;verticalAlign=middle;resizable=0;points=[];autosize=1;strokeColor=none;fillColor=none;" parent="1" vertex="1">
+          <mxGeometry x="49.5" y="232" width="301" height="98" as="geometry" />
+        </mxCell>
+        <mxCell id="gti5m1JGAZEwLYcofzOQ-29" value="// read fuel_tank by vehicle_id&lt;br&gt;SELECT * FROM fuel_tanks WHERE vehicle_id = 99&lt;br&gt;&lt;br&gt;// read vehicle by fuel_tank_id&lt;br&gt;SELECT * FROM vehicles WHERE id = &lt;br&gt;(SELECT vehicle_id FROM fuel_tank_ids WHERE id=99)" style="text;html=1;align=center;verticalAlign=middle;resizable=0;points=[];autosize=1;strokeColor=none;fillColor=none;" parent="1" vertex="1">
+          <mxGeometry x="38.5" y="659" width="323" height="98" as="geometry" />
+        </mxCell>
+        <mxCell id="gti5m1JGAZEwLYcofzOQ-30" value="// read fuel_tanks by vehicle_id&lt;br&gt;SELECT * FROM fuel_tanks WHERE vehicle_id = 99&lt;br&gt;&lt;br&gt;// read vehicle by fuel_tank_id&lt;br&gt;SELECT * FROM vehicles WHERE id = &lt;br&gt;(SELECT vehicle_id FROM fuel_tank_ids WHERE id=99)" style="text;html=1;align=center;verticalAlign=middle;resizable=0;points=[];autosize=1;strokeColor=none;fillColor=none;" parent="1" vertex="1">
+          <mxGeometry x="369.5" y="659" width="323" height="98" as="geometry" />
+        </mxCell>
+        <mxCell id="gti5m1JGAZEwLYcofzOQ-31" value="// read fuel_tanks by vehicle_id&lt;br&gt;SELECT * FROM fuel_tanks WHERE id IN&lt;br&gt;(SELECT fuel_tank_ids from vehicles WHERE id=99)&lt;br&gt;&lt;br&gt;// read vehicles by fuel_tank_id&lt;br&gt;SELECT * FROM vehicles WHERE 99 IN fuel_tank_ids" style="text;html=1;align=center;verticalAlign=middle;resizable=0;points=[];autosize=1;strokeColor=none;fillColor=none;" parent="1" vertex="1">
+          <mxGeometry x="375.5" y="229" width="312" height="98" as="geometry" />
+        </mxCell>
+        <mxCell id="gti5m1JGAZEwLYcofzOQ-33" value="Forward Reference" style="text;html=1;align=center;verticalAlign=middle;resizable=0;points=[];autosize=1;strokeColor=#2D7600;fillColor=#60a917;fontColor=#ffffff;" parent="1" vertex="1">
+          <mxGeometry x="-82.5" y="438" width="121" height="26" as="geometry" />
+        </mxCell>
+        <mxCell id="gti5m1JGAZEwLYcofzOQ-35" value="Reverse Reference" style="text;html=1;align=center;verticalAlign=middle;resizable=0;points=[];autosize=1;strokeColor=#6F0000;fillColor=#a20025;fontColor=#ffffff;" parent="1" vertex="1">
+          <mxGeometry x="-82.5" y="464" width="121" height="26" as="geometry" />
+        </mxCell>
+        <mxCell id="gti5m1JGAZEwLYcofzOQ-36" value="Reverse Reference" style="text;html=1;align=center;verticalAlign=middle;resizable=0;points=[];autosize=1;strokeColor=#2D7600;fillColor=#60a917;fontColor=#ffffff;" parent="1" vertex="1">
+          <mxGeometry x="-82.5" y="614" width="121" height="26" as="geometry" />
+        </mxCell>
+        <mxCell id="gti5m1JGAZEwLYcofzOQ-37" value="Forward Reference" style="text;html=1;align=center;verticalAlign=middle;resizable=0;points=[];autosize=1;strokeColor=#6F0000;fillColor=#a20025;fontColor=#ffffff;" parent="1" vertex="1">
+          <mxGeometry x="-82.5" y="588" width="121" height="26" as="geometry" />
+        </mxCell>
+        <mxCell id="gti5m1JGAZEwLYcofzOQ-38" value="Reverse Reference" style="text;html=1;align=center;verticalAlign=middle;resizable=0;points=[];autosize=1;strokeColor=#2D7600;fillColor=#60a917;fontColor=#ffffff;" parent="1" vertex="1">
+          <mxGeometry x="692.5" y="614" width="121" height="26" as="geometry" />
+        </mxCell>
+        <mxCell id="gti5m1JGAZEwLYcofzOQ-39" value="Forward Reference" style="text;html=1;align=center;verticalAlign=middle;resizable=0;points=[];autosize=1;strokeColor=#6F0000;fillColor=#a20025;fontColor=#ffffff;" parent="1" vertex="1">
+          <mxGeometry x="692.5" y="588" width="121" height="26" as="geometry" />
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>

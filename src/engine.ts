@@ -2,8 +2,8 @@ import { $Event } from "./builders/event"
 import { JobBuilder } from "./builders/job/job"
 import { ResourceBuilder } from "./builders/resource/resource"
 import { EventParserBuilder } from "./builders/parser/event_parser"
-import { ResourceModel } from "./data/model"
-import { DataSource } from "./data/data_source"
+import { ResourceModel } from "./engine/data/model"
+import { DataSource } from "./engine/data/datasource"
 import { Queue, QueueSource } from "./engine/queue"
 import { MemoryQueueSource } from "./engine/queue/memory.queue"
 import { MemoryCacheSource } from "./engine/cache/memory.cache"
@@ -47,4 +47,5 @@ export class NesoiEngine<
     ) {
         return new JobBuilder(name, $);
     }
+
 }

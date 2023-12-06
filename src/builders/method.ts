@@ -1,4 +1,4 @@
-import { ResourceModel } from "../data/model";
+import { ResourceModel } from "../engine/data/model";
 
 export type ResourceMethod<
     Model extends ResourceModel,
