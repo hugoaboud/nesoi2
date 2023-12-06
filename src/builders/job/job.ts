@@ -8,7 +8,7 @@
 import { $Event, EventBuilder } from "../event";
 import { JobMethod } from "../method";
 import { EventParserBuilder } from "../parser/event_parser";
-import { JobCondition } from "./condition";
+import { JobCondition } from "../condition";
 
 // Resource
 

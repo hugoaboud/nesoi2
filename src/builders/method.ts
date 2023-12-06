@@ -15,3 +15,12 @@ export type JobMethod<
 > = (ctx: {
     event: Event
 }) => Response | Promise<Response>
+
+export type ActivityMethod<
+  Client,
+  Event,
+  Response
+> = (ctx: {
+  client: Client,
+  event: Event
+}) => Response | Promise<Response>

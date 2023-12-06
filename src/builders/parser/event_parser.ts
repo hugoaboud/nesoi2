@@ -129,7 +129,10 @@ export function EventParserPropFactory(
                     if (typeof value === 'string') {
                         return value
                     }
-                    throw NesoiError.Event.Parse(prop, 'a ISO date')
+                    else if (typeof value === 'number') {
+                        return value
+                    }
+                    throw NesoiError.Event.Parse(prop, 'a ID')
                 })
         },
     

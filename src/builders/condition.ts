@@ -5,8 +5,8 @@
  * 
 */
 
-import { ResourceModel } from "../../engine/data/model";
-import { JobMethod, ResourceMethod } from "../method";
+import { ResourceModel } from "../engine/data/model";
+import { ActivityMethod, JobMethod, ResourceMethod } from "./method";
 
 export type ResourceCondition<
     Model extends ResourceModel,
@@ -21,4 +21,12 @@ export type JobCondition<
 > = {
     that: JobMethod<Event, boolean>,
     else: string | JobMethod<Event, string>
+}
+
+export type ActivityCondition<
+  Client,
+  Event
+> = {
+  that: ActivityMethod<Client, Event, boolean>,
+  else: string | ActivityMethod<Client, Event, string>
 }

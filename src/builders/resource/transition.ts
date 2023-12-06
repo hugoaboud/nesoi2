@@ -7,7 +7,7 @@
  */
 
 import { ResourceModel } from "../../engine/data/model";
-import { ResourceCondition } from "../job/condition";
+import { ResourceCondition } from "../condition";
 import { ResourceMethod } from "../method";
 import { EventParserBuilder, EventTypeFromParser } from "../parser/event_parser";
 

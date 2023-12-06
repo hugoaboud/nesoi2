@@ -8,13 +8,10 @@ export class EventParser<
     Type = EventTypeFromParser<S>
 > {
 
-    alias: string
-    protected schema: EventSchema
-
-    constructor(builder: any) {
-        this.alias = builder._alias
-        this.schema = builder._parser
-    }
+    constructor(
+        public alias: string,
+        public schema: EventSchema
+    ) {}
 
     async parse(event: MakeUndefinedOptional<Type>) {
         return this.parseSchema(this.schema, event) as Type

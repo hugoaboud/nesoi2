@@ -1,4 +1,4 @@
-import { ResourceCondition } from "../builders/job/condition"
+import { ResourceCondition } from "../builders/condition"
 import { ResourceMethod } from "../builders/method"
 import { EventParseMethod, EventParserRule } from "../builders/parser/event_parser"
 

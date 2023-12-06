@@ -8,6 +8,10 @@ import { Queue, QueueSource } from "./engine/queue"
 import { MemoryQueueSource } from "./engine/queue/memory.queue"
 import { MemoryCacheSource } from "./engine/cache/memory.cache"
 import { Cache, CacheSource } from "./engine/cache"
+import { ActivityModel } from "./engine/operation/activity.model"
+import { ActivityBuilder } from "./builders/operation/activity"
+import { Activity } from "./engine/operation/activity"
+import { NesoiClient } from "./client"
 
 type Client = {
     user: {
@@ -15,19 +19,35 @@ type Client = {
     }
 }
 
-export class NesoiEngine<
-    AppClient extends Client
-> {
-    private client!: AppClient
-    private queue: Queue
-    private cache: Cache
+type EngineClient<
+    AppClient extends Client,
+    ActivityNameUnion extends string
+> = NesoiClient<
+    NesoiEngine<
+        AppClient,
+        ActivityNameUnion
+    >,
+    AppClient
+>
 
-    constructor(sources = {
-        queue: new MemoryQueueSource() as QueueSource,
-        cache: new MemoryCacheSource() as CacheSource
+export class NesoiEngine<
+    AppClient extends Client,
+    ActivityNameUnion extends string,
+    C = EngineClient<AppClient, ActivityNameUnion>
+> {
+    protected queue: Queue
+    protected cache: Cache
+    
+    public activities: Record<ActivityNameUnion, Activity<any>> = {} as any
+
+    constructor($: {
+        client: AppClient,
+        queue?: QueueSource,
+        cache?: CacheSource,
+        activities?: ActivityNameUnion[]
     }) {
-        this.queue = new Queue(sources.queue)
-        this.cache = new Cache(sources.cache)
+        this.queue = new Queue($?.queue || new MemoryQueueSource())
+        this.cache = new Cache($?.cache || new MemoryCacheSource())
     }
 
     resource<
@@ -46,6 +66,21 @@ export class NesoiEngine<
         $: $Event<Event>
     ) {
         return new JobBuilder(name, $);
+    }
+
+    activity<
+        Source extends DataSource<ActivityModel>
+    >(
+        name: ActivityNameUnion,
+        dataSource: Source
+    ) {
+        return new ActivityBuilder<C, Source>(name, dataSource, activity => {
+            this.activities[name] = activity
+        })
+    }
+
+    client (client: AppClient): C {
+        return new NesoiClient(this as any, client) as any
     }
 
 }

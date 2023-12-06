@@ -41,7 +41,7 @@ export class EventBuilder<
     build() {
         return new EventParser<
             Parser
-        >(this)
+        >(this._alias as any, this._parser as any)
     }
 
 }

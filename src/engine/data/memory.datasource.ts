@@ -12,11 +12,11 @@ export class MemoryDataSource<
         for (const id in this.data) {
             objs.push(this.data[id])
         }
-        return objs
+        return Promise.resolve(objs)
     }
 
     get(id: number) {
-        return this.data[id];
+        return Promise.resolve(this.data[id]);
     }
 
     put(obj: T | { id: undefined }) {
@@ -27,6 +27,7 @@ export class MemoryDataSource<
                 obj.id = lastId+1
         }
         this.data[obj.id as number] = obj as T
+        return Promise.resolve(obj as any)
     }
 
 }

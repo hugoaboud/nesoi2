@@ -11,7 +11,7 @@ export class StateMachine<
     Events
 > {
     
-    protected engine: NesoiEngine<any>
+    protected engine: NesoiEngine<any,any>
     protected alias: string
     protected states: StateTree
     protected eventParsers: Record<string, EventParser<any, any>>
@@ -28,7 +28,7 @@ export class StateMachine<
         this.eventParsers = {}
         for (const name in builder._events) {
             const eventBuilder = builder._events[name]
-            this.eventParsers[name] = new EventParser(eventBuilder)
+            this.eventParsers[name] = eventBuilder.build()
         }
 
         this.transitions = builder._transitions
