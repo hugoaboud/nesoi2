@@ -1,19 +1,19 @@
-import { ResourceModel } from "../data/model"
+import { ResourceObj } from "../data/obj"
 
-export type ActivityState =
+export type TaskState =
     'scheduled' |
     'requested' |
     'done' |
     'canceled'
 
-export interface ActivityModel {
+export interface TaskModel {
     id: number,
-    state: ActivityState
+    state: TaskState
 }
 
-export interface ActivityLogModel<Event> {
+export interface TaskLogModel<Event> {
     id: number,
-    activity_id: number,
+    task_id: number,
     type: 'step' | 'comment',
     state: string,
     message: string,

@@ -1,36 +1,37 @@
 /* eslint-disable @typescript-eslint/naming-convention */
 import { Client, NesoiClient } from '../../client'
 import { DataSource } from '../../engine/data/datasource'
-import { Activity, ActivityStep } from '../../engine/operation/activity'
-import { ActivityLogModel, ActivityModel } from '../../engine/operation/activity.model'
+import { Task, TaskStep } from '../../engine/operation/task'
+import { TaskLogModel, TaskModel } from '../../engine/operation/task.model'
 import { SchedulingModel } from '../../engine/operation/scheduling.model'
-import { ActivityCondition } from '../condition'
-import { ActivityMethod } from '../method'
+import { TaskCondition } from '../condition'
+import { TaskMethod } from '../method'
 import { $EventParser, EventParserBuilder, EventParserPropFactory, EventTypeFromParser } from '../parser/event_parser'
 
 type Response = 'pass' | 'cancel'
 
-export class ActivitySource<
-  A extends DataSource<ActivityModel>,
-  L extends DataSource<ActivityLogModel<any>>,
+export class TaskSource<
+  A extends DataSource<TaskModel>,
+  L extends DataSource<TaskLogModel<any>>,
   S extends DataSource<SchedulingModel>
 > {
   constructor(
-    public activities: A,
+    public tasks: A,
     public logs: L,
     public schedulings: S
   ) {}
 }
 
-export class ActivityStepBuilder<
+export class TaskStepBuilder<
   Client,
   State extends string,
+  PreviousEvents,
   Event = unknown,
   Extra = unknown,
   Method = unknown
 > {
   protected eventParser!: EventParserBuilder
-  protected conditions: ActivityCondition<Client, Event>[] = []
+  protected conditions: TaskCondition<Client, Event, PreviousEvents>[] = []
   protected fn!: Method
 
   constructor (
@@ -41,9 +42,10 @@ export class ActivityStepBuilder<
     Parser extends EventParserBuilder
   > ($: $EventParser<Parser>) {
     this.eventParser = $(EventParserPropFactory) as any
-    return this as any as ActivityStepBuilder<
+    return this as any as TaskStepBuilder<
         Client,
         State,
+        PreviousEvents,
         EventTypeFromParser<Parser>,
         Extra,
         Method
@@ -54,15 +56,16 @@ export class ActivityStepBuilder<
     Ext extends { [_: string]: any },
     g_Event extends Record<string, any>
   >(
-    this: ActivityStepBuilder<Client, State, g_Event, Extra>, // Guarantee preceding event
-    $: ActivityMethod<Client, Event & Extra, Ext>
+    this: TaskStepBuilder<Client, State, PreviousEvents, g_Event, Extra>, // Guarantee preceding event
+    $: TaskMethod<Client, Event & Extra, PreviousEvents, Ext>
   ) {
     // const extra = $({ obj: {} as any, event: this._event as any });
     // Object.assign(this._event as any, extra);
 
-    return this as any as ActivityStepBuilder<
+    return this as any as TaskStepBuilder<
           Client,
           State,
+          PreviousEvents,
           Event,
           Extra & { [K in keyof Ext]: Ext[K] }, // with.Extra
           Method
@@ -72,32 +75,34 @@ export class ActivityStepBuilder<
   public given<
     g_Event extends Record<string, any>
   > (
-    this: ActivityStepBuilder<Client, State, g_Event, Extra>, // Guarantee preceding event
-    condition: ActivityCondition<Client, Event & Extra>
+    this: TaskStepBuilder<Client, State, PreviousEvents, g_Event, Extra>, // Guarantee preceding event
+    condition: TaskCondition<Client, Event & Extra, PreviousEvents>
   ) {
     this.conditions.push(condition as any)
     return this
   }
 
   public do<
-    Fn extends ActivityMethod<Client, Event & Extra, Response>
+    Fn extends TaskMethod<Client, Event & Extra, PreviousEvents, Response>
   > (
     fn: Fn
   ) {
     this.fn = fn as any
-    return this as any as ActivityStepBuilder<
-      Client, State, Event, Extra, Fn
+    return this as any as TaskStepBuilder<
+      Client, State, PreviousEvents, Event, Extra, Fn
     >
   }
 
   public build() {
-    return new ActivityStep(this)
+    return new TaskStep(this)
   }
 }
 
-export class ActivityBuilder<
+export type TaskStepEvent<Step> = Step extends TaskStepBuilder<any, any, any, infer X> ? X : never
+
+export class TaskBuilder<
   Client extends NesoiClient<any, any>,
-  Source extends ActivitySource<any,any,any>,
+  Source extends TaskSource<any,any,any>,
   RequestStep = unknown,
   Steps = unknown
 > {
@@ -107,17 +112,17 @@ export class ActivityBuilder<
   constructor (
     protected name: string,
     protected dataSource: Source,
-    protected buildCallback?: (activity: Activity<any,any>) => void
+    protected buildCallback?: (task: Task<any,any>) => void
   ) {}
 
   public request<
-    Step extends $ActivityStep<Client, 'void', any>
+    Step extends $TaskStep<Client, 'void', {}, any>
   > (
     $: Step
   ) {
-    const builder = new ActivityStepBuilder('void')
+    const builder = new TaskStepBuilder('void')
     this.requestStep = $(builder as any) as any
-    return this as any as ActivityBuilder<
+    return this as any as TaskBuilder<
         Client,
         Source,
         ReturnType<Step>,
@@ -127,16 +132,16 @@ export class ActivityBuilder<
 
   public step<
     S extends (IsFirstStep extends true ? 'requested' : string),
-    Step extends $ActivityStep<Client, S, any>,
-    IsFirstStep = Steps extends ActivityStepBuilder<any,any,any,any,any> ? false : true
+    Step extends $TaskStep<Client, S, TaskStepEvent<RequestStep>, any>,
+    IsFirstStep = Steps extends TaskStepBuilder<any,any,any,any,any> ? false : true
   > (
     state: S,
     $: Step
   ) {
-    const builder = new ActivityStepBuilder(state)
+    const builder = new TaskStepBuilder(state)
     const step = $(builder as any)
     this.steps.push(step as any)
-    return this as any as ActivityBuilder<
+    return this as any as TaskBuilder<
         Client,
         Source,
         RequestStep,
@@ -147,23 +152,24 @@ export class ActivityBuilder<
   }
 
   public build() {
-    const activity = new Activity<
+    const task = new Task(this)
+    if (this.buildCallback) {
+      this.buildCallback(task);
+    }
+    return task as Task<
       Client,
       Source,
       RequestStep,
       Steps
-    >(this)
-    if (this.buildCallback) {
-      this.buildCallback(activity);
-    }
-    return activity;
+    >;
   }
 }
 
-export type $ActivityStep<
+export type $TaskStep<
   Client,
   State extends string,
+  PreviousEvents,
   Event
 > =
-    ($: ActivityStepBuilder<Client, State, Event>) =>
-      ActivityStepBuilder<Client, State, Event>
+    ($: TaskStepBuilder<Client, State, PreviousEvents, Event>) =>
+      TaskStepBuilder<Client, State, PreviousEvents, Event>

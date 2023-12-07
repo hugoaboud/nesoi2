@@ -2,14 +2,14 @@ import { EventParserPropBuilder, EventParserRule } from "./builders/parser/event
 
 export namespace NesoiError {
 
-    export namespace Activity {
+    export namespace Task {
         
         export function NotFound(name: string, id: number) {
-            return new Error(`Activity ${name} with id ${id} not found`)
+            return new Error(`Task ${name} with id ${id} not found`)
         }
         
         export function InvalidState(name: string, id: number, state: string) {
-            return new Error(`Activity ${name} with id ${id} is at invalid state ${state}`)
+            return new Error(`Task ${name} with id ${id} is at invalid state ${state}`)
         }
 
     }

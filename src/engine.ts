@@ -2,15 +2,14 @@ import { $Event } from "./builders/event"
 import { JobBuilder } from "./builders/job/job"
 import { ResourceBuilder } from "./builders/resource/resource"
 import { EventParserBuilder } from "./builders/parser/event_parser"
-import { ResourceModel } from "./engine/data/model"
+import { NesoiObj, ResourceObj } from "./engine/data/obj"
 import { DataSource } from "./engine/data/datasource"
 import { Queue, QueueSource } from "./engine/queue"
 import { MemoryQueueSource } from "./engine/queue/memory.queue"
 import { MemoryCacheSource } from "./engine/cache/memory.cache"
 import { Cache, CacheSource } from "./engine/cache"
-import { ActivityModel } from "./engine/operation/activity.model"
-import { ActivityBuilder, ActivitySource } from "./builders/operation/activity"
-import { Activity } from "./engine/operation/activity"
+import { TaskBuilder, TaskSource } from "./builders/operation/task"
+import { Task } from "./engine/operation/task"
 import { NesoiClient } from "./client"
 
 type Client = {
@@ -21,37 +20,47 @@ type Client = {
 
 type EngineClient<
     AppClient extends Client,
-    ActivityNameUnion extends string
+    TaskNameUnion extends string,
+    SourceNameUnion extends string,
+    Sources extends Record<SourceNameUnion, typeof DataSource<any>>,
 > = NesoiClient<
     NesoiEngine<
         AppClient,
-        ActivityNameUnion
+        TaskNameUnion,
+        SourceNameUnion,
+        Sources
     >,
     AppClient
 >
 
 export class NesoiEngine<
     AppClient extends Client,
-    ActivityNameUnion extends string,
-    C extends NesoiClient<any,any> = EngineClient<AppClient, ActivityNameUnion>
+    TaskNameUnion extends string,
+    SourceNameUnion extends string,
+    Sources extends Record<SourceNameUnion, typeof DataSource<any>>,
+    C extends NesoiClient<any,any> = EngineClient<AppClient, TaskNameUnion, SourceNameUnion, Sources>
 > {
     protected queue: Queue
     protected cache: Cache
     
-    public activities: Record<ActivityNameUnion, Activity<any, any>> = {} as any
+    public sources: Sources = {} as any
+    public tasks: Record<TaskNameUnion, Task<any, any>> = {} as any
 
     constructor($: {
         client: AppClient,
         queue?: QueueSource,
         cache?: CacheSource,
-        activities?: ActivityNameUnion[]
+        sources?: Sources,
+        tasks?: TaskNameUnion[]
     }) {
         this.queue = new Queue($?.queue || new MemoryQueueSource())
         this.cache = new Cache($?.cache || new MemoryCacheSource())
+        this.sources = $.sources as any
+        this.tasks = $.tasks as any
     }
 
     resource<
-        Model extends ResourceModel
+        Model extends ResourceObj
     >(
         name: string,
         dataSourceClass: new (...args: any) => DataSource<Model>
@@ -68,14 +77,14 @@ export class NesoiEngine<
         return new JobBuilder(name, $);
     }
 
-    activity<
-        Source extends ActivitySource<any,any,any>
+    task<
+        Source extends TaskSource<any,any,any>
     >(
-        name: ActivityNameUnion,
+        name: TaskNameUnion,
         dataSource: Source
     ) {
-        return new ActivityBuilder<C, Source>(name, dataSource, activity => {
-            this.activities[name] = activity
+        return new TaskBuilder<C, Source>(name, dataSource, task => {
+            this.tasks[name] = task
         })
     }
 

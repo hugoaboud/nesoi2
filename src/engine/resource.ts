@@ -1,5 +1,5 @@
 import { DataSource } from "./data/datasource";
-import { ResourceModel } from "./data/model";
+import { ResourceObj } from "./data/obj";
 import { NesoiError } from "../error";
 import { ResourceObj } from "./resource/resource_obj";
 import { StateMachine } from "./resource/state_machine";
@@ -8,7 +8,7 @@ import { View } from "./resource/view";
 type Obj = Record<string, any>
 
 export class Resource<
-    Model extends ResourceModel,
+    Model extends ResourceObj,
     Events,
     Views extends Record<string, View<any>>
 > {

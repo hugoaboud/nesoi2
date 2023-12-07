@@ -1,17 +1,18 @@
 import { DataSource } from "../data/datasource";
-import { ResourceModel } from "../data/model";
+import { ResourceObj } from "../data/obj";
 import { NesoiError } from "../../error";
 import { EventParser } from "../parser/event.parser";
 import { Tree } from "../../helpers/tree";
 import { NesoiEngine } from "../../engine";
 import { Obj, State, StateSchema, StateTree, TransitionSchema, TransitionTargetSchema } from "../schema";
+import { NesoiClient } from "../../client";
 
 export class StateMachine<
-    Model extends ResourceModel,
+    Model extends ResourceObj,
     Events
 > {
     
-    protected engine: NesoiEngine<any,any>
+    protected engine: NesoiEngine<any,any,any,any>
     protected alias: string
     protected states: StateTree
     protected eventParsers: Record<string, EventParser<any, any>>
@@ -19,7 +20,7 @@ export class StateMachine<
 
     constructor(
         builder: any,
-        protected dataSource: DataSource<ResourceModel>
+        protected dataSource: DataSource<ResourceObj>
     ) {
         this.engine = builder.engine
         this.alias = builder._alias
@@ -44,7 +45,7 @@ export class StateMachine<
 
     async send<
         E extends keyof Events
-    >(id: Model['id'], event: E, data: Events[E]) {
+    >(client: NesoiClient<any,any>, id: Model['id'], event: E, data: Events[E]) {
         // TODO: queue
 
         // 1. Parse event
@@ -52,7 +53,7 @@ export class StateMachine<
         const parsedEvent = await eventParser.parse(data as any);
         
         // 2. Read object from data source
-        const obj = await this.dataSource.get(id);
+        const obj = await this.dataSource.get(client, id);
         if (!obj) {
             throw NesoiError.Resource.NotFound(this.alias, id)
         }
@@ -78,7 +79,7 @@ export class StateMachine<
         // 6. Run targets sequentially until one works
         let target = undefined;
         for (const t in targets) {
-            const triggered = await this.runTarget(targets[t], obj, parsedEvent);
+            const triggered = await this.runTarget(client, targets[t], obj, parsedEvent);
             if (triggered) {
                 target = targets[t]
                 break
@@ -97,7 +98,7 @@ export class StateMachine<
         )
     }
 
-    private async runTarget(target: TransitionTargetSchema, obj: Obj, event: Obj) {
+    private async runTarget(client: NesoiClient<any,any>, target: TransitionTargetSchema, obj: Obj, event: Obj) {
         // 1. Check conditions
         const canRunTarget = await this.checkTargetConditions(target, obj, event)
         if (!canRunTarget) {
@@ -110,12 +111,12 @@ export class StateMachine<
         }
         // 3. Update state and save
         obj.state = target.state
-        await this.dataSource.put(obj as any);
+        await this.dataSource.put(client, obj as any);
         // 4. Run second method ("after" changin state)
         if (target.after) {
             const promise = target.after({ obj, event })
             await Promise.resolve(promise)
-            await this.dataSource.put(obj as any);
+            await this.dataSource.put(client, obj as any);
         }
         return true
     }

@@ -9,7 +9,7 @@ type MyClient = {
 
 export const Nesoi = new NesoiEngine({
   client: {} as MyClient,
-  activities: [
+  tasks: [
     'move_coil'
   ]
 })

@@ -1,5 +1,6 @@
+import { NesoiClient } from "../../client";
 import { DataSource } from "./datasource";
-import { ResourceModel } from "./model";
+import { ResourceObj } from "./obj";
 
 export class MemoryDataSource<
     T extends { id: number | string }
@@ -7,7 +8,7 @@ export class MemoryDataSource<
 
     protected data: Record<number, T> = {}
 
-    index() {
+    index(client: NesoiClient<any,any>) {
         const objs = [];
         for (const id in this.data) {
             objs.push(this.data[id])
@@ -15,11 +16,11 @@ export class MemoryDataSource<
         return Promise.resolve(objs)
     }
 
-    get(id: number) {
+    get(client: NesoiClient<any,any>, id: number) {
         return Promise.resolve(this.data[id]);
     }
 
-    put(obj: T | { id: undefined }) {
+    put(client: NesoiClient<any,any>, obj: T | { id: undefined }) {
         if (!obj.id) {
             const lastId = Object.keys(this.data)
                 .map(id => parseInt(id))

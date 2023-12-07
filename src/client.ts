@@ -1,5 +1,7 @@
+import { TaskStepEvent } from "./builders/operation/task"
 import { NesoiEngine } from "./engine"
-import { Activity, ApplicationStepEvent } from "./engine/operation/activity"
+import { DataSource } from "./engine/data/datasource"
+import { Task } from "./engine/operation/task"
 
 export type Client = {
     user: {
@@ -7,81 +9,138 @@ export type Client = {
     }
 }
 
-class NesoiActivityClient<
-    Engine extends NesoiEngine<any,any>
+class NesoiDataClient<
+    Engine extends NesoiEngine<any,any,any,any>,
+> {
+    constructor(
+        protected engine: Engine,
+        protected client: NesoiClient<any,any>,
+    ) {}
+   
+    readOne<S extends keyof Engine['sources']>(
+        source: S,
+        id: Engine['sources'][S]['id']
+    ) {
+        type Source = InstanceType<Engine['sources'][S]>
+        const sourceClass = this.engine.sources[source] as any
+        const data = new sourceClass() as Source
+        return data.get(this.client, id) as Source['$obj']
+    }
+
+    _readOne(
+        source: string,
+        id: number | string
+    ) {
+        type Source = InstanceType<Engine['sources'][any]>
+        const sourceClass = this.engine.sources[source] as any
+        const data = new sourceClass() as Source
+        return data.get(this.client, id)
+    }
+
+    readAll<S extends keyof Engine['sources']>(
+        source: S
+    ) {
+        type Source = InstanceType<Engine['sources'][S]>
+        const sourceClass = this.engine.sources[source] as any
+        const data = new sourceClass() as Source
+        return data.index(this.client)
+    }
+
+    _readAll(
+        source: string
+    ) {
+        type Source = InstanceType<Engine['sources'][any]>
+        const sourceClass = this.engine.sources[source] as any
+        const data = new sourceClass() as Source
+        return data.index(this.client)
+    }
+
+}
+
+class NesoiTaskClient<
+    Engine extends NesoiEngine<any,any,any,any>
 > {
     constructor(
         protected engine: Engine,
         protected client: NesoiClient<any,any>
     ) {}
 
+    /**
+     * Create an task at the "requested" state
+     * @param task Nesoi.task object
+     * @param input Input to the task request
+     * @returns Newly created task with generated id
+     */
     request<
-        A extends Activity<any,any>
+        A extends Task<any,any>
     >(
-        activity: A,
-        input: ApplicationStepEvent<A['requestStep']>
+        task: A,
+        input: TaskStepEvent<A['requestStep']>
     ) {
-        return activity.request(this.client, input as never)
+        return task.request(this.client, input as never)
     }
 
     _request(
-        activityName: keyof Engine['activities'],
+        taskName: keyof Engine['tasks'],
         input: Record<string, any>
     ) {
-        const activity = this.engine.activities[activityName];
-        return activity.request(this.client, input as never)
+        const task = this.engine.tasks[taskName];
+        return task.request(this.client, input as never)
     }
 
     advance<
-        A extends Activity<any,any>
+        A extends Task<any,any>
     >(
-        activity: A,
+        task: A,
         id: number,
-        input: ApplicationStepEvent<A['steps'][number]>
+        input: TaskStepEvent<A['steps'][number]>
     ) {
-        return activity.advance(this.client, id, input as never)
+        return task.advance(this.client, id, input as never)
     }
 
     _advance(
-        activityName: keyof Engine['activities'],
+        taskName: keyof Engine['tasks'],
         id: number,
         input: Record<string, any>
     ) {
-        const activity = this.engine.activities[activityName];
-        return activity.advance(this.client, id, input as never)
+        const task = this.engine.tasks[taskName];
+        return task.advance(this.client, id, input as never)
     }
 
     comment<
-        A extends Activity<any,any>
+        A extends Task<any,any>
     >(
-        activity: A,
+        task: A,
         id: number,
         comment: string
     ) {
-        return activity.comment(this.client, id, comment)
+        return task.comment(this.client, id, comment)
     }
 
     _comment(
-        activityName: keyof Engine['activities'],
+        taskName: keyof Engine['tasks'],
         id: number,
         comment: string
     ) {
-        const activity = this.engine.activities[activityName];
-        return activity.comment(this.client, id, comment)
+        const task = this.engine.tasks[taskName];
+        return task.comment(this.client, id, comment)
     }
 }
 
 export class NesoiClient<
-    Engine extends NesoiEngine<any,any>,
+    Engine extends NesoiEngine<any,any,any,any>,
     AppClient extends Client
 > {
-    public activity: NesoiActivityClient<Engine>
+    public data: NesoiDataClient<Engine>
+    public task: NesoiTaskClient<Engine>
 
     constructor(
         protected engine: Engine,
         protected client: AppClient,
-        public user = client.user
+        public user = client.user as AppClient['user']
     ) {
-        this.activity = new NesoiActivityClient(engine, this)
+        this.data = new NesoiDataClient(engine, this)
+        this.task = new NesoiTaskClient(engine, this)
+        Object.assign(this, client)
     }
 }
