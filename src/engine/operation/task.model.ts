@@ -3,7 +3,7 @@ import { ResourceModel } from "../data/model"
 export type TaskAction =
     'request' |
     'advance' |
-    'immediate' |
+    'execute' |
     'comment'
 
 export type TaskState =
@@ -24,7 +24,7 @@ export interface TaskLogModel<Event> {
     task_id: number,
     task_type: string,
     action: TaskAction,
-    state: string,
+    state: TaskState,
     message: string,
     event?: Event,
     timestamp: string,

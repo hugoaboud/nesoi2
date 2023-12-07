@@ -57,7 +57,7 @@ export const MoveCoilTask = Nesoi.task('move_coil', source)
         lolo: $('Lolo').float
       }))
       .do(({ client }) => {
-        // client.task._immediate('unfuel', {
+        // client.task._execute('unfuel', {
 
         // })
         return {}
@@ -74,7 +74,7 @@ export const MoveCoilTask = Nesoi.task('move_coil', source)
 
 // MoveCoilTask.comment({} as any, 3, 'Hello!')
 
-// MoveCoilTask.immediate({} as any, {
+// MoveCoilTask.execute({} as any, {
 
 // })
 

@@ -17,8 +17,8 @@ export namespace NesoiError {
             return new Error(`Task ${name} with id ${id} is at invalid state ${state}`)
         }
         
-        export function InvalidStateImmediate(name: string, state: string) {
-            return new Error(`Immediate task ${name} reached invalid state ${state}`)
+        export function InvalidStateExecute(name: string, state: string) {
+            return new Error(`Execute task ${name} reached invalid state ${state}`)
         }
 
     }

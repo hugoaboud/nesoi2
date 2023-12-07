@@ -38,7 +38,7 @@ async function main() {
 
   await client.task._comment('move_coil', task1.id, 'Something else happened!')
   
-  await MoveCoilTask.immediate(client, {
+  await MoveCoilTask.execute(client, {
     origin_coil: 3,
     target_coil: 2,
     peq: true,

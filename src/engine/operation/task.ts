@@ -136,7 +136,7 @@ export class Task<
                 throw NesoiError.Task.InvalidState(this.name, task.id, task.state)
             }
             else {
-                throw NesoiError.Task.InvalidStateImmediate(this.name, task.state)
+                throw NesoiError.Task.InvalidStateExecute(this.name, task.state)
             }
         }
 
@@ -158,7 +158,7 @@ export class Task<
         return { event, task }
     }
 
-    public async immediate(
+    public async execute(
         client: Client,
         input: TaskStepEvent<RequestStep> & TaskStepEvent<Steps>
     ) {
@@ -173,7 +173,7 @@ export class Task<
         const task = await this.dataSource.tasks.put(client, entry)
 
         // 3. Log
-        await this.logStep(client, 'immediate', task, fullEvent);
+        await this.logStep(client, 'execute', task, fullEvent);
         return entry;
     }
 
