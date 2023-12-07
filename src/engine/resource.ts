@@ -1,5 +1,5 @@
 import { DataSource } from "./data/datasource";
-import { ResourceObj } from "./data/obj";
+import { ResourceModel } from "./data/model";
 import { NesoiError } from "../error";
 import { ResourceObj } from "./resource/resource_obj";
 import { StateMachine } from "./resource/state_machine";
@@ -8,7 +8,7 @@ import { View } from "./resource/view";
 type Obj = Record<string, any>
 
 export class Resource<
-    Model extends ResourceObj,
+    Model extends ResourceModel,
     Events,
     Views extends Record<string, View<any>>
 > {
@@ -41,7 +41,7 @@ export class Resource<
         view: V|'raw' = 'raw'
     ) {
         // 1. Read from Data Source
-        const promise = this.dataSource.get(id);
+        const promise = this.dataSource.get({} as any, id);
         const model = await Promise.resolve(promise)
         if (!model) {
             throw NesoiError.Resource.NotFound(this.name, id)
@@ -61,7 +61,7 @@ export class Resource<
         view: V|'raw' = 'raw'
     ) {
         // 1. Read from Data Source
-        const promise = this.dataSource.index();
+        const promise = this.dataSource.index({} as any);
         const models = await Promise.resolve(promise)
         // 2. If raw view, build a list of Objs from the model list
         if (view === 'raw') {
@@ -84,7 +84,7 @@ export class Resource<
             this as any,
             model as any,
             view as any
-        ) as any as ResourceObj & T
+        ) as any as ResourceModel & T
     }
 
 }

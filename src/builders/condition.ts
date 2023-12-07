@@ -5,11 +5,11 @@
  * 
 */
 
-import { ResourceObj } from "../engine/data/obj";
+import { ResourceModel } from "../engine/data/model";
 import { TaskMethod, JobMethod, ResourceMethod } from "./method";
 
 export type ResourceCondition<
-    Model extends ResourceObj,
+    Model extends ResourceModel,
     Event
 > = {
     that: ResourceMethod<Model, Event, boolean>,
@@ -26,8 +26,8 @@ export type JobCondition<
 export type TaskCondition<
   Client,
   Event,
-  Input
+  Request
 > = {
-  that: TaskMethod<Client, Event, Input, boolean>,
-  else: string | TaskMethod<Client, Event, Input, string>
+  that: TaskMethod<Client, Event, Request, boolean>,
+  else: string | TaskMethod<Client, Event, Request, string>
 }

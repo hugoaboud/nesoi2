@@ -1,11 +1,11 @@
-import { ResourceObj } from "../data/obj"
+import { ResourceModel } from "../data/model"
 
 
 export type SchedulableState =
     'available' |
     'busy'
 
-export interface SchedulableModel extends ResourceObj {
+export interface SchedulableModel extends ResourceModel {
     id: number,
     state: SchedulableState
 }
@@ -15,7 +15,7 @@ export type SchedulingState =
     'ongoing' |
     'done'
 
-export interface SchedulingModel extends ResourceObj {
+export interface SchedulingModel extends ResourceModel {
     id: number,
     state: SchedulingState
     schedulable_id: number

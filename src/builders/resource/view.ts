@@ -6,13 +6,13 @@
 */
 
 import { DataSource } from "../../engine/data/datasource"
-import { ResourceObj } from "../../engine/data/obj"
+import { ResourceModel } from "../../engine/data/model"
 
 export type ViewProp<T> = {
     __type: 'view.prop'
     type: 'model'|'computed'|'compose'|'graph'
     amount: 'one'|'many'
-    fn: (model: ResourceObj) => T | Promise<T>
+    fn: (model: ResourceModel) => T | Promise<T>
 }
 
 export type ViewBuilder = {
@@ -30,7 +30,7 @@ export type ViewTypeFromBuilder<
 }
 
 export class ViewPropFactory<
-    Model extends ResourceObj
+    Model extends ResourceModel
 > {
     
     model<K extends keyof Model>(prop: K): ViewProp<Model[K]> {
@@ -88,6 +88,6 @@ export class ViewPropFactory<
 }
 
 export type $View<
-    Model extends ResourceObj,
+    Model extends ResourceModel,
     Tree extends ViewBuilder
 > = ($: ViewPropFactory<Model>) => Tree

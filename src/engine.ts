@@ -2,7 +2,7 @@ import { $Event } from "./builders/event"
 import { JobBuilder } from "./builders/job/job"
 import { ResourceBuilder } from "./builders/resource/resource"
 import { EventParserBuilder } from "./builders/parser/event_parser"
-import { NesoiObj, ResourceObj } from "./engine/data/obj"
+import { NesoiModel, ResourceModel } from "./engine/data/model"
 import { DataSource } from "./engine/data/datasource"
 import { Queue, QueueSource } from "./engine/queue"
 import { MemoryQueueSource } from "./engine/queue/memory.queue"
@@ -47,7 +47,7 @@ export class NesoiEngine<
     public tasks: Record<TaskNameUnion, Task<any, any>> = {} as any
 
     constructor($: {
-        client: AppClient,
+        $client: AppClient,
         queue?: QueueSource,
         cache?: CacheSource,
         sources?: Sources,
@@ -60,7 +60,7 @@ export class NesoiEngine<
     }
 
     resource<
-        Model extends ResourceObj
+        Model extends ResourceModel
     >(
         name: string,
         dataSourceClass: new (...args: any) => DataSource<Model>

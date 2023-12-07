@@ -8,8 +8,6 @@ import { TaskCondition } from '../condition'
 import { TaskMethod } from '../method'
 import { $EventParser, EventParserBuilder, EventParserPropFactory, EventTypeFromParser } from '../parser/event_parser'
 
-type Response = 'pass' | 'cancel'
-
 export class TaskSource<
   A extends DataSource<TaskModel>,
   L extends DataSource<TaskLogModel<any>>,
@@ -31,7 +29,7 @@ export class TaskStepBuilder<
   Method = unknown
 > {
   protected eventParser!: EventParserBuilder
-  protected conditions: TaskCondition<Client, Event, PreviousEvents>[] = []
+  protected conditionsAndExtras: (TaskCondition<any,any,any> | TaskMethod<any,any,any,any>)[] = []
   protected fn!: Method
 
   constructor (
@@ -40,8 +38,8 @@ export class TaskStepBuilder<
 
   public event<
     Parser extends EventParserBuilder
-  > ($: $EventParser<Parser>) {
-    this.eventParser = $(EventParserPropFactory) as any
+  > (parser: $EventParser<Parser>) {
+    this.eventParser = parser(EventParserPropFactory) as any
     return this as any as TaskStepBuilder<
         Client,
         State,
@@ -57,11 +55,9 @@ export class TaskStepBuilder<
     g_Event extends Record<string, any>
   >(
     this: TaskStepBuilder<Client, State, PreviousEvents, g_Event, Extra>, // Guarantee preceding event
-    $: TaskMethod<Client, Event & Extra, PreviousEvents, Ext>
+    extra: TaskMethod<Client, Event & Extra, PreviousEvents, Ext>
   ) {
-    // const extra = $({ obj: {} as any, event: this._event as any });
-    // Object.assign(this._event as any, extra);
-
+    this.conditionsAndExtras.push(extra as any)
     return this as any as TaskStepBuilder<
           Client,
           State,
@@ -78,12 +74,12 @@ export class TaskStepBuilder<
     this: TaskStepBuilder<Client, State, PreviousEvents, g_Event, Extra>, // Guarantee preceding event
     condition: TaskCondition<Client, Event & Extra, PreviousEvents>
   ) {
-    this.conditions.push(condition as any)
+    this.conditionsAndExtras.push(condition as any)
     return this
   }
 
   public do<
-    Fn extends TaskMethod<Client, Event & Extra, PreviousEvents, Response>
+    Fn extends TaskMethod<Client, Event & Extra, PreviousEvents, Record<string, any>>
   > (
     fn: Fn
   ) {

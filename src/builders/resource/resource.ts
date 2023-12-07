@@ -5,7 +5,7 @@
  * 
  */
 
-import { ResourceObj } from "../../engine/data/obj"
+import { ResourceModel } from "../../engine/data/model"
 import { $Event, EventBuilder } from "../event"
 import { $States, StateFactory, StateTree, State } from "./states"
 import { $Transition, TransitionBuilder } from "./transition"
@@ -19,7 +19,7 @@ import { $Composition, Composition, CompositionBuilder } from "./compose"
 // Resource
 
 export class ResourceBuilder<
-    Model extends ResourceObj,
+    Model extends ResourceModel,
     Events extends EventParserBuilder = {},
     Views = unknown,
     Compositions = unknown,
@@ -134,7 +134,7 @@ export class ResourceBuilder<
 
     compose<
         K extends string,
-        ChildModel extends ResourceObj
+        ChildModel extends ResourceModel
     >(
         other_name: K,
         $?: $Composition<Model, ChildModel>

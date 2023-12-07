@@ -2,6 +2,11 @@ import { EventParserPropBuilder, EventParserRule } from "./builders/parser/event
 
 export namespace NesoiError {
 
+    export function Condition(message: string) {
+        return new Error(message)
+    }
+    
+
     export namespace Task {
         
         export function NotFound(name: string, id: number) {
@@ -10,6 +15,10 @@ export namespace NesoiError {
         
         export function InvalidState(name: string, id: number, state: string) {
             return new Error(`Task ${name} with id ${id} is at invalid state ${state}`)
+        }
+        
+        export function InvalidStateImmediate(name: string, state: string) {
+            return new Error(`Immediate task ${name} reached invalid state ${state}`)
         }
 
     }

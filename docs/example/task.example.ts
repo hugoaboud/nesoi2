@@ -25,13 +25,12 @@ async function main() {
   console.log(task2)
   
   await client.task.advance(MoveCoilTask, task2.id, {
-    lolo: 3,
-    peq: true
+    req: true
   })
   console.log(task2)
   
   await client.task._advance('move_coil', task1.id, {
-    lala: true
+    req: true
   })
   console.log(task1)
 
@@ -39,6 +38,14 @@ async function main() {
 
   await client.task._comment('move_coil', task1.id, 'Something else happened!')
   
+  await MoveCoilTask.immediate(client, {
+    origin_coil: 3,
+    target_coil: 2,
+    peq: true,
+    lolo: 3,
+    req: true
+  })
+
   const tasks = await MoveCoilTask.dataSource.tasks.index(client)
   console.log(tasks)
 

@@ -2,12 +2,14 @@ import { ControllerBuilder } from "../../src/builders/controller"
 import { DataSource } from "../../src/engine/data/datasource"
 import { NesoiEngine } from "../../src/engine"
 
-const Nesoi = new NesoiEngine<{
-    user: {
-        id: number
-        name: string
+const Nesoi = new NesoiEngine({
+    $client: {} as {
+        user: {
+            id: number
+            name: string
+        }
     }
-}>()
+})
 
 class DuelModel {
     id!: number

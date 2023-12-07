@@ -1,5 +1,5 @@
 import { NesoiClient } from "../../client";
-import { ResourceObj } from "./obj";
+import { ResourceModel } from "./model";
 
 export abstract class DataSource<
     Obj extends { id: number|string }

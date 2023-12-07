@@ -1,5 +1,5 @@
 import { ViewProp, ViewBuilder, ViewTypeFromBuilder } from "../../builders/resource/view";
-import { ResourceObj } from "../data/obj";
+import { ResourceModel } from "../data/model";
 
 export class View<
     Builder extends ViewBuilder,
@@ -10,7 +10,7 @@ export class View<
         protected builder: Builder
     ) {}
 
-    async parse(model: ResourceObj): Promise<Type> {
+    async parse(model: ResourceModel): Promise<Type> {
         const parsedObj = {} as any
         // Model props
         for (const k in this.builder) {

@@ -1,5 +1,5 @@
 import { DataSource } from "../data/datasource";
-import { ResourceObj } from "../data/obj";
+import { ResourceModel } from "../data/model";
 import { NesoiError } from "../../error";
 import { EventParser } from "../parser/event.parser";
 import { Tree } from "../../helpers/tree";
@@ -8,7 +8,7 @@ import { Obj, State, StateSchema, StateTree, TransitionSchema, TransitionTargetS
 import { NesoiClient } from "../../client";
 
 export class StateMachine<
-    Model extends ResourceObj,
+    Model extends ResourceModel,
     Events
 > {
     
@@ -20,7 +20,7 @@ export class StateMachine<
 
     constructor(
         builder: any,
-        protected dataSource: DataSource<ResourceObj>
+        protected dataSource: DataSource<ResourceModel>
     ) {
         this.engine = builder.engine
         this.alias = builder._alias

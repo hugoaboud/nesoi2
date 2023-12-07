@@ -1,6 +1,6 @@
 import { NesoiClient } from "../../client";
 import { DataSource } from "./datasource";
-import { ResourceObj } from "./obj";
+import { ResourceModel } from "./model";
 
 export class MemoryDataSource<
     T extends { id: number | string }

@@ -1,5 +1,4 @@
-import { TaskSource, TaskStepBuilder } from "../../src/builders/operation/task"
-import { NesoiClient } from "../../src/client"
+import { TaskSource } from "../../src/builders/operation/task"
 import { MemoryDataSource } from "../../src/engine/data/memory.datasource"
 import { SchedulingModel } from "../../src/engine/operation/scheduling.model"
 import { TaskLogModel, TaskModel } from "../../src/engine/operation/task.model"
@@ -33,7 +32,7 @@ export const MoveCoilTask = Nesoi.task('move_coil', source)
         else: 'Banana não é 3'
       })
       .do(() => {
-        return 'pass'
+        return {}
       })
     )
 
@@ -46,10 +45,9 @@ export const MoveCoilTask = Nesoi.task('move_coil', source)
         else: ''
       })
       .do(() => {
-
-        //
-
-        return 'cancel'
+        return {
+          flocos: 'de neve'
+        }
       })
     )
 
@@ -62,7 +60,7 @@ export const MoveCoilTask = Nesoi.task('move_coil', source)
         // client.task._immediate('unfuel', {
 
         // })
-        return 'pass'
+        return {}
       })
     )
 

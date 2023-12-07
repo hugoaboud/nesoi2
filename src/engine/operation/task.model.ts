@@ -1,4 +1,10 @@
-import { ResourceObj } from "../data/obj"
+import { ResourceModel } from "../data/model"
+
+export type TaskAction =
+    'request' |
+    'advance' |
+    'immediate' |
+    'comment'
 
 export type TaskState =
     'scheduled' |
@@ -8,13 +14,16 @@ export type TaskState =
 
 export interface TaskModel {
     id: number,
-    state: TaskState
+    state: TaskState,
+    request: Record<string, any>
+    outcome?: Record<string, any>
 }
 
 export interface TaskLogModel<Event> {
     id: number,
     task_id: number,
-    type: 'step' | 'comment',
+    task_type: string,
+    action: TaskAction,
     state: string,
     message: string,
     event?: Event,

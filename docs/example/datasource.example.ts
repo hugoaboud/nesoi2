@@ -1,4 +1,4 @@
-import { ResourceObj } from "../../src/engine/data/obj";
+import { ResourceModel } from "../../src/engine/data/model";
 import { MemoryDataSource } from "../../src/engine/data/memory.datasource";
 
 type FireballState =
@@ -7,7 +7,7 @@ type FireballState =
     'launched' |
     'boom'
 
-export interface Fireball extends ResourceObj {
+export interface Fireball extends ResourceModel {
     id: number,
     state: FireballState
     power: number,

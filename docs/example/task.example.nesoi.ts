@@ -8,8 +8,9 @@ type MyClient = {
 }
 
 export const Nesoi = new NesoiEngine({
-  client: {} as MyClient,
+  $client: {} as MyClient,
   tasks: [
     'move_coil'
-  ]
+  ],
+  sources: {}
 })

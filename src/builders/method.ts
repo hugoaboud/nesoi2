@@ -1,7 +1,7 @@
-import { ResourceObj } from "../engine/data/obj";
+import { ResourceModel } from "../engine/data/model";
 
 export type ResourceMethod<
-    Model extends ResourceObj,
+    Model extends ResourceModel,
     Event,
     Response
 > = (ctx: {
@@ -19,10 +19,10 @@ export type JobMethod<
 export type TaskMethod<
   Client,
   Event,
-  Input,
+  Request,
   Response
 > = (ctx: {
   client: Client,
   event: Event,
-  input: Input 
+  request: Request 
 }) => Response | Promise<Response>
