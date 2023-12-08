@@ -94,7 +94,8 @@ export class TaskStepBuilder<
   }
 }
 
-export type TaskStepEvent<Step> = Step extends TaskStepBuilder<any, any, any, infer X> ? X : never
+export type TaskStepEvent<Step> = Step extends TaskStepBuilder<any, any, any, infer X> ? X : {}
+export type TaskStepExtra<Step> = Step extends TaskStepBuilder<any, any, any, any, infer X> ? X : {}
 
 export class TaskBuilder<
   Client extends NesoiClient<any, any>,
@@ -128,7 +129,12 @@ export class TaskBuilder<
 
   public step<
     S extends (IsFirstStep extends true ? 'requested' : string),
-    Step extends $TaskStep<Client, S, TaskStepEvent<RequestStep>, any>,
+    Step extends $TaskStep<
+      Client,
+      S,
+      TaskStepEvent<RequestStep> & TaskStepEvent<Steps> & TaskStepExtra<RequestStep> & TaskStepExtra<Steps>,
+      any
+    >,
     IsFirstStep = Steps extends TaskStepBuilder<any,any,any,any,any> ? false : true
   > (
     state: S,
