@@ -14,6 +14,7 @@ export type TaskState =
 
 export interface TaskModel {
     id: number
+    type: string
     state: TaskState
     request: Record<string, any>
     outcome: Record<string, any>

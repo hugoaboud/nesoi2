@@ -97,6 +97,7 @@ export class Task<
 
         // 2. Create request task
         const entry: Omit<TaskModel, 'id'> = {
+            type: this.name,
             state: 'requested',
             request: event,
             outcome,
