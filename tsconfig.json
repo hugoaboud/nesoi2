@@ -6,19 +6,31 @@
       "ES2020"
     ],
     "declaration": true,
-    "resolveJsonModule": true,
-    "esModuleInterop": true,
-    "forceConsistentCasingInFileNames": true,
+    "removeComments": false,
+    "outDir": "./build",
     "strict": true,
-    "skipLibCheck": true,
     "types": [
       "node",
       "jest"
     ],
-    "outDir": "./build",
+    "resolveJsonModule": true,
+    "skipLibCheck": true,
+    "incremental": true,
+    "moduleResolution": "node",
+    "strictNullChecks": true,
+    "allowSyntheticDefaultImports": true,
+    "emitDecoratorMetadata": true,
+    "experimentalDecorators": true,
+    "esModuleInterop": true
   },
   "include": [
     "src",
     "test"
+  ],
+  "exclude": [
+    "node_modules",
+    "scripts",
+    "docs",
+    "transformers"
   ]
 }

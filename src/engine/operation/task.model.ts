@@ -20,8 +20,8 @@ export interface TaskModel {
     graph: Record<string, any>
     created_by: number|string
     updated_by: number|string
-    created_at: string
-    updated_at: string
+    created_at: any
+    updated_at: any
 }
 
 export interface TaskLogModel<Event> {
@@ -36,6 +36,6 @@ export interface TaskLogModel<Event> {
     user: number | string
     created_by: number|string
     updated_by: number|string
-    created_at: string
-    updated_at: string
+    created_at: any
+    updated_at: any
 }
