@@ -56,7 +56,6 @@ export class NesoiEngine<
         this.queue = new Queue($?.queue || new MemoryQueueSource())
         this.cache = new Cache($?.cache || new MemoryCacheSource())
         this.sources = $.sources as any
-        this.tasks = $.tasks as any
     }
 
     resource<

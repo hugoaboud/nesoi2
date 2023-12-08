@@ -41,6 +41,10 @@ export class TaskStep {
             }
         }
 
+        if (!this.fn) {
+            return { event, outcome: {} }
+        }
+
         const promise = this.fn({ client, event, request: request });
         const outcome = await Promise.resolve(promise)
         return { event, outcome }
@@ -95,7 +99,12 @@ export class Task<
         const entry: Omit<TaskModel, 'id'> = {
             state: 'requested',
             request: event,
-            outcome
+            outcome,
+            graph: {},
+            created_by: client.user.id,
+            updated_by: client.user.id,
+            created_at: new Date().toISOString(),
+            updated_at: new Date().toISOString()
         }
 
         return { event, entry };
@@ -145,6 +154,7 @@ export class Task<
         if (!task.outcome) {
             task.outcome = {}
         }
+        Object.assign(task.request, event)
         Object.assign(task.outcome, outcome)
 
         // 3. Advance
@@ -154,6 +164,9 @@ export class Task<
         else {
             task.state = 'done'
         }
+
+        task.updated_by = client.user.id
+        task.updated_at = new Date().toISOString()
 
         return { event, task }
     }
@@ -196,7 +209,11 @@ export class Task<
             state: task.state,
             message: comment,
             timestamp: new Date().toISOString(),
-            user_id: client.user.id
+            user: (client.user as any).name,
+            created_by: client.user.id,
+            updated_by: client.user.id,
+            created_at: new Date().toISOString(),
+            updated_at: new Date().toISOString()
         }
         await this.dataSource.logs.put(client, log)
     }
@@ -218,7 +235,11 @@ export class Task<
             message: `Task advanced to state ${task.state}`,
             event,
             timestamp: new Date().toISOString(),
-            user_id: client.user.id
+            user: (client.user as any).name,
+            created_by: client.user.id,
+            updated_by: client.user.id,
+            created_at: new Date().toISOString(),
+            updated_at: new Date().toISOString()
         }
         await this.dataSource.logs.put(client, log)
     }

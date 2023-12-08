@@ -17,6 +17,9 @@ export class Condition {
                 throw NesoiError.Condition(condition.that)
             }       
             const elseFn = condition.else as ElseFn
+            if (typeof elseFn === 'string') {
+                throw NesoiError.Condition(elseFn);
+            }
             const err_promise = elseFn(methodArgs)
             const res = await Promise.resolve(err_promise)
             throw NesoiError.Condition(res);

@@ -12,6 +12,7 @@ export class StateMachine<
     Events
 > {
     
+    protected name: string
     protected engine: NesoiEngine<any,any,any,any>
     protected alias: string
     protected states: StateTree
@@ -22,6 +23,7 @@ export class StateMachine<
         builder: any,
         protected dataSource: DataSource<ResourceModel>
     ) {
+        this.name = builder.name
         this.engine = builder.engine
         this.alias = builder._alias
         this.states = builder._states
@@ -38,7 +40,7 @@ export class StateMachine<
     private initialStateNode() {
         const initialNode = Tree.find(this.states._states, (_, value) => (value as any as StateSchema)._initial);
         if (!initialNode) {
-            throw new Error(`[StateMachine] ${name} has no initial state`)
+            throw new Error(`[StateMachine] ${this.name} has no initial state`)
         }
         return initialNode
     }

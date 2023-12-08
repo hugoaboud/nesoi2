@@ -9,6 +9,10 @@ export namespace NesoiError {
 
     export namespace Task {
         
+        export function Invalid(name: string) {
+            return new Error(`Task ${name} not found`)
+        }
+        
         export function NotFound(name: string, id: number) {
             return new Error(`Task ${name} with id ${id} not found`)
         }

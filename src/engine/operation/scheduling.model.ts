@@ -6,7 +6,7 @@ export type SchedulableState =
     'busy'
 
 export interface SchedulableModel extends ResourceModel {
-    id: number,
+    id: number
     state: SchedulableState
 }
 
@@ -21,4 +21,8 @@ export interface SchedulingModel extends ResourceModel {
     schedulable_id: number
     start_timestamp: string
     end_timestamp: string
+    created_by: number|string
+    updated_by: number|string
+    created_at: string
+    updated_at: string
 }

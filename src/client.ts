@@ -2,6 +2,7 @@ import { TaskStepEvent } from "./builders/operation/task"
 import { NesoiEngine } from "./engine"
 import { DataSource } from "./engine/data/datasource"
 import { Task } from "./engine/operation/task"
+import { NesoiError } from "./error"
 
 export type Client = {
     user: {
@@ -85,6 +86,9 @@ class NesoiTaskClient<
         input: Record<string, any>
     ) {
         const task = this.engine.tasks[taskName];
+        if (!task) {
+            throw NesoiError.Task.Invalid(taskName as string)
+        }
         return task.request(this.client, input as never)
     }
 
@@ -104,6 +108,9 @@ class NesoiTaskClient<
         input: Record<string, any>
     ) {
         const task = this.engine.tasks[taskName];
+        if (!task) {
+            throw NesoiError.Task.Invalid(taskName as string)
+        }
         return task.advance(this.client, id, input as never)
     }
 
@@ -123,6 +130,9 @@ class NesoiTaskClient<
         comment: string
     ) {
         const task = this.engine.tasks[taskName];
+        if (!task) {
+            throw NesoiError.Task.Invalid(taskName as string)
+        }
         return task.comment(this.client, id, comment)
     }
 }
