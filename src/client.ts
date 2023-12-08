@@ -114,6 +114,26 @@ class NesoiTaskClient<
         return task.advance(this.client, id, input as never)
     }
 
+    execute<
+        A extends Task<any,any>
+    >(
+        task: A,
+        input: TaskStepEvent<A['requestStep']> & TaskStepEvent<A['steps'][number]>
+    ) {
+        return task.execute(this.client, input as never)
+    }
+
+    _execute(
+        taskName: keyof Engine['tasks'],
+        input: Record<string, any>
+    ) {
+        const task = this.engine.tasks[taskName];
+        if (!task) {
+            throw NesoiError.Task.Invalid(taskName as string)
+        }
+        return task.execute(this.client, input as never)
+    }
+
     comment<
         A extends Task<any,any>
     >(
