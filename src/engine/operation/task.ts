@@ -75,10 +75,10 @@ export class Task<
 
     public async request(
         client: Client,
-        input: TaskStepEvent<RequestStep>
+        eventRaw: TaskStepEvent<RequestStep>
     ) {
         // 1. Create task entry
-        const { event, entry } = await this._request(client, input)
+        const { event, entry } = await this._request(client, eventRaw)
         
         // 2. Save entry on data source
         const task = await this.dataSource.tasks.put(client, entry)
@@ -90,10 +90,10 @@ export class Task<
 
     private async _request(
         client: Client,
-        input: TaskStepEvent<RequestStep>
+        eventRaw: TaskStepEvent<RequestStep>
     ) {
         // 1. Run request step to built request object
-        const { event, outcome } = await this.requestStep.run(client, input, {})
+        const { event, outcome } = await this.requestStep.run(client, eventRaw, {})
 
         // 2. Create request task
         const entry: Omit<TaskModel, 'id'> = {
@@ -125,7 +125,7 @@ export class Task<
     public async advance(
         client: Client,
         id: number,
-        input: TaskStepEvent<Steps>
+        eventRaw: TaskStepEvent<Steps>
     ) {
         // 1. Get task by ID
         const task = await this.dataSource.tasks.get(client, id)
@@ -134,7 +134,7 @@ export class Task<
         }
 
         // 2. Advance the task
-        const { event } = await this._advance(client, task, input);
+        const { event } = await this._advance(client, task, eventRaw);
 
         // 3. Update task on data source
         await this.dataSource.tasks.put(client, task)
@@ -148,7 +148,7 @@ export class Task<
     private async _advance(
         client: Client,
         task:  Omit<TaskModel, 'id'> & { id?: number },
-        input: TaskStepEvent<Steps>
+        eventRaw: TaskStepEvent<Steps>
     ) {
         // 1. Get current and next steps
         const { current, next } = this.getStep(task.state)
@@ -162,7 +162,7 @@ export class Task<
         }
 
         // 2. Run step
-        const { event, outcome } = await current.run(client, input, task.input);
+        const { event, outcome } = await current.run(client, eventRaw, task.input);
         if (!task.output.data) {
             task.output.data = {}
         }
