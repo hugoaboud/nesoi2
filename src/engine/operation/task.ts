@@ -25,19 +25,19 @@ export class TaskStep {
         this.fn = builder.fn
     }
 
-    public async run (client: any, eventRaw: any, request: any) {
+    public async run (client: any, eventRaw: any, taskInput: any) {
         const event = await this.eventParser.parse(eventRaw);
         for (let i in this.conditionsAndExtras) {
             if (typeof this.conditionsAndExtras[i] === 'function') {
                 const extra = this.conditionsAndExtras[i] as TaskMethod<any,any,any,any>;
                 await Extra.run(extra,
-                    { client, event, request },
+                    { client, event, input: taskInput },
                     event)
             }
             else {
                 const condition = this.conditionsAndExtras[i] as TaskCondition<any, any, any>;
                 await Condition.check(condition,
-                    { client, event, request })
+                    { client, event, input: taskInput })
             }
         }
 
@@ -45,7 +45,7 @@ export class TaskStep {
             return { event, outcome: {} }
         }
 
-        const promise = this.fn({ client, event, request: request });
+        const promise = this.fn({ client, event, input: taskInput });
         const outcome = await Promise.resolve(promise)
         return { event, outcome }
     }
@@ -99,8 +99,19 @@ export class Task<
         const entry: Omit<TaskModel, 'id'> = {
             type: this.name,
             state: 'requested',
-            request: event,
-            outcome,
+            input: event,
+            output: {
+                data: {},
+                steps: [
+                    {
+                        user: { 
+                            id: client.user.id,
+                            name: client.user.name,
+                        },
+                        timestamp: new Date().toISOString()
+                    }
+                ]
+            },
             graph: {},
             created_by: client.user.id,
             updated_by: client.user.id,
@@ -151,12 +162,19 @@ export class Task<
         }
 
         // 2. Run step
-        const { event, outcome } = await current.run(client, input, task.request);
-        if (!task.outcome) {
-            task.outcome = {}
+        const { event, outcome } = await current.run(client, input, task.input);
+        if (!task.output.data) {
+            task.output.data = {}
         }
-        Object.assign(task.request, event)
-        Object.assign(task.outcome, outcome)
+        Object.assign(task.input, event)
+        Object.assign(task.output.data, outcome)
+        task.output.steps.push({
+            user: { 
+                id: client.user.id,
+                name: client.user.name,
+            },
+            timestamp: new Date().toISOString()
+        })
 
         // 3. Advance
         if (next) {

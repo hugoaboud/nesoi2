@@ -60,11 +60,11 @@ export const Fireball = new ResourceBuilder({} as any, 'fireball', FireballDataS
 
 async function main() {
     
-    await Fireball.machine.send(1, 'charge', {
+    await Fireball.machine.send({} as any, 1, 'charge', {
         power: 8
     })
 
-    await Fireball.machine.send(1, 'launch', {
+    await Fireball.machine.send({} as any, 1, 'launch', {
         direction: 'down'
     })
 

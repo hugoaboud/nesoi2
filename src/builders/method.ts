@@ -19,10 +19,10 @@ export type JobMethod<
 export type TaskMethod<
   Client,
   Event,
-  Request,
+  Input,
   Response
 > = (ctx: {
   client: Client,
   event: Event,
-  request: Request 
+  input: Input 
 }) => Response | Promise<Response>

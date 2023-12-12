@@ -26,8 +26,8 @@ export type JobCondition<
 export type TaskCondition<
   Client,
   Event,
-  Request
+  Input
 > = {
-  that: TaskMethod<Client, Event, Request, boolean>,
-  else: string | TaskMethod<Client, Event, Request, string>
+  that: TaskMethod<Client, Event, Input, boolean>,
+  else: string | TaskMethod<Client, Event, Input, string>
 }

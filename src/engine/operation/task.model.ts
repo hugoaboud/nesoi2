@@ -12,12 +12,23 @@ export type TaskState =
     | 'done'
     | 'canceled'
 
+export type TaskStep = {
+    user: {
+        id: number | string,
+        name: string
+    }
+    timestamp: string
+}
+
 export interface TaskModel {
     id: number
     type: string
     state: TaskState
-    request: Record<string, any>
-    outcome: Record<string, any>
+    input: Record<string, any>
+    output: {
+        data: Record<string, any>
+        steps: TaskStep[]
+    }
     graph: Record<string, any>
     created_by: number|string
     updated_by: number|string
