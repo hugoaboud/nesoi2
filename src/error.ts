@@ -2,27 +2,34 @@ import { EventParserPropBuilder, EventParserRule } from "./builders/parser/event
 
 export namespace NesoiError {
 
+    class BaseError extends Error {
+        status = 422
+        constructor(message: string) {
+            super(message)
+        }
+    }
+
     export function Condition(message: string) {
-        return new Error(message)
+        return new BaseError(message)
     }
     
 
     export namespace Task {
         
         export function Invalid(name: string) {
-            return new Error(`Task ${name} not found`)
+            return new BaseError(`Task ${name} not found`)
         }
         
         export function NotFound(name: string, id: number) {
-            return new Error(`Task ${name} with id ${id} not found`)
+            return new BaseError(`Task ${name} with id ${id} not found`)
         }
         
         export function InvalidState(name: string, id: number, state: string) {
-            return new Error(`Task ${name} with id ${id} is at invalid state ${state}`)
+            return new BaseError(`Task ${name} with id ${id} is at invalid state ${state}`)
         }
         
         export function InvalidStateExecute(name: string, state: string) {
-            return new Error(`Execute task ${name} reached invalid state ${state}`)
+            return new BaseError(`Execute task ${name} reached invalid state ${state}`)
         }
 
     }
@@ -30,19 +37,19 @@ export namespace NesoiError {
     export namespace Event {
         
         export function Sanitize(message: string) {
-            return new Error(message)
+            return new BaseError(message)
         }
 
         export function Required(prop: any) {
-            return new Error(`${prop.alias} is required`)
+            return new BaseError(`${prop.alias} is required`)
         }
 
         export function Parse(prop: any, type: string) {
-            return new Error(`${prop.alias} is not ${type}`)
+            return new BaseError(`${prop.alias} is not ${type}`)
         }
 
         export function Rule(rule: EventParserRule<any>, prop: EventParserPropBuilder<any>) {
-            return new Error(rule.error(prop))
+            return new BaseError(rule.error(prop))
         }
 
     }
@@ -50,23 +57,23 @@ export namespace NesoiError {
     export namespace Resource {
 
         export function NotFound(resource: string, id: number | string) {
-            return new Error(`Resource ${resource} with id ${id} not found`)
+            return new BaseError(`Resource ${resource} with id ${id} not found`)
         }
 
         export function NoDefaultView(resource: string) {
-            return new Error(`Resource ${resource} has no default view`)
+            return new BaseError(`Resource ${resource} has no default view`)
         }
 
         export function UnknownState(resource: string, state: string) {
-            return new Error(`Resource ${resource} is at unknown state "${state}"`)
+            return new BaseError(`Resource ${resource} is at unknown state "${state}"`)
         }
 
         export function NoTransition(resource: string, state: string, event: string) {
-            return new Error(`It's not possible to ${event} a ${state} ${resource}`)
+            return new BaseError(`It's not possible to ${event} a ${state} ${resource}`)
         }
 
         export function Condition(message: string) {
-            return new Error(message)
+            return new BaseError(message)
         }
     }
 }
