@@ -62,9 +62,9 @@ export class NesoiEngine<
         Model extends ResourceModel
     >(
         name: string,
-        dataSourceClass: new (...args: any) => DataSource<Model>
+        dataSource: DataSource<Model>
     ) {
-        return new ResourceBuilder(this, name, dataSourceClass);
+        return new ResourceBuilder(this, name, dataSource);
     }
 
     job<
@@ -82,7 +82,7 @@ export class NesoiEngine<
         name: TaskNameUnion,
         dataSource: Source
     ) {
-        return new TaskBuilder<C, Source>(name, dataSource, task => {
+        return new TaskBuilder<C, Source>(this, name, dataSource, task => {
             this.tasks[name] = task
         })
     }

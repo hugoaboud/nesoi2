@@ -8,6 +8,8 @@ import { NesoiError } from "../../error";
 import { NesoiClient } from "../../client";
 import { Condition } from "../condition";
 import { Extra } from "../extra";
+import { ScheduleResource } from "./schedule";
+import { ScheduleModel } from "./schedule.model";
 
 export class TaskStep {
     public state: string
@@ -63,6 +65,7 @@ export class Task<
     public name: string
     public requestStep!: TaskStep & RequestStep
     public steps!: (TaskStep & Steps)[]
+    public scheduleResource
 
     constructor(builder: any) {
         this.dataSource = builder.dataSource
@@ -71,6 +74,7 @@ export class Task<
         this.steps = builder.steps.map(
             (step: any) => step.build()
         )
+        this.scheduleResource = ScheduleResource(builder.engine, this.dataSource.schedules)
     }
 
     public async request(
@@ -78,14 +82,14 @@ export class Task<
         eventRaw: TaskStepEvent<RequestStep>
     ) {
         // 1. Create task entry
-        const { event, entry } = await this._request(client, eventRaw)
+        const { event, task } = await this._request(client, eventRaw)
         
         // 2. Save entry on data source
-        const task = await this.dataSource.tasks.put(client, entry)
+        const savedTask = await this.dataSource.tasks.put(client, task)
 
         // 3. Log
-        await this.logStep(client, 'request', task, event);
-        return task;
+        await this.logStep(client, 'request', savedTask, event);
+        return savedTask;
     }
 
     private async _request(
@@ -96,7 +100,7 @@ export class Task<
         const { event, outcome } = await this.requestStep.run(client, eventRaw, {})
 
         // 2. Create request task
-        const entry: Omit<TaskModel, 'id'> = {
+        const task: Omit<TaskModel, 'id'> = {
             type: this.name,
             state: 'requested',
             input: event,
@@ -119,7 +123,26 @@ export class Task<
             updated_at: new Date().toISOString()
         }
 
-        return { event, entry };
+        return { event, task };
+    }
+
+    public async schedule(
+        client: Client,
+        schedulable_id: number,
+        start_datetime: string,
+        end_datetime: string,
+        eventRaw: TaskStepEvent<RequestStep>
+    ) {
+        const task = await this.request(client, eventRaw)
+
+        const schedule = await this.scheduleResource.create(client, {
+            task_id: task.id,
+            schedulable_id,
+            start_datetime,
+            end_datetime
+        })
+
+        return { task, schedule };
     }
 
     public async advance(
@@ -194,19 +217,19 @@ export class Task<
         client: Client,
         input: TaskStepEvent<RequestStep> & TaskStepEvent<Steps>
     ) {
-        const { event, entry } = await this._request(client, input);
+        const { event, task } = await this._request(client, input);
         const fullEvent = event;
-        while (entry.state !== 'done') {
-            const { event } = await this._advance(client, entry, input)
+        while (task.state !== 'done') {
+            const { event } = await this._advance(client, task, input)
             Object.assign(fullEvent, event);
         }
 
-        // 2. Save entry on data source
-        const task = await this.dataSource.tasks.put(client, entry)
+        // 2. Save task on data source
+        const savedTask = await this.dataSource.tasks.put(client, task)
 
         // 3. Log
-        await this.logStep(client, 'execute', task, fullEvent);
-        return entry;
+        await this.logStep(client, 'execute', savedTask, fullEvent);
+        return savedTask;
     }
 
     public async comment(

@@ -3,20 +3,21 @@ import { Client, NesoiClient } from '../../client'
 import { DataSource } from '../../engine/data/datasource'
 import { Task, TaskStep } from '../../engine/operation/task'
 import { TaskLogModel, TaskModel } from '../../engine/operation/task.model'
-import { SchedulingModel } from '../../engine/operation/scheduling.model'
+import { ScheduleModel } from '../../engine/operation/schedule.model'
 import { TaskCondition } from '../condition'
 import { TaskMethod } from '../method'
-import { $EventParser, EventParserBuilder, EventParserPropFactory, EventTypeFromParser } from '../parser/event_parser'
+import { $EventParser, EventParserBuilder, EventParserPropFactory, EventInputFromParser } from '../parser/event_parser'
+import { NesoiEngine } from '../../engine'
 
 export class TaskSource<
   A extends DataSource<TaskModel>,
   L extends DataSource<TaskLogModel<any>>,
-  S extends DataSource<SchedulingModel>
+  S extends DataSource<ScheduleModel>
 > {
   constructor(
     public tasks: A,
     public logs: L,
-    public schedulings: S
+    public schedules: S
   ) {}
 }
 
@@ -44,7 +45,7 @@ export class TaskStepBuilder<
         Client,
         State,
         PreviousEvents,
-        EventTypeFromParser<Parser>,
+        EventInputFromParser<Parser>,
         Extra,
         Method
     >
@@ -107,6 +108,7 @@ export class TaskBuilder<
   protected steps: Steps[] = []
 
   constructor (
+    protected engine: NesoiEngine<any,any,any,any>,
     protected name: string,
     protected dataSource: Source,
     protected buildCallback?: (task: Task<any,any>) => void

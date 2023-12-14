@@ -1,11 +1,11 @@
-import { EventParseMethod, EventParserRule, EventParserBuilder, EventTypeFromParser } from "../../builders/parser/event_parser"
+import { EventParseMethod, EventParserRule, EventParserBuilder, EventInputFromParser } from "../../builders/parser/event_parser"
 import { NesoiError } from "../../error"
 import { MakeUndefinedOptional } from "../../helpers/type"
 import { EventPropSchema, EventSchema } from "../schema"
 
 export class EventParser<
     S extends EventParserBuilder,
-    Type = EventTypeFromParser<S>
+    Type = EventInputFromParser<S>
 > {
 
     constructor(

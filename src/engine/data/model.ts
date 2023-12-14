@@ -7,4 +7,8 @@ export interface NesoiModel {
 export interface ResourceModel extends NesoiModel {
     id: ResourceId
     state: string
+    created_by: number|string
+    updated_by: number|string
+    created_at: string
+    updated_at: string
 }

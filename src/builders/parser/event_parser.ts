@@ -5,48 +5,59 @@
  * 
 */
 
+import { NesoiDate } from "../../engine/date"
 import { NesoiError } from "../../error"
 
-export type EventParseMethod<T> = (prop: EventParserPropBuilder<T>, value: any) => T | Promise<T>
+export type EventParseMethod<I, O> = (prop: EventParserPropBuilder<I, O>, value: any) => O | Promise<O>
 
-export type EventParserRule<T> = {
-    cond: (value: T) => boolean | Promise<boolean>,
-    error: (prop: EventParserPropBuilder<T>) => string
+export type EventParserRule<I, O> = {
+    cond: (value: O) => boolean | Promise<boolean>,
+    error: (prop: EventParserPropBuilder<I, O>) => string
 }
 
 export type EventParserBuilder = {
-    [_: string]: EventParserPropBuilder<any> | EventParserBuilder
+    [_: string]: EventParserPropBuilder<any, any> | EventParserBuilder
 }
 
-export type EventTypeFromParser<
+export type EventInputFromParser<
     Parser extends EventParserBuilder
 > = {
-    [K in keyof Parser]: Parser[K] extends EventParserPropBuilder<infer X>
+    [K in keyof Parser]: Parser[K] extends EventParserPropBuilder<infer X, any>
         ? X
         : Parser[K] extends EventParserBuilder
-            ? EventTypeFromParser<Parser[K]>
+            ? EventInputFromParser<Parser[K]>
             : never
 }
 
-export class EventParserPropBuilder<T> {
+export type EventOutputFromParser<
+    Parser extends EventParserBuilder
+> = {
+    [K in keyof Parser]: Parser[K] extends EventParserPropBuilder<any, infer X>
+        ? X
+        : Parser[K] extends EventParserBuilder
+            ? EventInputFromParser<Parser[K]>
+            : never
+}
+
+export class EventParserPropBuilder<I, O> {
 
     private __type = 'event.prop';
     private required = true
-    private default?: T = undefined
-    private rules: EventParserRule<T>[] = []
+    private default?: O = undefined
+    private rules: EventParserRule<I, O>[] = []
     
     constructor(
         private alias: string,
-        private method: EventParseMethod<T>
+        private method: EventParseMethod<I, O>
     ) {}
 
-    optional(defaultValue?: T) {
+    optional(defaultValue?: O) {
         this.required = false;
         this.default = defaultValue;
-        return this as any as EventParserPropBuilder<T|undefined>;
+        return this as any as EventParserPropBuilder<I, O|undefined>;
     }
 
-    rule(rule: EventParserRule<T>) {
+    rule(rule: EventParserRule<I, O>) {
         this.rules.push(rule);
         return this;
     }
@@ -58,7 +69,7 @@ export function EventParserPropFactory(
 ) {
     return {
 
-        boolean: new EventParserPropBuilder<boolean>(alias,
+        boolean: new EventParserPropBuilder<boolean,boolean>(alias,
             (prop, value) => {
                 if (value === 'true') { return true; }
                 if (value === 'false') { return false; }
@@ -66,26 +77,26 @@ export function EventParserPropFactory(
                 throw NesoiError.Event.Parse(prop, 'a boolean')
             }),
     
-        date: new EventParserPropBuilder<string>(alias,
+        date: new EventParserPropBuilder<string, NesoiDate>(alias,
             (prop, value) => {
                 // TODO
                 if (typeof value === 'string') {
-                    return value
+                    return new NesoiDate(value)
                 }
                 throw NesoiError.Event.Parse(prop, 'a ISO date')
             }),
         
-        datetime: new EventParserPropBuilder<string>(alias,
+        datetime: new EventParserPropBuilder<string, NesoiDate>(alias,
             (prop, value) => {
                 // TODO
                 if (typeof value === 'string') {
-                    return value
+                    return new NesoiDate(value)
                 }
                 throw NesoiError.Event.Parse(prop, 'a ISO datetime')
             }),
     
         enum<O extends string>(options: readonly O[]) {
-            return new EventParserPropBuilder<O>(alias,
+            return new EventParserPropBuilder<O,O>(alias,
                 (prop, value) => {
                     if (
                         typeof value === 'string' &&
@@ -108,7 +119,7 @@ export function EventParserPropFactory(
                 })
         },
         
-        float: new EventParserPropBuilder<number>(alias,
+        float: new EventParserPropBuilder<number,number>(alias,
             (prop, value) => {
                 if (typeof value === 'string') {
                     const val = parseFloat(value);
@@ -123,7 +134,7 @@ export function EventParserPropFactory(
             }),
     
         id() {
-            return new EventParserPropBuilder<number|string>(alias,
+            return new EventParserPropBuilder<number|string,number|string>(alias,
                 // TODO
                 (prop, value) => {
                     if (typeof value === 'string') {
@@ -136,7 +147,7 @@ export function EventParserPropFactory(
                 })
         },
     
-        int: new EventParserPropBuilder<number>(alias,
+        int: new EventParserPropBuilder<number,number>(alias,
             (prop, value) => {
                 if (typeof value === 'string') {
                     const val = parseInt(value);
@@ -150,7 +161,7 @@ export function EventParserPropFactory(
                 throw NesoiError.Event.Parse(prop, 'a integer number')
             }),
     
-        string: new EventParserPropBuilder<string>(alias,
+        string: new EventParserPropBuilder<string,string>(alias,
             (prop, value) => {
                 if (typeof value === 'string') {
                     return value

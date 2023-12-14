@@ -91,6 +91,32 @@ class NesoiTaskClient<
         }
         return task.request(this.client, input as never)
     }
+    
+    schedule<
+        A extends Task<any,any>
+    >(
+        task: A,
+        schedulable_id: number,
+        start_datetime: string,
+        end_datetime: string,
+        input: TaskStepEvent<A['requestStep']>
+    ) {
+        return task.schedule(this.client, schedulable_id, start_datetime, end_datetime, input as never)
+    }
+
+    _schedule(
+        taskName: keyof Engine['tasks'],
+        schedulable_id: number,
+        start_datetime: string,
+        end_datetime: string,
+        input: Record<string, any>
+    ) {
+        const task = this.engine.tasks[taskName];
+        if (!task) {
+            throw NesoiError.Task.Invalid(taskName as string)
+        }
+        return task.schedule(this.client, schedulable_id, start_datetime, end_datetime, input as never)
+    }
 
     advance<
         A extends Task<any,any>

@@ -1,6 +1,7 @@
 import { ResourceCondition } from "../builders/condition"
 import { ResourceMethod } from "../builders/method"
 import { EventParseMethod, EventParserRule } from "../builders/parser/event_parser"
+import { EventParser } from "./parser/event.parser"
 
 export type Obj = Record<string, any>
 export type State = string
@@ -23,8 +24,8 @@ export type EventPropSchema = {
     alias: string
     required: boolean
     default?: any
-    method: EventParseMethod<any>
-    rules: EventParserRule<any>[]
+    method: EventParseMethod<any,any>
+    rules: EventParserRule<any,any>[]
 }
 
 export type EventSchema = {
@@ -35,12 +36,19 @@ export type EventSchema = {
 
 export type TransitionTargetSchema = {
     state: string,
-    conditions: ResourceCondition<any, any>[],
-    before?: ResourceMethod<any, any, any>,
-    after?: ResourceMethod<any, any, any>
+    conditions: ResourceCondition<any, any, any>[],
+    before?: ResourceMethod<any, any, any, any>,
+    after?: ResourceMethod<any, any, any, any>
 }
 export type TransitionSchema = {
     _event: string,
     _from: string,
     _targets: TransitionTargetSchema[]
+}
+
+/* Create */
+
+export type CreateSchema = {
+    event: EventParser<any>,
+    method: ResourceMethod<any, any, any, any>
 }

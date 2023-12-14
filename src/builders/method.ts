@@ -1,10 +1,12 @@
 import { ResourceModel } from "../engine/data/model";
 
 export type ResourceMethod<
+    Client,
     Model extends ResourceModel,
     Event,
     Response
 > = (ctx: {
+    client: Client,
     obj: Model
     event: Event
 }) => Response | Promise<Response>

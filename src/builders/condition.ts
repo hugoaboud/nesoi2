@@ -9,11 +9,12 @@ import { ResourceModel } from "../engine/data/model";
 import { TaskMethod, JobMethod, ResourceMethod } from "./method";
 
 export type ResourceCondition<
+    Client,
     Model extends ResourceModel,
     Event
 > = {
-    that: ResourceMethod<Model, Event, boolean>,
-    else?: string | ResourceMethod<Model, Event, string>
+    that: ResourceMethod<Client, Model, Event, boolean>,
+    else?: string | ResourceMethod<Client, Model, Event, string>
 }
 
 export type JobCondition<

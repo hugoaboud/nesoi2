@@ -1,17 +1,17 @@
 import { TaskSource } from "../../src/builders/operation/task"
 import { MemoryDataSource } from "../../src/engine/data/memory.datasource"
-import { SchedulingModel } from "../../src/engine/operation/scheduling.model"
+import { ScheduleModel } from "../../src/engine/operation/schedule.model"
 import { TaskLogModel, TaskModel } from "../../src/engine/operation/task.model"
 import { Nesoi } from "./task.example.nesoi"
 
 class TaskDataSource extends MemoryDataSource<TaskModel> {}
 class TaskLogDataSource extends MemoryDataSource<TaskLogModel<any>> {}
-class SchedulingDataSource extends MemoryDataSource<SchedulingModel> {}
+class ScheduleDataSource extends MemoryDataSource<ScheduleModel> {}
 
 const source = new TaskSource(
   new TaskDataSource(),
   new TaskLogDataSource(),
-  new SchedulingDataSource()
+  new ScheduleDataSource()
 )
 
 export const MoveCoilTask = Nesoi.task('move_coil', source)

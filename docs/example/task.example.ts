@@ -46,11 +46,27 @@ async function main() {
     req: true
   })
 
+
+  const task3 = await MoveCoilTask.schedule(client, 0, '2023-12-14T23:04:53.441Z', '2023-12-15T23:04:53.441Z', {
+    origin_coil: 3,
+    target_coil: 5
+  })
+  console.log(task3)
+
+  const task4 = await client.task.schedule(MoveCoilTask, 0, '2023-12-14T23:04:53.441Z', '2023-12-15T23:04:53.441Z', {
+    origin_coil: 3,
+    target_coil: 2
+  })
+  console.log(task4)
+
   const tasks = await MoveCoilTask.dataSource.tasks.index(client)
   console.log(tasks)
 
   const logs = await MoveCoilTask.dataSource.logs.index(client)
   console.log(logs)
+
+  const schedules = await MoveCoilTask.dataSource.schedules.index(client)
+  console.log(schedules)
   
   // MoveCoilTask.advance(client, 4, {
   //   bdaola: true,

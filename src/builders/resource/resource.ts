@@ -9,16 +9,21 @@ import { ResourceModel } from "../../engine/data/model"
 import { $Event, EventBuilder } from "../event"
 import { $States, StateFactory, StateTree, State } from "./states"
 import { $Transition, TransitionBuilder } from "./transition"
-import { EventParserBuilder, EventTypeFromParser } from "../parser/event_parser"
+import { EventParserBuilder, EventInputFromParser } from "../parser/event_parser"
 import { $View, ViewPropFactory, ViewBuilder } from "./view"
 import { DataSource } from "../../engine/data/datasource"
 import { Resource } from "../../engine/resource"
 import { View } from "../../engine/resource/view"
 import { $Composition, Composition, CompositionBuilder } from "./compose"
+import { NesoiClient } from "../../client"
+import { $ResourceCreate, ResourceCreateBuilder } from "./create"
+import { CreateSchema } from "../../engine/schema"
+import { EventParser } from "../../engine/parser/event.parser"
 
 // Resource
 
 export class ResourceBuilder<
+    Client extends NesoiClient<any, any>,
     Model extends ResourceModel,
     Events extends EventParserBuilder = {},
     Views = unknown,
@@ -28,23 +33,40 @@ export class ResourceBuilder<
 > {
 
     private _alias!: string
+    private _create!: ResourceCreateBuilder<any>
     private _events: Events = {} as any
     private _views: Views = {} as any
     private _compositions: Compositions = {} as any
     private _states: States = {} as any
     
     // Transitions don't need to be strongly typed
-    private _transitions = [] as TransitionBuilder<any,any,any,any>[]
+    private _transitions = [] as TransitionBuilder<any,any,any,any,any>[]
 
     constructor(
         private engine: any,
         private name: string,
-        private dataSourceClass: new (...args: any) => DataSource<Model>
+        private dataSource: DataSource<Model>
     ) {}
 
     alias(alias: string) {
         this._alias = alias;
         return this
+    }
+
+    create<
+        Parser extends EventParserBuilder
+    >($: $ResourceCreate<Model, Parser>) {
+        const builder = new ResourceCreateBuilder<Model>(this.name)
+        this._create = $(builder as any).build() as any;
+        return this as any as ResourceBuilder<
+            Client,
+            Model,
+            Events & { create: Parser },
+            Views,
+            Compositions,
+            States,
+            StatesUnion
+        >
     }
 
     event<
@@ -58,6 +80,7 @@ export class ResourceBuilder<
         (this._events as any)[name] = $(builder);
         
         return this as any as ResourceBuilder<
+            Client,
             Model,
             Events & { [E in K]: Parser },
             Views,
@@ -78,6 +101,7 @@ export class ResourceBuilder<
         (this._views as any)[name] = $(factory as any);
 
         return this as any as ResourceBuilder<
+            Client,
             Model,
             Events,
             Views & { [E in K]: View },
@@ -96,12 +120,13 @@ export class ResourceBuilder<
         Object.assign(this._states as any, states);
 
         return this as any as ResourceBuilder<
+            Client,
             Model,
             Events,
             Views,
             Compositions,
             States & { [K in keyof Tree]: State },
-            StatesUnion & keyof Tree | 'void'
+            StatesUnion & keyof Tree
         >
     }
 
@@ -110,6 +135,7 @@ export class ResourceBuilder<
         From
     >(
         $: $Transition<
+            Client,
             any,
             Model,
             StatesUnion extends string ? StatesUnion : never,
@@ -123,6 +149,7 @@ export class ResourceBuilder<
         const transition = $(builder as any);
         this._transitions.push(transition as any)
         return this as any as ResourceBuilder<
+            Client,
             Model,
             Events,
             Views,
@@ -145,6 +172,7 @@ export class ResourceBuilder<
         }
         
         return this as any as ResourceBuilder<
+            Client,
             Model,
             Events,
             Views,
@@ -157,7 +185,7 @@ export class ResourceBuilder<
     build() {
         return new Resource<
             Model,
-            EventTypeFromParser<Events>,
+            EventInputFromParser<Events>,
             { [V in keyof Views]: View<Views[V] & ViewBuilder> }
         >(this)
     }

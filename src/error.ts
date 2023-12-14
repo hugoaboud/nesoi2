@@ -48,7 +48,7 @@ export namespace NesoiError {
             return new BaseError(`${prop.alias} is not ${type}`)
         }
 
-        export function Rule(rule: EventParserRule<any>, prop: EventParserPropBuilder<any>) {
+        export function Rule(rule: EventParserRule<any, any>, prop: EventParserPropBuilder<any, any>) {
             return new BaseError(rule.error(prop))
         }
 
