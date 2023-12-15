@@ -1,6 +1,6 @@
 import { TaskStepEvent } from "./builders/operation/task"
 import { NesoiEngine } from "./engine"
-import { DataSource } from "./engine/data/datasource"
+import { ScheduleEventType } from "./engine/operation/schedule.model"
 import { Task } from "./engine/operation/task"
 import { NesoiError } from "./error"
 
@@ -8,6 +8,7 @@ export type Client = {
     user: {
         id: number | string
     }
+    trx: any
 }
 
 class NesoiDataClient<
@@ -96,26 +97,22 @@ class NesoiTaskClient<
         A extends Task<any,any>
     >(
         task: A,
-        schedulable_id: number,
-        start_datetime: string,
-        end_datetime: string,
-        input: TaskStepEvent<A['requestStep']>
+        schedule: ScheduleEventType,
+        input: TaskStepEvent<A['requestStep']>,
     ) {
-        return task.schedule(this.client, schedulable_id, start_datetime, end_datetime, input as never)
+        return task.schedule(this.client, schedule, input)
     }
 
     _schedule(
         taskName: keyof Engine['tasks'],
-        schedulable_id: number,
-        start_datetime: string,
-        end_datetime: string,
+        schedule: ScheduleEventType,
         input: Record<string, any>
     ) {
         const task = this.engine.tasks[taskName];
         if (!task) {
             throw NesoiError.Task.Invalid(taskName as string)
         }
-        return task.schedule(this.client, schedulable_id, start_datetime, end_datetime, input as never)
+        return task.schedule(this.client, schedule, input as never)
     }
 
     advance<
@@ -189,14 +186,15 @@ export class NesoiClient<
 > {
     public data: NesoiDataClient<Engine>
     public task: NesoiTaskClient<Engine>
+    public user: AppClient['user']
 
     constructor(
         protected engine: Engine,
-        protected client: AppClient,
-        public user = client.user as AppClient['user']
+        public app: AppClient,
     ) {
         this.data = new NesoiDataClient(engine, this)
         this.task = new NesoiTaskClient(engine, this)
-        Object.assign(this, client)
+        this.user = app.user
+        Object.assign(this, app)
     }
 }

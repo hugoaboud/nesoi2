@@ -10,13 +10,7 @@ import { MemoryCacheSource } from "./engine/cache/memory.cache"
 import { Cache, CacheSource } from "./engine/cache"
 import { TaskBuilder, TaskSource } from "./builders/operation/task"
 import { Task } from "./engine/operation/task"
-import { NesoiClient } from "./client"
-
-type Client = {
-    user: {
-        id: number | string
-    }
-}
+import { Client, NesoiClient } from "./client"
 
 type EngineClient<
     AppClient extends Client,

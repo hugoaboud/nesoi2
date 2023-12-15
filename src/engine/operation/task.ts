@@ -1,15 +1,15 @@
 import { EventParser } from "../parser/event.parser";
 import { TaskCondition } from "../../builders/condition";
 import { TaskMethod } from "../../builders/method";
-import { TaskSource, TaskStepBuilder, TaskStepEvent } from "../../builders/operation/task";
+import { TaskSource, TaskStepEvent } from "../../builders/operation/task";
 import { TaskAction, TaskLogModel, TaskModel } from "./task.model";
-import { DataSource } from "../data/datasource";
 import { NesoiError } from "../../error";
 import { NesoiClient } from "../../client";
 import { Condition } from "../condition";
 import { Extra } from "../extra";
 import { ScheduleResource } from "./schedule";
-import { ScheduleModel } from "./schedule.model";
+import { Resource } from "../resource";
+import { ScheduleEventType } from "./schedule.model";
 
 export class TaskStep {
     public state: string
@@ -65,7 +65,7 @@ export class Task<
     public name: string
     public requestStep!: TaskStep & RequestStep
     public steps!: (TaskStep & Steps)[]
-    public scheduleResource
+    public scheduleResource: Resource<any,any,any>
 
     constructor(builder: any) {
         this.dataSource = builder.dataSource
@@ -128,21 +128,17 @@ export class Task<
 
     public async schedule(
         client: Client,
-        schedulable_id: number,
-        start_datetime: string,
-        end_datetime: string,
+        schedule: ScheduleEventType,
         eventRaw: TaskStepEvent<RequestStep>
     ) {
         const task = await this.request(client, eventRaw)
 
-        const schedule = await this.scheduleResource.create(client, {
+        const taskSchedule = await this.scheduleResource.create(client, {
             task_id: task.id,
-            schedulable_id,
-            start_datetime,
-            end_datetime
+            ...schedule
         })
 
-        return { task, schedule };
+        return { task, schedule: taskSchedule };
     }
 
     public async advance(

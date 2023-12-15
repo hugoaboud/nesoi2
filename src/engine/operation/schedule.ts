@@ -1,3 +1,4 @@
+import { EventBuilder } from "../../builders/event"
 import { NesoiEngine } from "../../engine"
 import { DataSource } from "../data/datasource"
 import { NesoiDate } from "../date"
@@ -28,6 +29,8 @@ export const ScheduleResource = (
             }))
             .parse(({ event }) => ({
                 ...event,
+                start_datetime: event.start_datetime.iso,
+                end_datetime: event.end_datetime.iso,
                 outcome: {}
             }))
         )

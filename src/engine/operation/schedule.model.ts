@@ -11,7 +11,7 @@ export type ScheduleState =
     'done' |
     'canceled'
 
-type ScheduleOutcome = {
+export type ScheduleOutcome = {
     start?: {
         user: { id: number|string, name: string },
         timestamp: string
@@ -34,4 +34,10 @@ export interface ScheduleModel extends ResourceModel {
     updated_by: number|string
     created_at: any
     updated_at: any
+}
+
+export type ScheduleEventType = {
+    schedulable_id: number,
+    start_datetime: string,
+    end_datetime: string
 }

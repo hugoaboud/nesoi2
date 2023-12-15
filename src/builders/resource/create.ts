@@ -9,7 +9,7 @@ import { ResourceModel } from "../../engine/data/model"
 import { EventParser } from "../../engine/parser/event.parser"
 import { EventBuilder } from "../event"
 import { ResourceMethod } from "../method"
-import { $EventParser, EventParserBuilder, EventParserPropFactory } from "../parser/event_parser"
+import { $EventParser, EventOutputFromParser, EventParserBuilder, EventParserPropFactory } from "../parser/event_parser"
 
 export class ResourceCreateBuilder<
     Model extends ResourceModel,
@@ -30,7 +30,7 @@ export class ResourceCreateBuilder<
         return this as any as ResourceCreateBuilder<Model, Parser>
     }
 
-    parse($: ResourceMethod<any,Model,Event,Record<string, any>>) {
+    parse($: ResourceMethod<any,Model,EventOutputFromParser<Event>,Record<string, any>>) {
         this._method = $
         return this
     }

@@ -95,6 +95,7 @@ export class Resource<
         const obj = await Promise.resolve(promise) as ResourceModel
 
         // 3. Set crud meta
+        obj.state = this.machine.getInitialState() || 'void'
         obj.created_by = client.user.id
         obj.updated_by = client.user.id
 

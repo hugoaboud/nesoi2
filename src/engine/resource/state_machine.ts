@@ -93,6 +93,14 @@ export class StateMachine<
 
     }
 
+    public getInitialState() {
+        for (let state in this.states) {
+            if (this.states[state]._initial) {
+                return state
+            }
+        }
+    }
+
     private getTransitionsFrom(state: State, event?: keyof Events) {
         return this.transitions.filter(t => 
             t._from === state &&
