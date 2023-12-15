@@ -27,7 +27,7 @@ export class TaskStep {
         this.fn = builder.fn
     }
 
-    public async run (client: any, eventRaw: any, taskInput: any) {
+    public async run (client: any, eventRaw: any, taskInput: any, taskId?: number) {
         const event = await this.eventParser.parse(eventRaw);
         for (let i in this.conditionsAndExtras) {
             if (typeof this.conditionsAndExtras[i] === 'function') {
@@ -47,7 +47,7 @@ export class TaskStep {
             return { event, outcome: {} }
         }
 
-        const promise = this.fn({ client, event, input: taskInput });
+        const promise = this.fn({ id: taskId, client, event, input: taskInput });
         const outcome = await Promise.resolve(promise)
         return { event, outcome }
     }
@@ -89,6 +89,7 @@ export class Task<
 
         // 3. Log
         await this.logStep(client, 'request', savedTask, event);
+
         return savedTask;
     }
 
@@ -97,7 +98,7 @@ export class Task<
         eventRaw: TaskStepEvent<RequestStep>
     ) {
         // 1. Run request step to built request object
-        const { event, outcome } = await this.requestStep.run(client, eventRaw, {})
+        const { event, outcome } = await this.requestStep.run(client, eventRaw, {}, undefined)
 
         // 2. Create request task
         const task: Omit<TaskModel, 'id'> = {
@@ -181,7 +182,7 @@ export class Task<
         }
 
         // 2. Run step
-        const { event, outcome } = await current.run(client, eventRaw, task.input);
+        const { event, outcome } = await current.run(client, eventRaw, task.input, task.id);
         if (!task.output.data) {
             task.output.data = {}
         }
@@ -214,14 +215,16 @@ export class Task<
         input: TaskStepEvent<RequestStep> & TaskStepEvent<Steps>
     ) {
         const { event, task } = await this._request(client, input);
+        let savedTask = await this.dataSource.tasks.put(client, task)
+
         const fullEvent = event;
         while (task.state !== 'done') {
-            const { event } = await this._advance(client, task, input)
+            const { event } = await this._advance(client, savedTask, input)
             Object.assign(fullEvent, event);
         }
 
         // 2. Save task on data source
-        const savedTask = await this.dataSource.tasks.put(client, task)
+        savedTask = await this.dataSource.tasks.put(client, task)
 
         // 3. Log
         await this.logStep(client, 'execute', savedTask, fullEvent);

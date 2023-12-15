@@ -52,6 +52,14 @@ export namespace NesoiError {
             return new BaseError(rule.error(prop))
         }
 
+        export function FileSize(prop: any, maxSize: number) {
+            return new BaseError(`${prop.alias} size exceeds max (${maxSize})`)
+        }
+
+        export function FileExtName(prop: any, options: string[]) {
+            return new BaseError(`${prop.alias} extension not allowed. Options: ${options}`)
+        }
+
     }
 
     export namespace Resource {

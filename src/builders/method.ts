@@ -24,6 +24,7 @@ export type TaskMethod<
   Input,
   Response
 > = (ctx: {
+  id?: number,
   client: Client,
   event: Event,
   input: Input 

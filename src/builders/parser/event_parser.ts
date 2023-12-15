@@ -108,14 +108,26 @@ export function EventParserPropFactory(
                 })
         },
     
-        file() {
+        file(options?: {
+            maxSize?: number
+            extnames?: string[]
+        }) {
             return new EventParserPropBuilder(alias,
                 (prop, value) => {
-                    // TODO
-                    if (typeof value === 'string') {
-                        return value
+                    if (!value.size || !value.extname || !value.data || !value.data.clientName) {
+                        throw NesoiError.Event.Parse(prop, 'a file')
                     }
-                    throw NesoiError.Event.Parse(prop, 'a file')
+                    if (options?.maxSize) {
+                        if (value.size > options?.maxSize) {
+                            throw NesoiError.Event.FileSize(prop, options?.maxSize)
+                        }
+                    }
+                    if (options?.extnames) {
+                        if (!options?.extnames.includes(value.extname)) {
+                            throw NesoiError.Event.FileExtName(prop, options?.extnames)
+                        }
+                    }
+                    return value
                 })
         },
         
