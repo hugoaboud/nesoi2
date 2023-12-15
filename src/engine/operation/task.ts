@@ -218,13 +218,13 @@ export class Task<
         let savedTask = await this.dataSource.tasks.put(client, task)
 
         const fullEvent = event;
-        while (task.state !== 'done') {
+        while (savedTask.state !== 'done') {
             const { event } = await this._advance(client, savedTask, input)
             Object.assign(fullEvent, event);
         }
 
         // 2. Save task on data source
-        savedTask = await this.dataSource.tasks.put(client, task)
+        savedTask = await this.dataSource.tasks.put(client, savedTask)
 
         // 3. Log
         await this.logStep(client, 'execute', savedTask, fullEvent);
