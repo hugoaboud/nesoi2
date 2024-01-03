@@ -23,6 +23,10 @@ export namespace NesoiError {
         export function NotFound(name: string, id: number) {
             return new BaseError(`Task ${name} with id ${id} not found`)
         }
+
+        export function IDNotFound(id: number) {
+            return new BaseError(`Task ${id} not found`)
+        }
         
         export function InvalidState(name: string, id: number, state: string) {
             return new BaseError(`Task ${name} with id ${id} is at invalid state ${state}`)

@@ -2,7 +2,7 @@ import { $Event } from "./builders/event"
 import { JobBuilder } from "./builders/job/job"
 import { ResourceBuilder } from "./builders/resource/resource"
 import { EventParserBuilder } from "./builders/parser/event_parser"
-import { NesoiModel, ResourceModel } from "./engine/data/model"
+import { ResourceModel } from "./engine/data/model"
 import { DataSource } from "./engine/data/datasource"
 import { Queue, QueueSource } from "./engine/queue"
 import { MemoryQueueSource } from "./engine/queue/memory.queue"
@@ -11,6 +11,7 @@ import { Cache, CacheSource } from "./engine/cache"
 import { TaskBuilder, TaskSource } from "./builders/operation/task"
 import { Task } from "./engine/operation/task"
 import { Client, NesoiClient } from "./client"
+import { NesoiStrings } from "./strings"
 
 type EngineClient<
     AppClient extends Client,
@@ -39,17 +40,20 @@ export class NesoiEngine<
     
     public sources: Sources = {} as any
     public tasks: Record<TaskNameUnion, Task<any, any>> = {} as any
+    public strings: NesoiStrings
 
     constructor($: {
         $client: AppClient,
         queue?: QueueSource,
         cache?: CacheSource,
         sources?: Sources,
-        tasks?: TaskNameUnion[]
+        tasks?: TaskNameUnion[],
+        strings?: Partial<NesoiStrings>
     }) {
         this.queue = new Queue($?.queue || new MemoryQueueSource())
         this.cache = new Cache($?.cache || new MemoryCacheSource())
         this.sources = $.sources as any
+        this.strings = Object.assign(NesoiStrings, $.strings || {})
     }
 
     resource<
@@ -75,7 +79,7 @@ export class NesoiEngine<
     >(
         name: TaskNameUnion,
         dataSource: Source
-    ) {
+    ): TaskBuilder<C, Source> {
         return new TaskBuilder<C, Source>(this, name, dataSource, task => {
             this.tasks[name] = task
         })
@@ -85,4 +89,7 @@ export class NesoiEngine<
         return new NesoiClient(this as any, client) as any
     }
 
+    string(key: keyof NesoiStrings) {
+        return this.strings[key];
+    }
 }

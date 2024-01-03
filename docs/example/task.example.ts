@@ -7,7 +7,8 @@ async function main() {
     user: {
       id: 3,
       name: 'Joao'
-    }
+    },
+    trx: {}
   }
 
   const client = Nesoi.client(oldClient)

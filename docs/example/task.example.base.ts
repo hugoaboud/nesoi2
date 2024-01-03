@@ -14,7 +14,7 @@ const source = new TaskSource(
   new ScheduleDataSource()
 )
 
-export const MoveCoilTask = Nesoi.task('move_coil', source)
+export const MoveCoilTask = Nesoi.task('lala.move_coil', source)
 
     .request($ => $
       .event($ => ({
@@ -37,6 +37,11 @@ export const MoveCoilTask = Nesoi.task('move_coil', source)
     )
 
     .step('requested', $ => $
+      .alias({
+        state: 'Solicitado',
+        action: 'Mover',
+        done: 'Movido'
+      })
       .event($ => ({
         req: $('Req').boolean
       }))
@@ -49,6 +54,7 @@ export const MoveCoilTask = Nesoi.task('move_coil', source)
           flocos: 'de neve'
         }
       })
+      .log(({ input }) => `Bobina ${input.origin_coil} movida com sucesso`)
     )
 
     .step('moved', $ => $

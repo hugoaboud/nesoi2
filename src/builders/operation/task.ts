@@ -21,6 +21,12 @@ export class TaskSource<
   ) {}
 }
 
+export type TaskStepAlias = {
+  state: string
+  action: string
+  done: string
+}
+
 export class TaskStepBuilder<
   Client,
   State extends string,
@@ -29,13 +35,20 @@ export class TaskStepBuilder<
   Extra = unknown,
   Method = unknown
 > {
+  protected aliasDef?: TaskStepAlias
   protected eventParser!: EventParserBuilder
   protected conditionsAndExtras: (TaskCondition<any,any,any> | TaskMethod<any,any,any,any>)[] = []
   protected fn!: Method
+  protected logFn?: Method
 
   constructor (
     protected state: State
   ) {}
+
+  public alias($: TaskStepAlias) {
+    this.aliasDef = $;
+    return this
+  }
 
   public event<
     Parser extends EventParserBuilder
@@ -88,6 +101,15 @@ export class TaskStepBuilder<
     return this as any as TaskStepBuilder<
       Client, State, PreviousEvents, Event, Extra, Fn
     >
+  }
+
+  public log<
+    Fn extends TaskMethod<Client, Event & Extra, PreviousEvents, string>
+  > (
+    fn: Fn
+  ) {
+    this.logFn = fn as any
+    return this
   }
 
   public build() {

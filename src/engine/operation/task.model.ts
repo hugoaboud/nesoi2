@@ -1,10 +1,13 @@
 import { ResourceModel } from "../data/model"
+import { TaskGraph } from "./graph.model"
 
 export type TaskAction =
     'request'
+    | 'schedule'
     | 'advance'
     | 'execute'
     | 'comment'
+    | 'graph'
 
 export type TaskState =
     'scheduled'
@@ -13,6 +16,8 @@ export type TaskState =
     | 'canceled'
 
 export type TaskStep = {
+    from_state: 'void' | TaskState
+    to_state: TaskState
     user: {
         id: number | string,
         name: string
@@ -29,7 +34,7 @@ export interface TaskModel {
         data: Record<string, any>
         steps: TaskStep[]
     }
-    graph: Record<string, any>
+    graph: TaskGraph
     created_by: number|string
     updated_by: number|string
     created_at: any

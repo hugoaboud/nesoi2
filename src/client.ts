@@ -1,5 +1,6 @@
 import { TaskStepEvent } from "./builders/operation/task"
 import { NesoiEngine } from "./engine"
+import { TaskGraph } from "./engine/operation/graph"
 import { ScheduleEventType } from "./engine/operation/schedule.model"
 import { Task } from "./engine/operation/task"
 import { NesoiError } from "./error"
@@ -162,21 +163,45 @@ class NesoiTaskClient<
     >(
         task: A,
         id: number,
-        comment: string
+        comment: string,
+        extra?: Record<string, any>
     ) {
-        return task.comment(this.client, id, comment)
+        return task.comment(this.client, id, comment, extra)
     }
 
     _comment(
         taskName: keyof Engine['tasks'],
         id: number,
-        comment: string
+        comment: string,
+        extra?: Record<string, any>
     ) {
         const task = this.engine.tasks[taskName];
         if (!task) {
             throw NesoiError.Task.Invalid(taskName as string)
         }
-        return task.comment(this.client, id, comment)
+        return task.comment(this.client, id, comment, extra)
+    }
+
+    alterGraph<
+        A extends Task<any,any>
+    >(
+        task: A,
+        id: number,
+        fn: (graph: TaskGraph) => Promise<void>
+    ) {
+        return task.alterGraph(this.client, id, fn);
+    }
+
+    _alterGraph(
+        taskName: keyof Engine['tasks'],
+        id: number,
+        fn: (graph: TaskGraph) => Promise<void>
+    ) {
+        const task = this.engine.tasks[taskName];
+        if (!task) {
+            throw NesoiError.Task.Invalid(taskName as string)
+        }
+        return task.alterGraph(this.client, id, fn);
     }
 }
 

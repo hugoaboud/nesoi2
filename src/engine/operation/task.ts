@@ -1,7 +1,7 @@
 import { EventParser } from "../parser/event.parser";
 import { TaskCondition } from "../../builders/condition";
 import { TaskMethod } from "../../builders/method";
-import { TaskSource, TaskStepEvent } from "../../builders/operation/task";
+import { TaskSource, TaskStepAlias, TaskStepEvent } from "../../builders/operation/task";
 import { TaskAction, TaskLogModel, TaskModel } from "./task.model";
 import { NesoiError } from "../../error";
 import { NesoiClient } from "../../client";
@@ -10,8 +10,11 @@ import { Extra } from "../extra";
 import { ScheduleResource } from "./schedule";
 import { Resource } from "../resource";
 import { ScheduleEventType } from "./schedule.model";
+import { TaskGraph } from "./graph";
+import { NesoiEngine } from "../../engine";
 
 export class TaskStep {
+    public alias?: TaskStepAlias
     public state: string
     public eventParser: EventParser<any>
     public conditionsAndExtras: (
@@ -19,12 +22,15 @@ export class TaskStep {
         | TaskMethod<any,any,any,any>
     )[]
     public fn: TaskMethod<any, any, any, any>
+    public logFn?: TaskMethod<any, any, any, string>
 
     constructor (builder: any) {
+        this.alias = builder.alias
         this.state = builder.state
         this.eventParser = new EventParser('', builder.eventParser)
         this.conditionsAndExtras = builder.conditionsAndExtras
         this.fn = builder.fn
+        this.logFn = builder.logFn
     }
 
     public async run (client: any, eventRaw: any, taskInput: any, taskId?: number) {
@@ -61,6 +67,7 @@ export class Task<
     Steps = unknown
 > {
 
+    public engine: NesoiEngine<any,any,any,any>
     public dataSource: Source
     public name: string
     public requestStep!: TaskStep & RequestStep
@@ -68,6 +75,7 @@ export class Task<
     public scheduleResource: Resource<any,any,any>
 
     constructor(builder: any) {
+        this.engine = builder.engine
         this.dataSource = builder.dataSource
         this.name = builder.name
         this.requestStep = builder.requestStep.build()
@@ -109,6 +117,8 @@ export class Task<
                 data: {},
                 steps: [
                     {
+                        from_state: 'void',
+                        to_state: 'requested',
                         user: { 
                             id: client.user.id,
                             name: client.user.name,
@@ -132,14 +142,22 @@ export class Task<
         schedule: ScheduleEventType,
         eventRaw: TaskStepEvent<RequestStep>
     ) {
-        const task = await this.request(client, eventRaw)
+        // 1. Request task
+        const { event, task } = await this._request(client, eventRaw)
 
+        // 2. Save entry on data source
+        const savedTask = await this.dataSource.tasks.put(client, task)
+
+        // 3. Create schedule for task
         const taskSchedule = await this.scheduleResource.create(client, {
-            task_id: task.id,
+            task_id: savedTask.id,
             ...schedule
         })
 
-        return { task, schedule: taskSchedule };
+        // 3. Log
+        await this.logStep(client, 'schedule', savedTask, event);
+
+        return { task: savedTask, schedule: taskSchedule };
     }
 
     public async advance(
@@ -154,13 +172,13 @@ export class Task<
         }
 
         // 2. Advance the task
-        const { event } = await this._advance(client, task, eventRaw);
+        const { current, event } = await this._advance(client, task, eventRaw);
 
         // 3. Update task on data source
         await this.dataSource.tasks.put(client, task)
 
         // 4. Log
-        await this.logStep(client, 'advance', task, event);
+        await this.logStep(client, 'advance', task, event, current);
 
         return task
     }
@@ -189,6 +207,8 @@ export class Task<
         Object.assign(task.input, event)
         Object.assign(task.output.data, outcome)
         task.output.steps.push({
+            from_state: task.state,
+            to_state: next ? (next.state as any) : 'done',
             user: { 
                 id: client.user.id,
                 name: client.user.name,
@@ -207,7 +227,7 @@ export class Task<
         task.updated_by = client.user.id
         task.updated_at = new Date().toISOString()
 
-        return { event, task }
+        return { current, event, task }
     }
 
     public async execute(
@@ -234,7 +254,8 @@ export class Task<
     public async comment(
         client: Client,
         id: number,
-        comment: string
+        message: string,
+        event?: Record<string, any>
     ) {
         // 1. Read task by id
         const task = await this.dataSource.tasks.get(client, id)
@@ -248,7 +269,8 @@ export class Task<
             task_type: this.name,
             action: 'comment',
             state: task.state,
-            message: comment,
+            message,
+            event,
             timestamp: new Date().toISOString(),
             user: (client.user as any).name,
             created_by: client.user.id,
@@ -259,6 +281,38 @@ export class Task<
         await this.dataSource.logs.put(client, log)
     }
 
+    public async alterGraph(
+        client: Client,
+        id: number,
+        fn: (graph: TaskGraph) => Promise<void>
+    ) {
+        // 1. Read task by id
+        const task = await this.dataSource.tasks.get(client, id)
+        if (!task) {
+            throw NesoiError.Task.NotFound(this.name, id)
+        }
+
+        // 2. Run graph changes
+        const graph = new TaskGraph(client, this.dataSource.tasks, task);
+        await fn(graph)
+
+        // 3. Save task and affected tasks
+        for (let t in graph.affectedTasks) {
+            const affTask = graph.affectedTasks[t]
+            await this.dataSource.tasks.put(client, affTask);
+        }
+
+        // 4. Save logs
+        for (let i in graph.logs) {
+            const log = graph.logs[i];
+            const from_task = graph.affectedTasks[log.from_task_id]
+            const message =  this.engine.string('task.graph.'+log.relation as any) + ` ${log.to_task_id}`
+            await this.logGraph(client, from_task, message, log);
+        }
+
+        return task
+    }
+
     private getStep(state: string) {
         const index = this.steps.findIndex(step => step.state === state);
         return {
@@ -267,13 +321,60 @@ export class Task<
         }
     }
 
-    private async logStep<Event>(client: Client, action: TaskAction, task: TaskModel, event: Event) {
+    private async logStepMessage(client: Client, action: TaskAction, task: TaskModel, event: any, step?: TaskStep) {
+        if (action === 'request') {
+            return this.engine.string('task.request.log');
+        }
+        else if (action === 'schedule') {
+            return this.engine.string('task.schedule.log');
+        }
+        else if (action === 'advance') {
+            if (step?.logFn) {
+                const promise = step.logFn({
+                    id: task.id,
+                    client,
+                    event,
+                    input: task.input
+                })
+                return Promise.resolve(promise)
+            }
+            if (step?.alias?.done) {
+                return step?.alias?.done
+            }
+            return this.engine.string('task.advance.log');
+        }
+        else if (action === 'execute') {
+            return this.engine.string('task.execute.log');
+        }
+        return ''
+    }
+
+    private async logStep<Event>(client: Client, action: TaskAction, task: TaskModel, event: Event, step?: TaskStep) {
+
         const log: Omit<TaskLogModel<any>, 'id'> = {
             task_id: task.id,
             task_type: this.name,
             action,
             state: task.state,
-            message: `Task advanced to state ${task.state}`,
+            message: await this.logStepMessage(client, action, task, event, step),
+            event,
+            timestamp: new Date().toISOString(),
+            user: (client.user as any).name,
+            created_by: client.user.id,
+            updated_by: client.user.id,
+            created_at: new Date().toISOString(),
+            updated_at: new Date().toISOString()
+        }
+        await this.dataSource.logs.put(client, log)
+    }
+
+    private async logGraph<Event>(client: Client, task: TaskModel, message: string, event: Event) {
+        const log: Omit<TaskLogModel<any>, 'id'> = {
+            task_id: task.id,
+            task_type: this.name,
+            action: 'graph',
+            state: task.state,
+            message,
             event,
             timestamp: new Date().toISOString(),
             user: (client.user as any).name,

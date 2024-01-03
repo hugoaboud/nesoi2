@@ -4,13 +4,14 @@ type MyClient = {
   user: {
       id: number
       name: string
-  }
+  },
+  trx: {}
 }
 
 export const Nesoi = new NesoiEngine({
   $client: {} as MyClient,
   tasks: [
-    'move_coil'
+    'lala.move_coil'
   ],
   sources: {}
 })
