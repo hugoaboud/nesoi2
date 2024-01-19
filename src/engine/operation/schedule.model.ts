@@ -1,6 +1,6 @@
-import { ResourceModel } from "../data/model"
+import { ResourceObj } from "../data/model"
 
-export interface SchedulableModel extends ResourceModel {
+export interface SchedulableModel extends ResourceObj {
     id: number
 }
 
@@ -22,7 +22,7 @@ export type ScheduleOutcome = {
     }
 }
 
-export interface ScheduleModel extends ResourceModel {
+export interface ScheduleModel extends ResourceObj {
     id: number,
     state: ScheduleState
     task_id: number

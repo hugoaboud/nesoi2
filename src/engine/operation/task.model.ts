@@ -1,4 +1,4 @@
-import { ResourceModel } from "../data/model"
+import { ResourceObj } from "../data/model"
 import { TaskGraph } from "./graph.model"
 
 export type TaskAction =

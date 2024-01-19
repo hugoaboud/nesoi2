@@ -5,14 +5,14 @@
  * 
 */
 
-import { DataSource } from "../../engine/data/datasource"
-import { ResourceModel } from "../../engine/data/model"
+import { Bucket } from "../../engine/data/bucket"
+import { ResourceObj } from "../../engine/data/model"
 
 export type ViewProp<T> = {
     __type: 'view.prop'
     type: 'model'|'computed'|'compose'|'graph'
     amount: 'one'|'many'
-    fn: (model: ResourceModel) => T | Promise<T>
+    fn: (model: ResourceObj) => T | Promise<T>
 }
 
 export type ViewBuilder = {
@@ -30,7 +30,7 @@ export type ViewTypeFromBuilder<
 }
 
 export class ViewPropFactory<
-    Model extends ResourceModel
+    Model extends ResourceObj
 > {
     
     model<K extends keyof Model>(prop: K): ViewProp<Model[K]> {
@@ -76,7 +76,7 @@ export class ViewPropFactory<
                 amount: 'many',
                 fn: () => ({} as never)
             } as ViewProp<never>),
-            pivot: (source: typeof DataSource<any>, self_fkey: string, other_fkey: string) => ({
+            pivot: (source: typeof Bucket<any>, self_fkey: string, other_fkey: string) => ({
                 __type: 'view.prop',
                 type: 'graph',
                 amount: 'many',
@@ -88,6 +88,6 @@ export class ViewPropFactory<
 }
 
 export type $View<
-    Model extends ResourceModel,
+    Model extends ResourceObj,
     Tree extends ViewBuilder
 > = ($: ViewPropFactory<Model>) => Tree

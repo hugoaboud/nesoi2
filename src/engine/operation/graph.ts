@@ -1,6 +1,6 @@
 import { Client, NesoiClient } from "../../client";
 import { NesoiError } from "../../error";
-import { DataSource } from "../data/datasource";
+import { Bucket } from "../data/bucket";
 import { NesoiDate } from "../date";
 import { TaskGraphLog } from "./graph.model";
 import { TaskModel } from "./task.model";
@@ -12,7 +12,7 @@ export class TaskGraph {
 
     constructor(
         public client: NesoiClient<any,any>,
-        public dataSource: DataSource<TaskModel>,
+        public dataSource: Bucket<TaskModel>,
         public task: TaskModel
     ) {
         this.affectedTasks[task.id] = task;

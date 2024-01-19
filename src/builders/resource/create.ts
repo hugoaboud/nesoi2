@@ -5,14 +5,14 @@
  * 
 */
 
-import { ResourceModel } from "../../engine/data/model"
+import { ResourceObj } from "../../engine/data/model"
 import { EventParser } from "../../engine/parser/event.parser"
 import { EventBuilder } from "../event"
 import { ResourceMethod } from "../method"
 import { $EventParser, EventOutputFromParser, EventParserBuilder, EventParserPropFactory } from "../parser/event_parser"
 
 export class ResourceCreateBuilder<
-    Model extends ResourceModel,
+    Model extends ResourceObj,
     Event extends EventParserBuilder = never
 > {
     
@@ -46,7 +46,7 @@ export class ResourceCreateBuilder<
 }
 
 export type $ResourceCreate<
-    Model extends ResourceModel,
+    Model extends ResourceObj,
     Parser extends EventParserBuilder
 > =
     ($: ResourceCreateBuilder<Model>) =>

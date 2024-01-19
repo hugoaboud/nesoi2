@@ -5,16 +5,16 @@
  * 
 */
 
-import { ResourceModel } from "../../engine/data/model"
+import { ResourceObj } from "../../engine/data/model"
 
 type ComposeFn<
-    ParentModel extends ResourceModel,
-    ChildModel extends ResourceModel
+    ParentModel extends ResourceObj,
+    ChildModel extends ResourceObj
 > = () => ChildModel
 
 export type Composition<
-    ParentModel extends ResourceModel,
-    ChildModel extends ResourceModel
+    ParentModel extends ResourceObj,
+    ChildModel extends ResourceObj
 > = {
     self: string
     other: string
@@ -22,8 +22,8 @@ export type Composition<
 }
 
 export class CompositionBuilder<
-    ParentModel extends ResourceModel,
-    ChildModel extends ResourceModel
+    ParentModel extends ResourceObj,
+    ChildModel extends ResourceObj
 > {
     
     private __type = 'compose';
@@ -46,6 +46,6 @@ export class CompositionBuilder<
 }
 
 export type $Composition<
-    ParentModel extends ResourceModel,
-    ChildModel extends ResourceModel
+    ParentModel extends ResourceObj,
+    ChildModel extends ResourceObj
 > = ($: CompositionBuilder<ParentModel,ChildModel>) => void

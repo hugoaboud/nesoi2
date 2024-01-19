@@ -5,12 +5,12 @@
  * 
 */
 
-import { ResourceModel } from "../engine/data/model";
+import { ResourceObj } from "../engine/data/model";
 import { TaskMethod, JobMethod, ResourceMethod } from "./method";
 
 export type ResourceCondition<
     Client,
-    Model extends ResourceModel,
+    Model extends ResourceObj,
     Event
 > = {
     that: ResourceMethod<Client, Model, Event, boolean>,
