@@ -1,6 +1,9 @@
 import { TaskModel } from "./task.model"
 
 export const TaskGraphRelation = {
+    relates_to: {
+        alias: 'é relacionado a'
+    },
     child_of: {
         alias: 'é filha de'
     },

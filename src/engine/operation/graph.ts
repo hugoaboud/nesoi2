@@ -32,7 +32,7 @@ export class TaskGraph {
         return task;
     }
 
-    // Parent/Child
+    // Parent/Child/Related
 
     public async linkParent(taskId: number) {
         const task = await this.getTask(taskId);
@@ -115,5 +115,44 @@ export class TaskGraph {
             !(link.relation === 'child_of' && link.task_id === to.id))
         this.affectedTasks[from.id] = from
     }
+
+    public async linkRelated(taskId: number) {
+        const task = await this.getTask(taskId);
+        this._addRelatedTo(this.task, task);
+        this._addRelatedTo(task, this.task);
+    }
+
+    private _addRelatedTo(from: TaskModel, to:TaskModel) {
+        if (from.graph.links?.some(link =>
+            link.relation === 'relates_to' && link.task_id === to.id)) {
+            return
+        }
+        from.graph.links?.push({
+            relation: 'relates_to',
+            task_id: to.id,
+            created_by: this.client.user.id,
+            created_at: NesoiDate.isoNow()
+        })
+        this.logs.push({
+            type: 'link',
+            from_task_id: from.id,
+            to_task_id: to.id,
+            relation: 'relates_to'
+        })
+        this.affectedTasks[from.id] = from
+    }
+
+    public async unlinkRelated(taskId: number) {
+        const task = await this.getTask(taskId);
+        this._removeRelated(this.task, task);
+        this._removeRelated(task, this.task);
+    }
+
+    private _removeRelated(from: TaskModel, to: TaskModel) {
+        from.graph.links?.filter(link => 
+            !(link.relation === 'relates_to' && link.task_id === to.id))
+        this.affectedTasks[from.id] = from
+    }
+
 
 }
