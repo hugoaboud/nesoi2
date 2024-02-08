@@ -5,10 +5,12 @@
  * 
 */
 
+import { NesoiClient } from "../../client"
 import { NesoiDate } from "../../engine/date"
 import { NesoiError } from "../../error"
 
-export type EventParseMethod<I, O> = (prop: EventParserPropBuilder<I, O>, value: any) => O | Promise<O>
+type EventParseMethodOutput<O> = Record<string, O>
+export type EventParseMethod<I, O> = (client: NesoiClient<any, any>, prop: EventParserPropBuilder<I, O>, propName: string, value: any) => EventParseMethodOutput<O> | Promise<EventParseMethodOutput<O>> 
 
 export type EventParserRule<I, O> = {
     cond: (value: O) => boolean | Promise<boolean>,
@@ -45,6 +47,7 @@ export class EventParserPropBuilder<I, O> {
     private required = true
     private default?: O = undefined
     private rules: EventParserRule<I, O>[] = []
+    private isArray = false
     
     constructor(
         private alias: string,
@@ -54,12 +57,17 @@ export class EventParserPropBuilder<I, O> {
     optional(defaultValue?: O) {
         this.required = false;
         this.default = defaultValue;
-        return this as any as EventParserPropBuilder<I, O|undefined>;
+        return this as any as EventParserPropBuilder<I|undefined, O|undefined>;
     }
 
     rule(rule: EventParserRule<I, O>) {
         this.rules.push(rule);
         return this;
+    }
+
+    array() {
+        this.isArray = true;
+        return this as any as EventParserPropBuilder<I[], O[]>;
     }
 
 }
@@ -70,39 +78,51 @@ export function EventParserPropFactory(
     return {
 
         boolean: new EventParserPropBuilder<boolean,boolean>(alias,
-            (prop, value) => {
-                if (value === 'true') { return true; }
-                if (value === 'false') { return false; }
-                if (typeof value === 'boolean') { return value }
+             (client, prop, propName, value) => {
+                if (value === 'true') { return {
+                    [propName]: true
+                } }
+                if (value === 'false') { return {
+                    [propName]: false
+                }}
+                if (typeof value === 'boolean') { return {
+                    [propName]: value
+                } }
                 throw NesoiError.Event.Parse(prop, 'a boolean')
             }),
     
         date: new EventParserPropBuilder<string, NesoiDate>(alias,
-            (prop, value) => {
+             (client, prop, propName, value) => {
                 // TODO
                 if (typeof value === 'string') {
-                    return new NesoiDate(value)
+                    return { 
+                        [propName]: new NesoiDate(value)
+                    }
                 }
                 throw NesoiError.Event.Parse(prop, 'a ISO date')
             }),
         
         datetime: new EventParserPropBuilder<string, NesoiDate>(alias,
-            (prop, value) => {
+             (client, prop, propName, value) => {
                 // TODO
                 if (typeof value === 'string') {
-                    return new NesoiDate(value)
+                    return {
+                        [propName]: new NesoiDate(value)
+                    }
                 }
                 throw NesoiError.Event.Parse(prop, 'a ISO datetime')
             }),
     
         enum<O extends string>(options: readonly O[]) {
             return new EventParserPropBuilder<O,O>(alias,
-                (prop, value) => {
+                 (client, prop, propName, value) => {
                     if (
                         typeof value === 'string' &&
                         options.includes(value as any)
                     ) {
-                        return value as O
+                        return {
+                            [propName]: value as O
+                        }
                     }
                     throw NesoiError.Event.Parse(prop, `a valid option. Options: ${options}`)
                 })
@@ -113,7 +133,7 @@ export function EventParserPropFactory(
             extnames?: string[]
         }) {
             return new EventParserPropBuilder(alias,
-                (prop, value) => {
+                 (client, prop, propName, value) => {
                     if (!value.size || !value.extname || !value.data || !value.data.clientName) {
                         throw NesoiError.Event.Parse(prop, 'a file')
                     }
@@ -127,56 +147,70 @@ export function EventParserPropFactory(
                             throw NesoiError.Event.FileExtName(prop, options?.extnames)
                         }
                     }
-                    return value
+                    return {
+                        [propName]: value
+                    }
                 })
         },
         
         float: new EventParserPropBuilder<number,number>(alias,
-            (prop, value) => {
+             (client, prop, propName, value) => {
                 if (typeof value === 'string') {
                     const val = parseFloat(value);
                     if (!Number.isNaN(val)) {
-                        return val
+                        return {
+                            [propName]: val
+                        }
                     }
                 }
                 else if (typeof value === 'number') {
-                    return value
+                    return {
+                        [propName]: value
+                    }
                 }
                 throw NesoiError.Event.Parse(prop, 'a float number')
             }),
     
-        id() {
+        id(source: string) {
             return new EventParserPropBuilder<number|string,number|string>(alias,
                 // TODO
-                (prop, value) => {
-                    if (typeof value === 'string') {
-                        return value
+                 async (client, prop, propName, value) => {
+                    const val = (typeof value === 'string') ? parseInt(value) : value
+                    if (Number.isNaN(val) || typeof value !== 'number') {
+                        throw NesoiError.Event.Parse(prop, 'a ID')
                     }
-                    else if (typeof value === 'number') {
-                        return value
+                    const propObjName = propName.replace(/_ids?$/, '')
+                    return {
+                        [propName]: val,
+                        [propObjName]: await client.data.readOneOrFail(source, val)
                     }
-                    throw NesoiError.Event.Parse(prop, 'a ID')
                 })
         },
     
         int: new EventParserPropBuilder<number,number>(alias,
-            (prop, value) => {
+             (client, prop, propName, value) => {
                 if (typeof value === 'string') {
                     const val = parseInt(value);
                     if (!Number.isNaN(val)) {
-                        return val
+                        return {
+                            [propName]: val
+                        }
                     }
                 }
                 else if (typeof value === 'number') {
-                    return value
+                    return {
+                        [propName]: value
+                    }
                 }
                 throw NesoiError.Event.Parse(prop, 'a integer number')
             }),
     
         string: new EventParserPropBuilder<string,string>(alias,
-            (prop, value) => {
+             (client, prop, propName, value) => {
                 if (typeof value === 'string') {
-                    return value
+                    return {
+                        [propName]: value
+                    }
                 }
                 throw NesoiError.Event.Parse(prop, 'a string')
             }),

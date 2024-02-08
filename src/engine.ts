@@ -1,4 +1,4 @@
-import { $Event } from "./builders/event"
+import { $Event, EventBuilder } from "./builders/event"
 import { JobBuilder } from "./builders/job/job"
 import { ResourceBuilder } from "./builders/resource/resource"
 import { EventParserBuilder } from "./builders/parser/event_parser"
@@ -54,6 +54,12 @@ export class NesoiEngine<
         this.cache = new Cache($?.cache || new MemoryCacheSource())
         this.sources = $.sources as any
         this.strings = Object.assign(NesoiStrings, $.strings || {})
+    }
+
+    event(
+    name: string,
+    ) {
+        return new EventBuilder(this, name);
     }
 
     resource<
