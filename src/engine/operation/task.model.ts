@@ -10,8 +10,7 @@ export type TaskAction =
     | 'graph'
 
 export type TaskState =
-    'scheduled'
-    | 'requested'
+    'requested'
     | 'done'
     | 'canceled'
 

@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/naming-convention */
 import { Client, NesoiClient } from '../../client'
-import { Bucket } from '../../engine/data/bucket'
+import { Bucket, BucketAdapter } from '../../engine/data/bucket'
 import { Task, TaskStep } from '../../engine/operation/task'
 import { TaskLogModel, TaskModel } from '../../engine/operation/task.model'
 import { ScheduleModel } from '../../engine/operation/schedule.model'
@@ -10,9 +10,9 @@ import { $EventParser, EventParserBuilder, EventParserPropFactory, EventInputFro
 import { NesoiEngine } from '../../engine'
 
 export class TaskSource<
-  A extends Bucket<TaskModel>,
-  L extends Bucket<TaskLogModel<any>>,
-  S extends Bucket<ScheduleModel>
+  A extends BucketAdapter<TaskModel>,
+  L extends BucketAdapter<TaskLogModel<any>>,
+  S extends BucketAdapter<ScheduleModel>
 > {
   constructor(
     public tasks: A,
