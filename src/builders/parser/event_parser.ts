@@ -176,7 +176,7 @@ export function EventParserPropFactory(
                 // TODO
                  async (client, prop, propName, value) => {
                     const val = (typeof value === 'string') ? parseInt(value) : value
-                    if (Number.isNaN(val) || typeof value !== 'number') {
+                    if (Number.isNaN(val) || typeof val !== 'number') {
                         throw NesoiError.Event.Parse(prop, 'a ID')
                     }
                     const propObjName = propName.replace(/_ids?$/, '')
