@@ -34,7 +34,7 @@ export class TaskStep {
     }
 
     public async run (client: any, eventRaw: any, taskInput: any, taskId?: number) {
-        const event = await this.eventParser.parse(eventRaw);
+        const event = await this.eventParser.parse(client, eventRaw);
         for (let i in this.conditionsAndExtras) {
             if (typeof this.conditionsAndExtras[i] === 'function') {
                 const extra = this.conditionsAndExtras[i] as TaskMethod<any,any,any,any>;

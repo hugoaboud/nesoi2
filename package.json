@@ -9,7 +9,8 @@
   "scripts": {
     "build": "tsc --version",
     "prepare": "ts-node scripts/prepare",
-    "test": "jest"
+    "test": "jest",
+    "example:event": "npx tsx docs/example/event.example.ts"
   },
   "author": "Hugo Aboud",
   "license": "MIT",

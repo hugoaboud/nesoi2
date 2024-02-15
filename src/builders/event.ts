@@ -18,6 +18,7 @@ export class EventBuilder<
     private _parser?: Parser
     
     constructor(
+        private engine: any,
         private name: string
     ) {}
 

@@ -26,7 +26,7 @@ export class JobBuilder<
         name: string,
         $: $Event<Event>
     ) {
-        const builder = new EventBuilder(name);
+        const builder = new EventBuilder({} as any, name);
         (this._event as any) = $(builder);
     }
 

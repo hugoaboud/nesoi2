@@ -52,7 +52,7 @@ export class StateMachine<
 
         // 1. Parse event
         const eventParser = this.eventParsers[event as any]
-        const parsedEvent = await eventParser.parse(data as any);
+        const parsedEvent = await eventParser.parse(client, data as any);
         
         // 2. Read object from data source
         const obj = await this.dataSource.get(client, id);

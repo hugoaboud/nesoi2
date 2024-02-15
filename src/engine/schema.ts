@@ -26,6 +26,7 @@ export type EventPropSchema = {
     default?: any
     method: EventParseMethod<any,any>
     rules: EventParserRule<any,any>[]
+    isArray: boolean
 }
 
 export type EventSchema = {

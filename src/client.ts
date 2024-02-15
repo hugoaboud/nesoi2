@@ -27,7 +27,7 @@ class NesoiDataClient<
         type Source = InstanceType<Engine['sources'][S]>
         const sourceClass = this.engine.sources[source] as any
         const data = new sourceClass() as Source
-        return data.get(this.client, id) as Source['$obj']
+        return data.get(this.client, id) as Promise<Source['$obj']>
     }
 
     _readOne(
@@ -38,6 +38,30 @@ class NesoiDataClient<
         const sourceClass = this.engine.sources[source] as any
         const data = new sourceClass() as Source
         return data.get(this.client, id)
+    }
+
+    readOneOrFail<S extends keyof Engine['sources']>(
+        source: S,
+        id: Engine['sources'][S]['id']
+    ) {
+        return this.readOne(source, id).then(obj => {
+            if (obj === undefined || obj === null) {
+                throw NesoiError.Resource.NotFound(source as string, id)
+            }
+            return obj
+        })
+    }
+
+    _readOneOrFail(
+        source: string,
+        id: number | string
+    ) {
+        return this.readOne(source, id).then(obj => {
+            if (obj === undefined) {
+                throw NesoiError.Resource.NotFound(source as string, id)
+            }
+            return obj
+        })
     }
 
     readAll<S extends keyof Engine['sources']>(

@@ -88,7 +88,7 @@ export class Resource<
         event: Events extends { create: any } ? Events['create'] : never
     ) {
         // 1. Parse event
-        const parsedEvent = await this.createSchema.event.parse(event)
+        const parsedEvent = await this.createSchema.event.parse(client, event)
 
         // 2. Run event through method to build obj
         const promise = this.createSchema.method({ client, event: parsedEvent, obj: undefined })

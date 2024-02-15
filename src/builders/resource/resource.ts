@@ -76,7 +76,7 @@ export class ResourceBuilder<
         name: K,
         $: $Event<Parser>
     ) {
-        const builder = new EventBuilder(name);
+        const builder = new EventBuilder(this.engine, name);
         (this._events as any)[name] = $(builder);
         
         return this as any as ResourceBuilder<

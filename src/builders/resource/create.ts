@@ -36,7 +36,7 @@ export class ResourceCreateBuilder<
     }
 
     build() {
-        const event = new EventBuilder(this.name+'.create')
+        const event = new EventBuilder({} as any, this.name+'.create')
         return {
             event: new EventParser<Event>('Criar', this._event as any),
             method: this._method

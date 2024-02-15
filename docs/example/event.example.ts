@@ -1,27 +1,51 @@
 import { EventBuilder } from "../../src/builders/event"
+import { NesoiClient } from "../../src/client"
 
-const FireballEvent = new EventBuilder('fireball')
+import { NesoiEngine } from "../../src/engine"
+import { FireballDataSource } from "./datasource.example"
+
+type MyClient = {
+  user: {
+      id: number
+      name: string
+  },
+  trx: {}
+}
+
+export const Nesoi = new NesoiEngine({
+  $client: {} as MyClient,
+  sources: { 
+    'fireball': FireballDataSource
+  }
+})
+
+const FireballEvent = Nesoi.event('fireball')
     .schema($ => ({
         size: $('Tamanho').float,
         power: $('Poder').int,
         glacial: $('Glacial').boolean.optional(),
         powerup: {
             speed: $('Velocidade').int
-        }
+        },
+        points: $('Pontos').int.array(),
+        fireball_id: $('ID').id('fireball').array()
     }))
     .alias('Bola de fogo!')
     .build()
 
 async function main() {
 
-    const event = await FireballEvent.parse({
+    const client = Nesoi.client({user: { id: 1, name: '' }, trx: {}})
+    const event = await FireballEvent.parse(client, {
         power: 12.2,
         size: 46,
         powerup: {
             speed: 10
-        }
+        },
+        points: [1, 2, 3],
+        fireball_id: [1,33]
     })
-    
+
     console.log(event)
 }
 
