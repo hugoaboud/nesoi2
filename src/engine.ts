@@ -2,8 +2,8 @@ import { $Event } from "./builders/event"
 import { JobBuilder } from "./builders/job/job"
 import { ResourceBuilder } from "./builders/resource/resource"
 import { EventParserBuilder } from "./builders/parser/event_parser"
-import { ResourceModel } from "./engine/data/model"
-import { DataSource } from "./engine/data/datasource"
+import { ResourceObj } from "./engine/data/model"
+import { Bucket } from "./engine/data/bucket"
 import { Queue, QueueSource } from "./engine/queue"
 import { MemoryQueueSource } from "./engine/queue/memory.queue"
 import { MemoryCacheSource } from "./engine/cache/memory.cache"
@@ -17,7 +17,7 @@ type EngineClient<
     AppClient extends Client,
     TaskNameUnion extends string,
     SourceNameUnion extends string,
-    Sources extends Record<SourceNameUnion, typeof DataSource<any>>,
+    Sources extends Record<SourceNameUnion, typeof Bucket<any, any>>,
 > = NesoiClient<
     NesoiEngine<
         AppClient,
@@ -32,7 +32,7 @@ export class NesoiEngine<
     AppClient extends Client,
     TaskNameUnion extends string,
     SourceNameUnion extends string,
-    Sources extends Record<SourceNameUnion, typeof DataSource<any>>,
+    Sources extends Record<SourceNameUnion, typeof Bucket<any, any>>,
     C extends NesoiClient<any,any> = EngineClient<AppClient, TaskNameUnion, SourceNameUnion, Sources>
 > {
     protected queue: Queue
@@ -56,11 +56,17 @@ export class NesoiEngine<
         this.strings = Object.assign(NesoiStrings, $.strings || {})
     }
 
-    resource<
-        Model extends ResourceModel
+    data<
+        Model extends ResourceObj
+    >() {
+        
+    }
+
+    bucket<
+        Model extends ResourceObj
     >(
         name: string,
-        dataSource: DataSource<Model>
+        dataSource: Bucket<Model>
     ) {
         return new ResourceBuilder(this, name, dataSource);
     }
@@ -93,3 +99,5 @@ export class NesoiEngine<
         return this.strings[key];
     }
 }
+
+export type AnyEngine = NesoiEngine<any, any, any, any>

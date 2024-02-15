@@ -30,7 +30,7 @@ class DuelSource extends DataSource<DuelModel> {
     }
 }
 
-const Duel = Nesoi.resource('duel', DuelSource)
+const Duel = Nesoi.bucket('duel', DuelSource)
 
     .alias('Duelo')
 

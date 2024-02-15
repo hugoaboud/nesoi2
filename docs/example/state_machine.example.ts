@@ -1,7 +1,7 @@
 import { ResourceBuilder } from "../../src/builders/resource/resource"
-import { FireballDataSource } from "./datasource.example"
+import { FireballDataSource, fireballDataSource } from "./datasource.example"
 
-export const Fireball = new ResourceBuilder({} as any, 'fireball', FireballDataSource)
+export const Fireball = new ResourceBuilder({} as any, 'fireball', fireballDataSource)
     .alias('Fireball')
     .states($ => ({
         idle: $('Idle').initial(),
@@ -13,6 +13,7 @@ export const Fireball = new ResourceBuilder({} as any, 'fireball', FireballDataS
         launched: $('Launched'),
         boom: $('Boom!').final(),
     }))
+
     .event('charge', $ => $
         .alias('Charge')
         .schema($ => ({
@@ -29,6 +30,7 @@ export const Fireball = new ResourceBuilder({} as any, 'fireball', FireballDataS
         .alias('Explode')
         .schema($ => ({}))
     )
+
     .transition($ => $
         .on('charge')
         .from('idle')

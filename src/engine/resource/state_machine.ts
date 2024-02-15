@@ -1,5 +1,5 @@
-import { DataSource } from "../data/datasource";
-import { ResourceModel } from "../data/model";
+import { Bucket } from "../data/bucket";
+import { ResourceObj } from "../data/model";
 import { NesoiError } from "../../error";
 import { EventParser } from "../parser/event.parser";
 import { Tree } from "../../helpers/tree";
@@ -8,7 +8,7 @@ import { Obj, State, StateSchema, StateTree, TransitionSchema, TransitionTargetS
 import { NesoiClient } from "../../client";
 
 export class StateMachine<
-    Model extends ResourceModel,
+    Model extends ResourceObj,
     Events
 > {
     
@@ -21,7 +21,7 @@ export class StateMachine<
 
     constructor(
         builder: any,
-        protected dataSource: DataSource<ResourceModel>
+        protected dataSource: Bucket<ResourceObj>
     ) {
         this.name = builder.name
         this.engine = builder.engine

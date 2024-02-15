@@ -1,10 +1,10 @@
 export type ResourceId = number | string
 
-export interface NesoiModel {
+export interface NesoiObj {
     id: ResourceId
 }
 
-export interface ResourceModel extends NesoiModel {
+export interface ResourceObj extends NesoiObj {
     id: ResourceId
     state: string
     created_by: number|string

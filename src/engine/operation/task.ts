@@ -2,7 +2,7 @@ import { EventParser } from "../parser/event.parser";
 import { TaskCondition } from "../../builders/condition";
 import { TaskMethod } from "../../builders/method";
 import { TaskSource, TaskStepAlias, TaskStepEvent } from "../../builders/operation/task";
-import { TaskAction, TaskLogModel, TaskModel } from "./task.model";
+import { TaskAction, TaskLogModel, TaskModel, TaskState } from "./task.model";
 import { NesoiError } from "../../error";
 import { NesoiClient } from "../../client";
 import { Condition } from "../condition";
@@ -115,17 +115,7 @@ export class Task<
             input: event,
             output: {
                 data: {},
-                steps: [
-                    {
-                        from_state: 'void',
-                        to_state: 'requested',
-                        user: { 
-                            id: client.user.id,
-                            name: client.user.name,
-                        },
-                        timestamp: new Date().toISOString()
-                    }
-                ]
+                steps: this.getOutputStepList(client)
             },
             graph: {},
             created_by: client.user.id,
@@ -206,17 +196,25 @@ export class Task<
         }
         Object.assign(task.input, event)
         Object.assign(task.output.data, outcome)
-        task.output.steps.push({
-            from_state: task.state,
-            to_state: next ? (next.state as any) : 'done',
-            user: { 
-                id: client.user.id,
-                name: client.user.name,
-            },
-            timestamp: new Date().toISOString()
-        })
 
-        // 3. Advance
+        // 3. Save step to output
+        const outputStep = task.output.steps.find(step => !step.timestamp);
+        if (!outputStep || outputStep.from_state !== current.state) {
+            if (task.id) {
+                throw NesoiError.Task.InvalidOutputStep(this.name, task.id, task.state)
+            }
+            else {
+                throw NesoiError.Task.InvalidOutputStepExecute(this.name, task.state)
+            }
+        }
+
+        outputStep.user = { 
+            id: client.user.id,
+            name: client.user.name,
+        }
+        outputStep.timestamp = new Date().toISOString()
+
+        // 4. Advance
         if (next) {
             task.state = next.state as any
         }
@@ -232,14 +230,14 @@ export class Task<
 
     public async execute(
         client: Client,
-        input: TaskStepEvent<RequestStep> & TaskStepEvent<Steps>
+        eventRaw: TaskStepEvent<RequestStep> & TaskStepEvent<Steps>
     ) {
-        const { event, task } = await this._request(client, input);
+        const { event, task } = await this._request(client, eventRaw);
         let savedTask = await this.dataSource.tasks.put(client, task)
 
         const fullEvent = event;
         while (savedTask.state !== 'done') {
-            const { event } = await this._advance(client, savedTask, input)
+            const { event } = await this._advance(client, savedTask, eventRaw)
             Object.assign(fullEvent, event);
         }
 
@@ -319,6 +317,28 @@ export class Task<
             current: this.steps[index],
             next: this.steps[index+1]
         }
+    }
+
+    private getOutputStepList(client: Client, includeRequested = true) {
+        
+        const list = includeRequested ? [{
+            from_state: 'void' as TaskState,
+            to_state: 'requested' as TaskState,
+            user: { 
+                id: client.user.id,
+                name: client.user.name,
+            },
+            timestamp: new Date().toISOString()
+        }] : []
+
+        this.steps.forEach((step, i) => {
+            list.push({
+                from_state: step.state,
+                to_state: this.steps[i+1]?.state || 'done'
+            } as any)
+        })
+
+        return list
     }
 
     private async logStepMessage(client: Client, action: TaskAction, task: TaskModel, event: any, step?: TaskStep) {
