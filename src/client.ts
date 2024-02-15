@@ -27,7 +27,7 @@ class NesoiDataClient<
         id: Engine['buckets'][S]['id'],
         view?: keyof Engine['buckets'][S]['views']
     ) {
-        type Obj = Engine['buckets'][S]
+        type Obj = Engine['buckets'][S]['#obj']
         const bucket = this.engine.buckets[source] as any as Bucket<Obj>
         return bucket.get(this.client, id, view as any)
     }
@@ -71,7 +71,7 @@ class NesoiDataClient<
         source: S,
         view?: keyof Engine['buckets'][S]['views']
     ) {
-        type Obj = Engine['buckets'][S]
+        type Obj = Engine['buckets'][S]['#obj']
         const bucket = this.engine.buckets[source] as any as Bucket<Obj>
         return bucket.index(this.client, view as any)
     }
