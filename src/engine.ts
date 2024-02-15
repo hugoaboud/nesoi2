@@ -3,7 +3,7 @@ import { JobBuilder } from "./builders/job/job"
 import { ResourceBuilder } from "./builders/resource/resource"
 import { EventParserBuilder } from "./builders/parser/event_parser"
 import { ResourceObj } from "./engine/data/model"
-import { Bucket } from "./engine/data/bucket"
+import { Bucket, BucketAdapter } from "./engine/data/bucket"
 import { Queue, QueueSource } from "./engine/queue"
 import { MemoryQueueSource } from "./engine/queue/memory.queue"
 import { MemoryCacheSource } from "./engine/cache/memory.cache"
@@ -17,7 +17,7 @@ type EngineClient<
     AppClient extends Client,
     TaskNameUnion extends string,
     SourceNameUnion extends string,
-    Sources extends Record<SourceNameUnion, typeof Bucket<any, any>>,
+    Sources extends Record<SourceNameUnion, typeof BucketAdapter<any, any>>,
 > = NesoiClient<
     NesoiEngine<
         AppClient,
@@ -32,7 +32,7 @@ export class NesoiEngine<
     AppClient extends Client,
     TaskNameUnion extends string,
     SourceNameUnion extends string,
-    Sources extends Record<SourceNameUnion, typeof Bucket<any, any>>,
+    Sources extends Record<SourceNameUnion, typeof BucketAdapter<any, any>>,
     C extends NesoiClient<any,any> = EngineClient<AppClient, TaskNameUnion, SourceNameUnion, Sources>
 > {
     protected queue: Queue

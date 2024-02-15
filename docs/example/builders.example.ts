@@ -1,5 +1,5 @@
 import { ControllerBuilder } from "../../src/builders/controller"
-import { DataSource } from "../../src/engine/data/datasource"
+import { Bucket } from "../../src/engine/data/bucket"
 import { NesoiEngine } from "../../src/engine"
 
 const Nesoi = new NesoiEngine({
@@ -18,7 +18,7 @@ class DuelModel {
     josefina!: 'sword'|'saber'
 }
 
-class DuelSource extends DataSource<DuelModel> {
+class DuelSource extends Bucket<DuelModel> {
     async get() {
         return {} as DuelModel
     }

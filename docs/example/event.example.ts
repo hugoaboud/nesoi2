@@ -2,7 +2,7 @@ import { EventBuilder } from "../../src/builders/event"
 import { NesoiClient } from "../../src/client"
 
 import { NesoiEngine } from "../../src/engine"
-import { FireballDataSource } from "./datasource.example"
+import { FireballBucket } from "./bucket.example"
 
 type MyClient = {
   user: {
@@ -15,7 +15,7 @@ type MyClient = {
 export const Nesoi = new NesoiEngine({
   $client: {} as MyClient,
   sources: { 
-    'fireball': FireballDataSource
+    'fireball': FireballBucket
   }
 })
 

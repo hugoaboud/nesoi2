@@ -7,7 +7,7 @@ export class MemoryBucket<
 > extends BucketAdapter<Obj> {
 
     constructor(
-        private data: Record<Obj['id'], Obj> = {} as any
+        protected data: Record<Obj['id'], Obj> = {} as any
     ) {
         super();
     }

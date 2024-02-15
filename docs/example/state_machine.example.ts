@@ -1,7 +1,7 @@
 import { ResourceBuilder } from "../../src/builders/resource/resource"
-import { FireballDataSource, fireballDataSource } from "./datasource.example"
+import { FireballBucket, fireballBucket } from "./bucket.example"
 
-export const Fireball = new ResourceBuilder({} as any, 'fireball', fireballDataSource)
+export const Fireball = new ResourceBuilder({} as any, 'fireball', fireballBucket)
     .alias('Fireball')
     .states($ => ({
         idle: $('Idle').initial(),

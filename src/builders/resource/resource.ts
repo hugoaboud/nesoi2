@@ -11,7 +11,7 @@ import { $States, StateFactory, StateTree, State } from "./states"
 import { $Transition, TransitionBuilder } from "./transition"
 import { EventParserBuilder, EventInputFromParser } from "../parser/event_parser"
 import { $View, ViewPropFactory, ViewBuilder } from "./view"
-import { Bucket } from "../../engine/data/bucket"
+import { Bucket, BucketAdapter } from "../../engine/data/bucket"
 import { Resource } from "../../engine/resource"
 import { View } from "../../engine/resource/view"
 import { $Composition, Composition, CompositionBuilder } from "./compose"
@@ -45,7 +45,7 @@ export class ResourceBuilder<
     constructor(
         private engine: any,
         private name: string,
-        private dataSource: Bucket<Model>
+        private dataSource: BucketAdapter<Model>
     ) {}
 
     alias(alias: string) {

@@ -1,7 +1,6 @@
-import { ResourceModel } from "../../src/engine/data/model";
-import { MemoryDataSource } from "../../src/engine/data/memory.bucket";
+import { ResourceObj } from "../../src/engine/data/model";
+import { MemoryBucket } from "../../src/engine/data/memory.bucket";
 import { NesoiEngine } from "../../src/engine";
-import { Bucket } from "../../src/engine/data/bucket";
 
 type FireballState =
     'idle' |
@@ -9,14 +8,14 @@ type FireballState =
     'launched' |
     'boom'
 
-export interface Fireball extends ResourceModel {
+export interface Fireball extends ResourceObj {
     id: number,
     state: FireballState
     power: number,
     size: number
 }
 
-export class FireballDataSource extends MemoryDataSource<Fireball> {
+export class FireballBucket extends MemoryBucket<Fireball> {
 
     data = {
         1: {
@@ -64,17 +63,17 @@ export class FireballDataSource extends MemoryDataSource<Fireball> {
     
 }
 
-export const fireballDataSource = new FireballDataSource()
+export const fireballBucket = new FireballBucket()
 
 async function main() {
     const nesoi = new NesoiEngine({
         $client: {} as any,
         sources: {
-            'fireball': FireballDataSource
+            'fireball': FireballBucket
         }
     })   
     const client = nesoi.client({})
-    const fireballs = await fireballDataSource.index(client)
+    const fireballs = await fireballBucket.index(client)
     console.log(fireballs)
 }
 main()

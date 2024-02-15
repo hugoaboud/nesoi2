@@ -1,7 +1,7 @@
 import { ResourceBuilder } from "../../src/builders/resource/resource"
-import { FireballDataSource } from "./datasource.example";
+import { fireballBucket } from "./bucket.example";
 
-const mock = new ResourceBuilder({} as any, 'mock', FireballDataSource)
+const mock = new ResourceBuilder({} as any, 'mock', fireballBucket)
     .alias('Mock!')
     .view('id_only', $ => ({
         id: $.model('id')
@@ -12,18 +12,18 @@ const mock = new ResourceBuilder({} as any, 'mock', FireballDataSource)
     .build()
 
 async function main() {
-    const res = await mock.readOne(1);
-    res.log()
-    const res2 = await mock.readOne(1, 'id_only');
-    res2.log()
-    const res3 = await mock.readOne(1, 'sizepower');
-    res3.log()
+    // const res = await mock.readOne(1);
+    // res.log()
+    // const res2 = await mock.readOne(1, 'id_only');
+    // res2.log()
+    // const res3 = await mock.readOne(1, 'sizepower');
+    // res3.log()
 
-    const res4 = await mock.readAll(1);
-    console.log(res4)
-    const res5 = await mock.readAll(1, 'id_only');
-    console.log(res5)
-    const res6 = await mock.readAll(1, 'sizepower');
-    console.log(res6)
+    // const res4 = await mock.readAll(1);
+    // console.log(res4)
+    // const res5 = await mock.readAll(1, 'id_only');
+    // console.log(res5)
+    // const res6 = await mock.readAll(1, 'sizepower');
+    // console.log(res6)
 }
 main()
