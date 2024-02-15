@@ -1,4 +1,5 @@
 import { NesoiEngine } from "../../src/engine"
+import { FireballBucket } from "./bucket.example"
 
 type MyClient = {
   user: {
@@ -13,5 +14,7 @@ export const Nesoi = new NesoiEngine({
   tasks: [
     'lala.move_coil'
   ],
-  sources: {}
+  buckets: {
+    'fireball': FireballBucket
+  }
 })

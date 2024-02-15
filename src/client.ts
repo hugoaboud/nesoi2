@@ -1,5 +1,7 @@
 import { TaskStepEvent } from "./builders/operation/task"
 import { NesoiEngine } from "./engine"
+import { Bucket } from "./engine/data/bucket"
+import { NesoiObj } from "./engine/data/model"
 import { TaskGraph } from "./engine/operation/graph"
 import { ScheduleEventType } from "./engine/operation/schedule.model"
 import { Task } from "./engine/operation/task"
@@ -20,31 +22,31 @@ class NesoiDataClient<
         protected client: NesoiClient<any,any>,
     ) {}
    
-    readOne<S extends keyof Engine['sources']>(
+    readOne<S extends keyof Engine['buckets']>(
         source: S,
-        id: Engine['sources'][S]['id']
+        id: Engine['buckets'][S]['id'],
+        view?: keyof Engine['buckets'][S]['views']
     ) {
-        type Source = InstanceType<Engine['sources'][S]>
-        const sourceClass = this.engine.sources[source] as any
-        const data = new sourceClass() as Source
-        return data.get(this.client, id) as Promise<Source['$obj']>
+        type Obj = Engine['buckets'][S]
+        const bucket = this.engine.buckets[source] as any as Bucket<Obj>
+        return bucket.get(this.client, id, view as any)
     }
 
     _readOne(
         source: string,
-        id: number | string
+        id: number | string,
+        view?: string
     ) {
-        type Source = InstanceType<Engine['sources'][any]>
-        const sourceClass = this.engine.sources[source] as any
-        const data = new sourceClass() as Source
-        return data.get(this.client, id)
+        const bucket = this.engine.buckets[source] as any as Bucket<NesoiObj>
+        return bucket.get(this.client, id, view as any)
     }
 
-    readOneOrFail<S extends keyof Engine['sources']>(
+    readOneOrFail<S extends keyof Engine['buckets']>(
         source: S,
-        id: Engine['sources'][S]['id']
+        id: Engine['buckets'][S]['id'],
+        view?: keyof Engine['buckets'][S]['views']
     ) {
-        return this.readOne(source, id).then(obj => {
+        return this.readOne(source, id, view).then(obj => {
             if (obj === undefined || obj === null) {
                 throw NesoiError.Resource.NotFound(source as string, id)
             }
@@ -54,9 +56,10 @@ class NesoiDataClient<
 
     _readOneOrFail(
         source: string,
-        id: number | string
+        id: number | string,
+        view?: string
     ) {
-        return this.readOne(source, id).then(obj => {
+        return this._readOne(source, id, view).then(obj => {
             if (obj === undefined) {
                 throw NesoiError.Resource.NotFound(source as string, id)
             }
@@ -64,22 +67,21 @@ class NesoiDataClient<
         })
     }
 
-    readAll<S extends keyof Engine['sources']>(
-        source: S
+    readAll<S extends keyof Engine['buckets']>(
+        source: S,
+        view?: keyof Engine['buckets'][S]['views']
     ) {
-        type Source = InstanceType<Engine['sources'][S]>
-        const sourceClass = this.engine.sources[source] as any
-        const data = new sourceClass() as Source
-        return data.index(this.client)
+        type Obj = Engine['buckets'][S]
+        const bucket = this.engine.buckets[source] as any as Bucket<Obj>
+        return bucket.index(this.client, view as any)
     }
 
     _readAll(
-        source: string
+        source: string,
+        view?: string
     ) {
-        type Source = InstanceType<Engine['sources'][any]>
-        const sourceClass = this.engine.sources[source] as any
-        const data = new sourceClass() as Source
-        return data.index(this.client)
+        const bucket = this.engine.buckets[source] as any as Bucket<NesoiObj>
+        return bucket.index(this.client, view as any)
     }
 
 }

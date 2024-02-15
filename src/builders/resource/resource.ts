@@ -45,7 +45,7 @@ export class ResourceBuilder<
     constructor(
         private engine: any,
         private name: string,
-        private dataSource: BucketAdapter<Model>
+        private bucket: Bucket<Model>
     ) {}
 
     alias(alias: string) {

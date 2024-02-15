@@ -6,9 +6,9 @@ import { ScheduleModel } from "./schedule.model"
 
 export const ScheduleResource = (
     Nesoi: NesoiEngine<any,any,any,any>,
-    dataSource: Bucket<ScheduleModel>
+    bucket: Bucket<ScheduleModel>
 ) =>
-    Nesoi.bucket('task.schedule', dataSource)
+    Nesoi.resource('task.schedule', bucket)
         .alias('Task Schedule')
         .states($ => ({
             scheduled: $('Scheduled').initial(),

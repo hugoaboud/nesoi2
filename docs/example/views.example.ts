@@ -1,29 +1,51 @@
-import { ResourceBuilder } from "../../src/builders/resource/resource"
-import { fireballBucket } from "./bucket.example";
+import { NesoiEngine } from "../../src/engine"
+import { MemoryBucket } from "../../src/engine/data/memory.bucket"
 
-const mock = new ResourceBuilder({} as any, 'mock', fireballBucket)
-    .alias('Mock!')
-    .view('id_only', $ => ({
-        id: $.model('id')
+interface Fireball {
+    id: number
+    power: number
+    red: number
+}
+
+const nesoi = new NesoiEngine({
+    $client: {} as any
+})   
+
+nesoi.bucket('fireball', MemoryBucket<Fireball>)
+    .view('default', $ => ({
+        lala: $.model('power')
     }))
-    .view('sizepower', $ => ({
-        sizepower: $.computed(model => model.size + model.power)
+    .view('color', $ => ({
+        value: $.computed(obj => obj.red)
     }))
-    .build()
+    .build() 
 
 async function main() {
-    // const res = await mock.readOne(1);
-    // res.log()
-    // const res2 = await mock.readOne(1, 'id_only');
-    // res2.log()
-    // const res3 = await mock.readOne(1, 'sizepower');
-    // res3.log()
 
-    // const res4 = await mock.readAll(1);
-    // console.log(res4)
-    // const res5 = await mock.readAll(1, 'id_only');
-    // console.log(res5)
-    // const res6 = await mock.readAll(1, 'sizepower');
-    // console.log(res6)
+    const client = nesoi.client({});
+
+    console.log(client.data.readOne('fireball'))
+
+    await MyBucket.put(client, {
+        power: 3,
+        red: 15
+    })
+
+    await MyBucket.put(client, {
+        power: 7,
+        red: 19
+    })
+
+    const objs = await MyBucket.index(client, 'default')
+    
+    const obj = await MyBucket.get(client, 1)
+    const obj2 = await MyBucket.get(client, 1, 'color')
+    const obj3 = await MyBucket.get(client, 1, 'default')
+    
+    console.log(MyBucket);
+    console.log(objs);
+    console.log(obj);
+    console.log(obj2);
+    console.log(obj3);
 }
 main()

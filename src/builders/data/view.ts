@@ -20,7 +20,6 @@ export type ViewSchema = {
 /* Builder */
 
 export class ViewPropFactory<
-    Engine extends AnyEngine,
     Obj
 > {
     
@@ -46,13 +45,16 @@ export class ViewPropFactory<
         } as _<Output>
     }
 
-    oneOf(resource: keyof Engine['sources']) {
+    oneOf<Obj extends NesoiObj>(bucket: Bucket<Obj>) {
         return {
-            from: (self_fkey?: string) => ({
+            from: (self_fkey: string) => ({
                 __t: 'view.prop',
                 type: 'graph',
                 amount: 'one',
-                fn: () => ({} as never)
+                fn: (obj) => {
+                    console.log(obj)
+                    return bucket.get({} as any, (obj as any)[self_fkey])
+                }
             } as ViewProp<Obj, never>),
             where: (other_fkey?: string) => ({
                 __t: 'view.prop',
@@ -63,7 +65,7 @@ export class ViewPropFactory<
         }
     }
 
-    manyOf(name: keyof Engine['sources']) {
+    manyOf<Obj extends NesoiObj>(bucket: Bucket<Obj>) {
         return {
             where: (other_fkey?: string) => ({
                 __t: 'view.prop',
@@ -83,10 +85,9 @@ export class ViewPropFactory<
 }
 
 export type $View = <
-    Engine extends AnyEngine,
     Obj extends NesoiObj,
     Schema extends ViewSchema
 >(
     name: string,
-    $: ($: ViewPropFactory<Engine, Obj>) => Schema
-) => View<Engine, Obj, Schema>
+    $: ($: ViewPropFactory<Obj>) => Schema
+) => View<Obj, Schema>

@@ -13,7 +13,6 @@ type ViewOutput<
 }
 
 export class View<
-    Engine extends AnyEngine,
     Obj extends NesoiObj,
     Schema extends ViewSchema = never,
     Output = ViewOutput<Schema>
@@ -23,14 +22,16 @@ export class View<
     schema: Schema = {} as any
 
     constructor(
-        $: ($: ViewPropFactory<Engine, Obj>) => Schema
+        $: ($: ViewPropFactory<Obj>) => Schema
     ) {
-        const factory = new ViewPropFactory<Engine, Obj>()
+        const factory = new ViewPropFactory<Obj>()
         this.schema = $(factory)
     }
 
     async parse(raw: Obj): Promise<Output> {
-        const parsedObj = {} as any
+        const parsedObj = {
+            id: raw.id
+        } as any
         // Model props
         for (const k in this.schema) {
             const prop = this.schema[k];
@@ -49,6 +50,19 @@ export class View<
             const prop = this.schema[k];
             if (prop.__t === 'view.prop') {
                 if (prop.type !== 'computed') { continue }
+                parsedObj[k] = (prop as ViewProp<Obj, Output>).fn(raw)
+            }
+            else {
+                parsedObj[k] = this.parse(raw);
+            }
+            parsedObj[k] = await Promise.resolve(parsedObj[k])
+        }
+        
+        // Computed props
+        for (const k in this.schema) {
+            const prop = this.schema[k];
+            if (prop.__t === 'view.prop') {
+                if (prop.type !== 'graph') { continue }
                 parsedObj[k] = (prop as ViewProp<Obj, Output>).fn(raw)
             }
             else {

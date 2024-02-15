@@ -2,7 +2,7 @@ import { $Event, EventBuilder } from "./builders/event"
 import { JobBuilder } from "./builders/job/job"
 import { ResourceBuilder } from "./builders/resource/resource"
 import { EventParserBuilder } from "./builders/parser/event_parser"
-import { ResourceObj } from "./engine/data/model"
+import { NesoiObj, ResourceObj } from "./engine/data/model"
 import { Bucket, BucketAdapter } from "./engine/data/bucket"
 import { Queue, QueueSource } from "./engine/queue"
 import { MemoryQueueSource } from "./engine/queue/memory.queue"
@@ -12,18 +12,19 @@ import { TaskBuilder, TaskSource } from "./builders/operation/task"
 import { Task } from "./engine/operation/task"
 import { Client, NesoiClient } from "./client"
 import { NesoiStrings } from "./strings"
+import { BucketBuilder } from "./builders/data/bucket"
 
 type EngineClient<
     AppClient extends Client,
     TaskNameUnion extends string,
     SourceNameUnion extends string,
-    Sources extends Record<SourceNameUnion, typeof BucketAdapter<any, any>>,
+    Buckets extends Record<SourceNameUnion, Bucket<any>>,
 > = NesoiClient<
     NesoiEngine<
         AppClient,
         TaskNameUnion,
         SourceNameUnion,
-        Sources
+        Buckets
     >,
     AppClient
 >
@@ -32,13 +33,13 @@ export class NesoiEngine<
     AppClient extends Client,
     TaskNameUnion extends string,
     SourceNameUnion extends string,
-    Sources extends Record<SourceNameUnion, typeof BucketAdapter<any, any>>,
-    C extends NesoiClient<any,any> = EngineClient<AppClient, TaskNameUnion, SourceNameUnion, Sources>
+    Buckets extends Record<SourceNameUnion, Bucket<any>>,
+    C extends NesoiClient<any,any> = EngineClient<AppClient, TaskNameUnion, SourceNameUnion, Buckets>
 > {
     protected queue: Queue
     protected cache: Cache
     
-    public sources: Sources = {} as any
+    public buckets: Buckets = {} as any
     public tasks: Record<TaskNameUnion, Task<any, any>> = {} as any
     public strings: NesoiStrings
 
@@ -46,29 +47,40 @@ export class NesoiEngine<
         $client: AppClient,
         queue?: QueueSource,
         cache?: CacheSource,
-        sources?: Sources,
+        buckets?: Buckets,
         tasks?: TaskNameUnion[],
         strings?: Partial<NesoiStrings>
     }) {
         this.queue = new Queue($?.queue || new MemoryQueueSource())
         this.cache = new Cache($?.cache || new MemoryCacheSource())
-        this.sources = $.sources as any
+        this.buckets = $.buckets as any
         this.strings = Object.assign(NesoiStrings, $.strings || {})
     }
 
     event(
-    name: string,
+        name: string,
     ) {
         return new EventBuilder(this, name);
     }
 
     bucket<
+        Adapter extends new (...args: any) => BucketAdapter<any, any>,
+    >(
+        name: string,
+        adapter: Adapter
+    ) {
+        // return new BucketBuilder(this, adapter, bucket => {
+        //     (this.buckets as any)[name] = bucket
+        // })
+    }
+
+    resource<
         Model extends ResourceObj
     >(
         name: string,
-        dataSource: Bucket<Model>
+        bucket: Bucket<Model>
     ) {
-        return new ResourceBuilder(this, name, dataSource);
+        return new ResourceBuilder(this, name, bucket);
     }
 
     job<
