@@ -42,15 +42,9 @@ export class BucketBuilder<
         >
     }
 
-    withData(data: Record<string, any>) {
-        this.data = data;
-        return this;
-    }
-    
     build(...adapterConstructorArgs: ConstructorParameters<Adapter>) {
         const adapter = new this.adapter(...adapterConstructorArgs as any);
         const bucket = new Bucket<Obj, Views>(adapter, this.views)
-        console.log(this)
         if (this.onBuild) {
             this.onBuild(bucket)
         }

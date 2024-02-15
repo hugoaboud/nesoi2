@@ -17,7 +17,7 @@ export interface Fireball extends ResourceObj {
 }
 
 export const FireballBucket = new BucketBuilder(MemoryBucket<Fireball>)
-    .withData({
+    .build({
         1: {
             id: 1,
             state: 'idle' as const,
@@ -58,8 +58,7 @@ export const FireballBucket = new BucketBuilder(MemoryBucket<Fireball>)
             created_at: '2024-01-01T00:00:00.000Z',
             updated_at: '2024-01-01T00:00:00.000Z'
         },
-    })
-    .build();
+    });
     
 async function main() {
     const nesoi = new NesoiEngine({
