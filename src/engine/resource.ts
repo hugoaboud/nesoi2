@@ -1,7 +1,7 @@
 import { Bucket } from "./data/bucket";
 import { ResourceObj } from "./data/model";
 import { NesoiError } from "../error";
-import { ResourceObj } from "./resource/resource_obj";
+import { ViewObj } from "./resource/resource_obj";
 import { StateMachine } from "./resource/state_machine";
 import { View } from "./resource/view";
 import { CreateSchema } from "./schema";
@@ -57,7 +57,7 @@ export class Resource<
         // 3. If not, build a Obj from the view result
         const viewSchema = this.views[view || 'default']
         const parsedView = await viewSchema.parse(model)
-        return this.build<ViewObj<Views[V]>>(model, parsedView)
+        return this.build<TViewObj<Views[V]>>(model, parsedView)
     }
 
     async readAll<V extends keyof Views>(
@@ -103,7 +103,7 @@ export class Resource<
     }
 
     build<T>(model: Obj, view: Obj) {
-        return new ResourceObj(
+        return new ViewObj(
             this as any,
             model as any,
             view as any
@@ -112,7 +112,7 @@ export class Resource<
 
 }
 
-type ViewObj<
+type TViewObj<
     V extends View<any>,
     R = ReturnType<V['parse']>
 > = R extends { then: any } ? Awaited<R> : R

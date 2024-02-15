@@ -1,8 +1,8 @@
 import { Resource } from "../resource"
 
-// A resource object is the result of a view
+// A view object is the result of a view
 // However, it also stores nesoi metadata
-export class ResourceObj {
+export class ViewObj {
 
     // This property should not be sent out by controllers
     private _nesoi: {
