@@ -1,4 +1,4 @@
-import { ResourceModel } from "../data/model"
+import { ResourceObj } from "../data/model"
 import { TaskGraph } from "./graph.model"
 
 export type TaskAction =
@@ -10,8 +10,7 @@ export type TaskAction =
     | 'graph'
 
 export type TaskState =
-    'scheduled'
-    | 'requested'
+    'requested'
     | 'done'
     | 'canceled'
 

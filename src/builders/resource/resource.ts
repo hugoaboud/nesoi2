@@ -5,13 +5,13 @@
  * 
  */
 
-import { ResourceModel } from "../../engine/data/model"
+import { ResourceObj } from "../../engine/data/model"
 import { $Event, EventBuilder } from "../event"
 import { $States, StateFactory, StateTree, State } from "./states"
 import { $Transition, TransitionBuilder } from "./transition"
 import { EventParserBuilder, EventInputFromParser } from "../parser/event_parser"
 import { $View, ViewPropFactory, ViewBuilder } from "./view"
-import { DataSource } from "../../engine/data/datasource"
+import { Bucket } from "../../engine/data/bucket"
 import { Resource } from "../../engine/resource"
 import { View } from "../../engine/resource/view"
 import { $Composition, Composition, CompositionBuilder } from "./compose"
@@ -24,7 +24,7 @@ import { EventParser } from "../../engine/parser/event.parser"
 
 export class ResourceBuilder<
     Client extends NesoiClient<any, any>,
-    Model extends ResourceModel,
+    Model extends ResourceObj,
     Events extends EventParserBuilder = {},
     Views = unknown,
     Compositions = unknown,
@@ -45,7 +45,7 @@ export class ResourceBuilder<
     constructor(
         private engine: any,
         private name: string,
-        private dataSource: DataSource<Model>
+        private dataSource: Bucket<Model>
     ) {}
 
     alias(alias: string) {
@@ -161,7 +161,7 @@ export class ResourceBuilder<
 
     compose<
         K extends string,
-        ChildModel extends ResourceModel
+        ChildModel extends ResourceObj
     >(
         other_name: K,
         $?: $Composition<Model, ChildModel>

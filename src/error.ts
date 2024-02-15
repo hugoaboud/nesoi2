@@ -35,6 +35,14 @@ export namespace NesoiError {
         export function InvalidStateExecute(name: string, state: string) {
             return new BaseError(`Execute task ${name} reached invalid state ${state}`)
         }
+        
+        export function InvalidOutputStep(name: string, id: number, state: string) {
+            return new BaseError(`Task ${name} with id ${id} has no output step for state ${state}`)
+        }
+        
+        export function InvalidOutputStepExecute(name: string, state: string) {
+            return new BaseError(`Execute task ${name} has no output step for state ${state}`)
+        }
 
     }
 

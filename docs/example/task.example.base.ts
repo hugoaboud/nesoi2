@@ -1,18 +1,23 @@
 import { TaskSource } from "../../src/builders/operation/task"
-import { MemoryDataSource } from "../../src/engine/data/memory.datasource"
+import { MemoryBucket } from "../../src/engine/data/memory.bucket"
 import { ScheduleModel } from "../../src/engine/operation/schedule.model"
 import { TaskLogModel, TaskModel } from "../../src/engine/operation/task.model"
 import { Nesoi } from "./task.example.nesoi"
 
-class TaskDataSource extends MemoryDataSource<TaskModel> {}
-class TaskLogDataSource extends MemoryDataSource<TaskLogModel<any>> {}
-class ScheduleDataSource extends MemoryDataSource<ScheduleModel> {}
+class TaskBucket extends MemoryBucket<TaskModel> {}
+class TaskLogBucket extends MemoryBucket<TaskLogModel<any>> {}
+class ScheduleBucket extends MemoryBucket<ScheduleModel> {}
 
 const source = new TaskSource(
-  new TaskDataSource(),
-  new TaskLogDataSource(),
-  new ScheduleDataSource()
+  new TaskBucket(),
+  new TaskLogBucket(),
+  new ScheduleBucket()
 )
+
+// request
+//    - before: -
+//    - while: Solicitado
+//    - 
 
 export const MoveCoilTask = Nesoi.task('lala.move_coil', source)
 
@@ -39,8 +44,8 @@ export const MoveCoilTask = Nesoi.task('lala.move_coil', source)
     .step('requested', $ => $
       .alias({
         state: 'Solicitado',
+        done: 'Movido',
         action: 'Mover',
-        done: 'Movido'
       })
       .event($ => ({
         req: $('Req').boolean
@@ -57,7 +62,7 @@ export const MoveCoilTask = Nesoi.task('lala.move_coil', source)
       .log(({ input }) => `Bobina ${input.origin_coil} movida com sucesso`)
     )
 
-    .step('moved', $ => $
+    .step('preparing', $ => $
       .event($ => ({
         peq: $('Peq').boolean,
         lolo: $('Lolo').float

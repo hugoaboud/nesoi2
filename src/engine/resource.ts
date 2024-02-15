@@ -1,5 +1,5 @@
-import { DataSource } from "./data/datasource";
-import { ResourceModel } from "./data/model";
+import { Bucket } from "./data/bucket";
+import { ResourceObj } from "./data/model";
 import { NesoiError } from "../error";
 import { ResourceObj } from "./resource/resource_obj";
 import { StateMachine } from "./resource/state_machine";
@@ -10,7 +10,7 @@ import { NesoiClient } from "../client";
 type Obj = Record<string, any>
 
 export class Resource<
-    Model extends ResourceModel,
+    Model extends ResourceObj,
     Events,
     Views extends Record<string, View<any>>
 > {
@@ -20,7 +20,7 @@ export class Resource<
     protected views: Views
 
     protected createSchema: CreateSchema
-    protected dataSource: DataSource<any>
+    protected dataSource: Bucket<any>
     public machine: StateMachine<Model, Events>
 
     constructor(builder: any) {
@@ -92,7 +92,7 @@ export class Resource<
 
         // 2. Run event through method to build obj
         const promise = this.createSchema.method({ client, event: parsedEvent, obj: undefined })
-        const obj = await Promise.resolve(promise) as ResourceModel
+        const obj = await Promise.resolve(promise) as ResourceObj
 
         // 3. Set crud meta
         obj.state = this.machine.getInitialState() || 'void'
@@ -107,7 +107,7 @@ export class Resource<
             this as any,
             model as any,
             view as any
-        ) as any as ResourceModel & T
+        ) as any as ResourceObj & T
     }
 
 }

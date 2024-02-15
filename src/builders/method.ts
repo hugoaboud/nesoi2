@@ -1,8 +1,8 @@
-import { ResourceModel } from "../engine/data/model";
+import { ResourceObj } from "../engine/data/model";
 
 export type ResourceMethod<
     Client,
-    Model extends ResourceModel,
+    Model extends ResourceObj,
     Event,
     Response
 > = (ctx: {

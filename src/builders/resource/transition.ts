@@ -6,14 +6,14 @@
  * 
  */
 
-import { ResourceModel } from "../../engine/data/model";
+import { ResourceObj } from "../../engine/data/model";
 import { ResourceCondition } from "../condition";
 import { ResourceMethod } from "../method";
 import { EventParserBuilder, EventInputFromParser, EventOutputFromParser } from "../parser/event_parser";
 
 export class TransitionTargetBuilder<
     Client,
-    Model extends ResourceModel,
+    Model extends ResourceObj,
     Event,
     Before extends ResourceMethod<Client, Model, Event, void>,
     After extends ResourceMethod<Client, Model, Event, void>
@@ -70,7 +70,7 @@ export class TransitionTargetBuilder<
 export class TransitionBuilder<
     Client,
     Name extends string,
-    Model extends ResourceModel,
+    Model extends ResourceObj,
     StatesUnion extends string,
     Events extends EventParserBuilder,
     Event = unknown,
@@ -233,7 +233,7 @@ export class TransitionBuilder<
 
 export type $TransitionTarget<
     Client,
-    Model extends ResourceModel,
+    Model extends ResourceObj,
     Event,
     Extra,
     Before extends ResourceMethod<Client, Model, E, void>,
@@ -244,7 +244,7 @@ export type $TransitionTarget<
 export type $Transition<
     Client,
     Name extends string,
-    Model extends ResourceModel,
+    Model extends ResourceObj,
     StatesUnion extends string,
     Events extends EventParserBuilder,
     Event,

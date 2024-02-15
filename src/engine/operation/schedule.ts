@@ -1,14 +1,14 @@
 import { EventBuilder } from "../../builders/event"
 import { NesoiEngine } from "../../engine"
-import { DataSource } from "../data/datasource"
+import { Bucket } from "../data/bucket"
 import { NesoiDate } from "../date"
 import { ScheduleModel } from "./schedule.model"
 
 export const ScheduleResource = (
     Nesoi: NesoiEngine<any,any,any,any>,
-    dataSource: DataSource<ScheduleModel>
+    dataSource: Bucket<ScheduleModel>
 ) =>
-    Nesoi.resource('task.schedule', dataSource)
+    Nesoi.bucket('task.schedule', dataSource)
         .alias('Task Schedule')
         .states($ => ({
             scheduled: $('Scheduled').initial(),
