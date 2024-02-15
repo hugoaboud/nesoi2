@@ -20,14 +20,14 @@ export class Resource<
     protected views: Views
 
     protected createSchema: CreateSchema
-    protected dataSource: Bucket<any>
+    protected bucket: Bucket<any>
     public machine: StateMachine<Model, Events>
 
     constructor(builder: any) {
         this.name = builder.name
         this.alias = builder._alias
         this.createSchema = builder._create
-        this.dataSource = builder.dataSource
+        this.bucket = builder.bucket
 
         this.views = {} as Views
         for (const v in builder._views) {
@@ -36,7 +36,7 @@ export class Resource<
 
         this.machine = new StateMachine(
             builder,
-            this.dataSource
+            this.bucket
         )
     }
 
@@ -45,7 +45,7 @@ export class Resource<
         view: V|'raw' = 'raw'
     ) {
         // 1. Read from Data Source
-        const promise = this.dataSource.get({} as any, id);
+        const promise = this.bucket.get({} as any, id);
         const model = await Promise.resolve(promise)
         if (!model) {
             throw NesoiError.Resource.NotFound(this.name, id)
@@ -65,7 +65,7 @@ export class Resource<
         view: V|'raw' = 'raw'
     ) {
         // 1. Read from Data Source
-        const promise = this.dataSource.index({} as any);
+        const promise = this.bucket.index({} as any);
         const models = await Promise.resolve(promise)
         // 2. If raw view, build a list of Objs from the model list
         if (view === 'raw') {
@@ -99,7 +99,8 @@ export class Resource<
         obj.created_by = client.user.id
         obj.updated_by = client.user.id
 
-        return this.dataSource.put(client, obj)
+
+        return this.bucket.put(client, obj)
     }
 
     build<T>(model: Obj, view: Obj) {

@@ -68,7 +68,7 @@ export class Task<
 > {
 
     public engine: NesoiEngine<any,any,any,any>
-    public dataSource: Source
+    public bucket: Source
     public name: string
     public requestStep!: TaskStep & RequestStep
     public steps!: (TaskStep & Steps)[]
@@ -76,13 +76,13 @@ export class Task<
 
     constructor(builder: any) {
         this.engine = builder.engine
-        this.dataSource = builder.dataSource
+        this.bucket = builder.bucket
         this.name = builder.name
         this.requestStep = builder.requestStep.build()
         this.steps = builder.steps.map(
             (step: any) => step.build()
         )
-        this.scheduleResource = ScheduleResource(builder.engine, this.dataSource.schedules)
+        this.scheduleResource = ScheduleResource(builder.engine, this.bucket.schedules)
     }
 
     public async request(
@@ -93,7 +93,7 @@ export class Task<
         const { event, task } = await this._request(client, eventRaw)
         
         // 2. Save entry on data source
-        const savedTask = await this.dataSource.tasks.put(client, task)
+        const savedTask = await this.bucket.tasks.put(client, task)
 
         // 3. Log
         await this.logStep(client, 'request', savedTask, event);
@@ -136,7 +136,7 @@ export class Task<
         const { event, task } = await this._request(client, eventRaw)
 
         // 2. Save entry on data source
-        const savedTask = await this.dataSource.tasks.put(client, task)
+        const savedTask = await this.bucket.tasks.put(client, task)
 
         // 3. Create schedule for task
         const taskSchedule = await this.scheduleResource.create(client, {
@@ -156,7 +156,7 @@ export class Task<
         eventRaw: TaskStepEvent<Steps>
     ) {
         // 1. Get task by ID
-        const task = await this.dataSource.tasks.get(client, id)
+        const task = await this.bucket.tasks.get(client, id)
         if (!task) {
             throw NesoiError.Task.NotFound(this.name, id)
         }
@@ -165,7 +165,7 @@ export class Task<
         const { current, event } = await this._advance(client, task, eventRaw);
 
         // 3. Update task on data source
-        await this.dataSource.tasks.put(client, task)
+        await this.bucket.tasks.put(client, task)
 
         // 4. Log
         await this.logStep(client, 'advance', task, event, current);
@@ -233,7 +233,7 @@ export class Task<
         eventRaw: TaskStepEvent<RequestStep> & TaskStepEvent<Steps>
     ) {
         const { event, task } = await this._request(client, eventRaw);
-        let savedTask = await this.dataSource.tasks.put(client, task)
+        let savedTask = await this.bucket.tasks.put(client, task)
 
         const fullEvent = event;
         while (savedTask.state !== 'done') {
@@ -242,7 +242,7 @@ export class Task<
         }
 
         // 2. Save task on data source
-        savedTask = await this.dataSource.tasks.put(client, savedTask)
+        savedTask = await this.bucket.tasks.put(client, savedTask)
 
         // 3. Log
         await this.logStep(client, 'execute', savedTask, fullEvent);
@@ -256,7 +256,7 @@ export class Task<
         event?: Record<string, any>
     ) {
         // 1. Read task by id
-        const task = await this.dataSource.tasks.get(client, id)
+        const task = await this.bucket.tasks.get(client, id)
         if (!task) {
             throw NesoiError.Task.NotFound(this.name, id)
         }
@@ -276,7 +276,7 @@ export class Task<
             created_at: new Date().toISOString(),
             updated_at: new Date().toISOString()
         }
-        await this.dataSource.logs.put(client, log)
+        await this.bucket.logs.put(client, log)
     }
 
     public async alterGraph(
@@ -285,19 +285,19 @@ export class Task<
         fn: (graph: TaskGraph) => Promise<void>
     ) {
         // 1. Read task by id
-        const task = await this.dataSource.tasks.get(client, id)
+        const task = await this.bucket.tasks.get(client, id)
         if (!task) {
             throw NesoiError.Task.NotFound(this.name, id)
         }
 
         // 2. Run graph changes
-        const graph = new TaskGraph(client, this.dataSource.tasks, task);
+        const graph = new TaskGraph(client, this.bucket.tasks, task);
         await fn(graph)
 
         // 3. Save task and affected tasks
         for (let t in graph.affectedTasks) {
             const affTask = graph.affectedTasks[t]
-            await this.dataSource.tasks.put(client, affTask);
+            await this.bucket.tasks.put(client, affTask);
         }
 
         // 4. Save logs
@@ -385,7 +385,7 @@ export class Task<
             created_at: new Date().toISOString(),
             updated_at: new Date().toISOString()
         }
-        await this.dataSource.logs.put(client, log)
+        await this.bucket.logs.put(client, log)
     }
 
     private async logGraph<Event>(client: Client, task: TaskModel, message: string, event: Event) {
@@ -403,6 +403,6 @@ export class Task<
             created_at: new Date().toISOString(),
             updated_at: new Date().toISOString()
         }
-        await this.dataSource.logs.put(client, log)
+        await this.bucket.logs.put(client, log)
     }
 }

@@ -12,7 +12,7 @@ export class TaskGraph {
 
     constructor(
         public client: NesoiClient<any,any>,
-        public dataSource: Bucket<TaskModel>,
+        public bucket: Bucket<TaskModel>,
         public task: TaskModel
     ) {
         this.affectedTasks[task.id] = task;
@@ -22,7 +22,7 @@ export class TaskGraph {
     }
 
     private async getTask(id: number) {
-        const task = await this.dataSource.get(this.client, id)
+        const task = await this.bucket.get(this.client, id)
         if (!task) {
             throw NesoiError.Task.IDNotFound(id)
         }

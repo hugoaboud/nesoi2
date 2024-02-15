@@ -132,7 +132,7 @@ export class TaskBuilder<
   constructor (
     protected engine: NesoiEngine<any,any,any,any>,
     protected name: string,
-    protected dataSource: Source,
+    protected bucket: Source,
     protected buildCallback?: (task: Task<any,any>) => void
   ) {}
 

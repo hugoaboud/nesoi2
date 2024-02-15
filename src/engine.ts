@@ -96,9 +96,9 @@ export class NesoiEngine<
         Source extends TaskSource<any,any,any>
     >(
         name: TaskNameUnion,
-        dataSource: Source
+        bucket: Source
     ): TaskBuilder<C, Source> {
-        return new TaskBuilder<C, Source>(this, name, dataSource, task => {
+        return new TaskBuilder<C, Source>(this, name, bucket, task => {
             this.tasks[name] = task
         })
     }

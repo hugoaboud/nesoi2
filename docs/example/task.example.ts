@@ -56,15 +56,15 @@ async function main() {
   // })
 
 
-  // const task3 = await MoveCoilTask.schedule(client, {
-  //   start_datetime: '2023-12-14T23:04:53.441Z',
-  //   end_datetime: '2023-12-14T23:04:55.441Z',
-  //   schedulable_id: 0
-  // }, {
-  //   origin_coil: 3,
-  //   target_coil: 5
-  // })
-  // console.log(task3)
+  const task3 = await MoveCoilTask.schedule(client, {
+    start_datetime: '2023-12-14T23:04:53.441Z',
+    end_datetime: '2023-12-14T23:04:55.441Z',
+    schedulable_id: 0
+  }, {
+    origin_coil: 3,
+    target_coil: 5
+  })
+  console.log(task3)
 
   // const task4 = await client.task.schedule(MoveCoilTask, {
   //   start_datetime: '2023-12-14T23:04:53.441Z',
@@ -76,13 +76,13 @@ async function main() {
   // })
   // console.log(task4)
 
-  // const tasks = await MoveCoilTask.dataSource.tasks.index(client)
+  // const tasks = await MoveCoilTask.bucket.tasks.index(client)
   // console.log(tasks)
 
-  // const logs = await MoveCoilTask.dataSource.logs.index(client)
+  // const logs = await MoveCoilTask.bucket.logs.index(client)
   // console.log(logs)
 
-  // const schedules = await MoveCoilTask.dataSource.schedules.index(client)
+  // const schedules = await MoveCoilTask.bucket.schedules.index(client)
   // console.log(schedules)
   
   // MoveCoilTask.advance(client, 4, {

@@ -21,7 +21,7 @@ export class ViewObj {
 
     async save() {
         const { _nesoi, ...obj} = this
-        return (this._nesoi.resource as any).dataSource.put(obj)
+        return (this._nesoi.resource as any).bucket.put(obj)
     }
 
     log() {

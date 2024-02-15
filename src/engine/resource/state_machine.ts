@@ -21,7 +21,7 @@ export class StateMachine<
 
     constructor(
         builder: any,
-        protected dataSource: Bucket<ResourceObj>
+        protected bucket: Bucket<ResourceObj>
     ) {
         this.name = builder.name
         this.engine = builder.engine
@@ -55,7 +55,7 @@ export class StateMachine<
         const parsedEvent = await eventParser.parse(client, data as any);
         
         // 2. Read object from data source
-        const obj = await this.dataSource.get(client, id);
+        const obj = await this.bucket.get(client, id);
         if (!obj) {
             throw NesoiError.Resource.NotFound(this.alias, id)
         }
@@ -121,12 +121,12 @@ export class StateMachine<
         }
         // 3. Update state and save
         obj.state = target.state
-        await this.dataSource.put(client, obj as any);
+        await this.bucket.put(client, obj as any);
         // 4. Run second method ("after" changin state)
         if (target.after) {
             const promise = target.after({ client, obj, event })
             await Promise.resolve(promise)
-            await this.dataSource.put(client, obj as any);
+            await this.bucket.put(client, obj as any);
         }
         return true
     }
