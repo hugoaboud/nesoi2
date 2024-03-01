@@ -229,6 +229,14 @@ class NesoiTaskClient<
         }
         return task.alterGraph(this.client, id, fn);
     }
+
+    cancel(
+        taskName: keyof Engine['tasks'],
+        id: number,
+    ) {
+        const task = this.engine.tasks[taskName];
+        return task.cancel(this.client, id)
+    }
 }
 
 export class NesoiClient<
@@ -238,7 +246,7 @@ export class NesoiClient<
     public data: NesoiDataClient<Engine>
     public task: NesoiTaskClient<Engine>
     public user: AppClient['user']
-
+    
     constructor(
         protected engine: Engine,
         public app: AppClient,

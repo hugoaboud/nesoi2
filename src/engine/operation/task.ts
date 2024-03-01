@@ -405,4 +405,19 @@ export class Task<
         }
         await this.bucket.logs.put(client, log)
     }
+
+    public async cancel(
+        client: Client,
+        id: number
+    ) {
+        const task = await this.bucket.tasks.get(client, id)
+        task.state = 'canceled'
+        task.updated_by = client.user.id
+        task.updated_at = new Date().toISOString()
+        let savedTask =  await this.bucket.tasks.put(client, task)
+
+        await this.logStep(client, 'cancel', savedTask, null);
+
+        return { task }
+    }
 }

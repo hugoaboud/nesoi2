@@ -8,6 +8,7 @@ export type TaskAction =
     | 'execute'
     | 'comment'
     | 'graph'
+    | 'cancel'
 
 export type TaskState =
     'requested'
