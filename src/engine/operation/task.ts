@@ -411,13 +411,17 @@ export class Task<
         id: number
     ) {
         const task = await this.bucket.tasks.get(client, id)
-        task.state = 'canceled'
-        task.updated_by = client.user.id
-        task.updated_at = new Date().toISOString()
-        let savedTask =  await this.bucket.tasks.put(client, task)
+        if (task.state === 'requested') {
+            task.state = 'canceled'
+            task.updated_by = client.user.id
+            task.updated_at = new Date().toISOString()
+            let savedTask = await this.bucket.tasks.put(client, task)
 
-        await this.logStep(client, 'cancel', savedTask, null);
-
+            await this.logStep(client, 'cancel', savedTask, null);
+        } else {
+            throw NesoiError.Task.InvalidStateCancel(this.name, task.id)
+        }
+       
         return { task }
     }
 }
