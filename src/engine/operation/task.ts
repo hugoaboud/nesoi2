@@ -85,6 +85,28 @@ export class Task<
         this.scheduleResource = ScheduleResource(builder.engine, this.bucket.schedules)
     }
 
+    private async _save(
+         client: Client
+    ) {
+        // 2. Create request task
+        const task: Omit<TaskModel, 'id'> = {
+            type: this.name,
+            state: 'requested',
+            input: {},
+            output: {
+                data: {},
+                steps: this.getOutputStepList(client)
+            },
+            graph: {},
+            created_by: client.user.id,
+            updated_by: client.user.id,
+            created_at: new Date().toISOString(),
+            updated_at: new Date().toISOString()
+        }
+
+        return await this.bucket.tasks.put(client, task)
+    }
+
     public async request(
         client: Client,
         eventRaw: TaskStepEvent<RequestStep>
@@ -105,24 +127,12 @@ export class Task<
         client: Client,
         eventRaw: TaskStepEvent<RequestStep>
     ) {
-        // 1. Run request step to built request object
-        const { event, outcome } = await this.requestStep.run(client, eventRaw, {}, undefined)
 
-        // 2. Create request task
-        const task: Omit<TaskModel, 'id'> = {
-            type: this.name,
-            state: 'requested',
-            input: event,
-            output: {
-                data: {},
-                steps: this.getOutputStepList(client)
-            },
-            graph: {},
-            created_by: client.user.id,
-            updated_by: client.user.id,
-            created_at: new Date().toISOString(),
-            updated_at: new Date().toISOString()
-        }
+        // 1. Save task
+        const task = await this._save(client)
+
+        // 2. Run request step to built request object
+        const { event, outcome } = await this.requestStep.run(client, eventRaw, {}, task.id)
 
         return { event, task };
     }
@@ -136,18 +146,18 @@ export class Task<
         const { event, task } = await this._request(client, eventRaw)
 
         // 2. Save entry on data source
-        const savedTask = await this.bucket.tasks.put(client, task)
+        // const savedTask = await this.bucket.tasks.put(client, task)
 
         // 3. Create schedule for task
         const taskSchedule = await this.scheduleResource.create(client, {
-            task_id: savedTask.id,
+            task_id: task.id,
             ...schedule
         })
 
         // 3. Log
-        await this.logStep(client, 'schedule', savedTask, event);
+        await this.logStep(client, 'schedule', task, event);
 
-        return { task: savedTask, schedule: taskSchedule };
+        return { task: task, schedule: taskSchedule };
     }
 
     public async advance(
