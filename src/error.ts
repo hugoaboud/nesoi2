@@ -12,14 +12,14 @@ export namespace NesoiError {
     export function Condition(message: string) {
         return new BaseError(message)
     }
-    
+
 
     export namespace Task {
-        
+
         export function Invalid(name: string) {
             return new BaseError(`Task ${name} not found`)
         }
-        
+
         export function NotFound(name: string, id: number) {
             return new BaseError(`Task ${name} with id ${id} not found`)
         }
@@ -27,27 +27,35 @@ export namespace NesoiError {
         export function IDNotFound(id: number) {
             return new BaseError(`Task ${id} not found`)
         }
-        
+
         export function InvalidState(name: string, id: number, state: string) {
             return new BaseError(`Task ${name} with id ${id} is at invalid state ${state}`)
         }
-        
+
         export function InvalidStateExecute(name: string, state: string) {
             return new BaseError(`Execute task ${name} reached invalid state ${state}`)
         }
-        
+
         export function InvalidOutputStep(name: string, id: number, state: string) {
             return new BaseError(`Task ${name} with id ${id} has no output step for state ${state}`)
         }
-        
+
         export function InvalidOutputStepExecute(name: string, state: string) {
             return new BaseError(`Execute task ${name} has no output step for state ${state}`)
+        }
+
+        export function InvalidStateCancel(name: string, state: string) {
+            return new BaseError(`Task ${name} cannot be canceled`)
+        }
+
+        export function InvalidStateUpdate(name: string, state: string) {
+            return new BaseError(`Task ${name} cannot be updated`)
         }
 
     }
 
     export namespace Event {
-        
+
         export function Sanitize(message: string) {
             return new BaseError(message)
         }

@@ -8,6 +8,9 @@ export type TaskAction =
     | 'execute'
     | 'comment'
     | 'graph'
+    | 'cancel'
+    | 'update'
+    | 'skip'
 
 export type TaskState =
     'requested'
@@ -22,6 +25,7 @@ export type TaskStep = {
         name: string
     }
     timestamp: string
+    skipped?: boolean  // true if step was skipped
 }
 
 export interface TaskModel {

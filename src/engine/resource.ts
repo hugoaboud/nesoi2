@@ -103,6 +103,31 @@ export class Resource<
         return this.bucket.put(client, obj)
     }
 
+    async update(
+        client: NesoiClient<any, any>,
+        id: Model['id'],
+        event: Events extends { [key: string]: any } ? Events[keyof Events] : never
+    ) {
+        // 1. Parse event
+        const parsedEvent = await this.createSchema.event.parse(client, event);
+        
+        // 2. Get existing object
+        const existingObj = await this.bucket.get(client, id);
+        if (!existingObj) {
+            throw NesoiError.Resource.NotFound(this.name, id);
+        }
+        
+        // 3. Run event through method to update obj
+        const updatedObj = await this.createSchema.method({ client, event: parsedEvent, obj: existingObj });
+        
+        // 4. Set crud meta
+        updatedObj.updated_by = client.user.id;
+        updatedObj.updated_at = new Date().toISOString();
+        
+        // 5. Save updated object
+        return this.bucket.put(client, updatedObj);
+    }
+
     build<T>(model: Obj, view: Obj) {
         return new ViewObj(
             this as any,

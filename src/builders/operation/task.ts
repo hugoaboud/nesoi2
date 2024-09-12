@@ -177,6 +177,21 @@ export class TaskBuilder<
     >
   }
 
+  public update<
+    Step extends $TaskStep<Client, 'void', {}, any>
+  > (
+    $: Step
+  ) {
+    const builder = new TaskStepBuilder('void')
+    this.requestStep = $(builder as any) as any
+    return this as any as TaskBuilder<
+        Client,
+        Source,
+        ReturnType<Step>,
+        Steps
+    >
+  }
+
   public build() {
     const task = new Task(this)
     if (this.buildCallback) {

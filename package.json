@@ -8,7 +8,7 @@
   ],
   "scripts": {
     "build": "tsc --version",
-    "prepare": "ts-node scripts/prepare",
+    "prepare": "npx tsx scripts/prepare",
     "test": "jest",
     "example:event": "npx tsx docs/example/event.example.ts"
   },
