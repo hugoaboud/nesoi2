@@ -9,28 +9,29 @@ export abstract class BucketAdapter<
     Views extends Record<string, AnyView> = {}
 > {
     abstract get(
-        client: NesoiClient<any,any>,
+        client: NesoiClient<any, any>,
         id: Obj['id'],
         view?: keyof Views
     ): Promise<undefined | Obj>
-    
+
     abstract index(
-        client: NesoiClient<any,any>,
+        client: NesoiClient<any, any>,
         view?: keyof Views
     ): Promise<Obj[]>
 
     abstract put(
-        client: NesoiClient<any,any>,
+        client: NesoiClient<any, any>,
         obj: Omit<Obj, 'id'> | { id: undefined },
         view?: keyof Views
     ): Promise<Obj>
+    
 }
 
 type BucketOutput<
     Obj extends NesoiObj,
     Views extends Record<string, AnyView>,
-    V extends string|undefined
-> = 
+    V extends string | undefined
+> =
     undefined extends V ? Obj : Views[V & string]['#output']
 
 export class Bucket<
@@ -41,18 +42,18 @@ export class Bucket<
     // This allows retrieving the bucket object type
     // from MyBucket['#obj']
     public '#obj': Obj = {} as any
-    
+
     constructor(
         private adapter: BucketAdapter<Obj, Views>,
         private views = {} as Views
-    ) {}
+    ) { }
 
     // Bucket actions
-    
+
     public async get<
         V extends (keyof Views & string) | undefined
     >(
-        client: NesoiClient<any,any>,
+        client: NesoiClient<any, any>,
         id: Obj['id'],
         view?: V
     ): Promise<undefined | BucketOutput<Obj, Views, V>> {
@@ -61,11 +62,11 @@ export class Bucket<
         if (!view) return raw as any;
         return this.build(raw, view) as any;
     }
-    
+
     public async index<
         V extends (keyof Views & string) | undefined
     >(
-        client: NesoiClient<any,any>,
+        client: NesoiClient<any, any>,
         view?: V
     ): Promise<BucketOutput<Obj, Views, V>[]> {
         const raws = await this.adapter.index(client, view)
@@ -77,7 +78,7 @@ export class Bucket<
     public async put<
         V extends (keyof Views & string) | undefined
     >(
-        client: NesoiClient<any,any>,
+        client: NesoiClient<any, any>,
         obj: Omit<Obj, 'id'> | { id: undefined },
         view?: V
     ): Promise<BucketOutput<Obj, Views, V>> {
@@ -85,7 +86,19 @@ export class Bucket<
         if (!view) return raw as any;
         return this.build(raw, view) as any;
     }
-    
+
+    public async update<
+        V extends (keyof Views & string) | undefined
+    >(
+        client: NesoiClient<any, any>,
+        obj: Omit<Obj, 'id'> | { id: undefined },
+        view?: V
+    ): Promise<BucketOutput<Obj, Views, V>> {
+        const raw = await this.adapter.put(client, obj, view)
+        if (!view) return raw as any;
+        return this.build(raw, view) as any;
+    }
+
     async build(obj: Obj, view: keyof Views) {
         return this.views[view].parse(obj);
     }

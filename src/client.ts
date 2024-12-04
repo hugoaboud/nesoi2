@@ -15,13 +15,13 @@ export type Client = {
 }
 
 class NesoiDataClient<
-    Engine extends NesoiEngine<any,any,any,any>,
+    Engine extends NesoiEngine<any, any, any, any>,
 > {
     constructor(
         protected engine: Engine,
-        protected client: NesoiClient<any,any>,
-    ) {}
-   
+        protected client: NesoiClient<any, any>,
+    ) { }
+
     readOne<S extends keyof Engine['buckets']>(
         source: S,
         id: Engine['buckets'][S]['id'],
@@ -87,12 +87,12 @@ class NesoiDataClient<
 }
 
 class NesoiTaskClient<
-    Engine extends NesoiEngine<any,any,any,any>
+    Engine extends NesoiEngine<any, any, any, any>
 > {
     constructor(
         protected engine: Engine,
-        protected client: NesoiClient<any,any>
-    ) {}
+        protected client: NesoiClient<any, any>
+    ) { }
 
     /**
      * Create an task at the "requested" state
@@ -101,7 +101,7 @@ class NesoiTaskClient<
      * @returns Newly created task with generated id
      */
     request<
-        A extends Task<any,any>
+        A extends Task<any, any>
     >(
         task: A,
         input: TaskStepEvent<A['requestStep']>
@@ -119,9 +119,9 @@ class NesoiTaskClient<
         }
         return task.request(this.client, input as never)
     }
-    
+
     schedule<
-        A extends Task<any,any>
+        A extends Task<any, any>
     >(
         task: A,
         schedule: ScheduleEventType,
@@ -143,7 +143,7 @@ class NesoiTaskClient<
     }
 
     advance<
-        A extends Task<any,any>
+        A extends Task<any, any>
     >(
         task: A,
         id: number,
@@ -165,7 +165,7 @@ class NesoiTaskClient<
     }
 
     execute<
-        A extends Task<any,any>
+        A extends Task<any, any>
     >(
         task: A,
         input: TaskStepEvent<A['requestStep']> & TaskStepEvent<A['steps'][number]>
@@ -185,7 +185,7 @@ class NesoiTaskClient<
     }
 
     comment<
-        A extends Task<any,any>
+        A extends Task<any, any>
     >(
         task: A,
         id: number,
@@ -209,7 +209,7 @@ class NesoiTaskClient<
     }
 
     alterGraph<
-        A extends Task<any,any>
+        A extends Task<any, any>
     >(
         task: A,
         id: number,
@@ -229,10 +229,30 @@ class NesoiTaskClient<
         }
         return task.alterGraph(this.client, id, fn);
     }
+
+    cancel(
+        taskName: keyof Engine['tasks'],
+        id: number,
+    ) {
+        const task = this.engine.tasks[taskName];
+        return task.cancel(this.client, id)
+    }
+
+    _update(
+        taskName: keyof Engine['tasks'],
+        id: number,
+        input: Record<string, any>
+    ) {
+        const task = this.engine.tasks[taskName];
+        if (!task) {
+            throw NesoiError.Task.Invalid(taskName as string)
+        }
+        return task._update(this.client, id, input as never)
+    }
 }
 
 export class NesoiClient<
-    Engine extends NesoiEngine<any,any,any,any>,
+    Engine extends NesoiEngine<any, any, any, any>,
     AppClient extends Client
 > {
     public data: NesoiDataClient<Engine>
